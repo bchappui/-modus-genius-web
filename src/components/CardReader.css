@@ -1,0 +1,516 @@
+/*
+ * CardReader — web port of PropertyCardReaderContent + CardChrome (modus_genius)
+ * Light theme:  bg = rgb(241,244,255)  text/bar = rgb(229,237,255)
+ *               notif = rgba(205,220,255,1)  border = rgb(178,189,237)
+ */
+
+/* ── Sizing variables (mirror CardChrome: CW=330, CH=587, IW=CW-18, IH=CH-21.5) ── */
+:root {
+    --cr-bg:    rgb(241, 244, 255);
+    --cr-bar:   rgb(229, 237, 255);
+    --cr-notif: rgba(205, 220, 255, 1);
+    --cr-border: rgb(178, 189, 237);
+    --cr-gold:  rgb(201, 151, 44);
+
+    --cr-ow:  330px;   /* outer width  = CW          */
+    --cr-oh:  587px;   /* outer height = CH          */
+    --cr-iw:  312px;   /* inner width  = CW - 18     */
+    --cr-ih:  565px;   /* inner height = CH - 22     */
+
+    --cr-logo-tab-w: 71px;
+    --cr-top-bar-h:  45px;
+    --cr-top-ext-h:  30px;          /* logo tab extension below bar  */
+    --cr-bot-conn-h: 30px;          /* connector above bottom bar    */
+    --cr-bot-bar-h:  45px;
+    --cr-pag-h:      28px;
+    /* content height = ih - top(75) - bot(75) - pag(28) = 387px */
+    --cr-content-h: 387px;
+}
+
+/* ── Overlay ── */
+.cr-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.cr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ── Top buttons row (mirrors pm-topbar) ── */
+.cr-topbar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.cr-ctrl-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--cr-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cr-ctrl-btn:hover { filter: brightness(0.95); }
+
+.cr-ctrl-back {
+    width: 42px;
+    height: 42px;
+}
+
+/* ── Card row: prev btn + card + next btn ── */
+.cr-card-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cr-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--cr-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+}
+.cr-nav-btn:hover:not(:disabled) { filter: brightness(0.95); }
+.cr-nav-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+/* ── Chrome outer / inner (CardWrapper) ── */
+.cr-outer {
+    width: var(--cr-ow);
+    height: var(--cr-oh);
+    border-radius: 10px;
+    border: 2px solid var(--cr-notif);
+    background: var(--cr-notif);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cr-inner {
+    width: var(--cr-iw);
+    height: var(--cr-ih);
+    border-radius: 8px;
+    background: var(--cr-bg);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+/* gradientOverlayTop — from top-right corner inward */
+.cr-grad-tr {
+    position: absolute;
+    inset: 0;
+    margin-top: 45px;
+    background: linear-gradient(to top right, transparent 50%, var(--cr-notif) 140%);
+    pointer-events: none;
+    z-index: 0;
+}
+/* gradientOverlayBottom — from bottom-left corner inward */
+.cr-grad-bl {
+    position: absolute;
+    inset: 0;
+    margin-bottom: 45px;
+    background: linear-gradient(to bottom left, transparent 50%, var(--cr-notif) 140%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ── CardTopBar ── */
+.cr-top {
+    flex-shrink: 0;
+    position: relative;
+    width: var(--cr-iw);
+    z-index: 2;
+}
+
+/* rectangle2Top — absolute, extends full height (74px) of logo tab area */
+.cr-logo-rect {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--cr-logo-tab-w);
+    height: calc(var(--cr-top-bar-h) + 29px); /* 74px */
+    background: var(--cr-bar);
+    border-top-left-radius: 20px;
+    z-index: 1;
+}
+
+/* topBar — the main horizontal bar */
+.cr-top-bar {
+    width: 100%;
+    height: var(--cr-top-bar-h);
+    background: var(--cr-bar);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: stretch;
+    box-shadow: 0 2px 5px rgba(110, 130, 210, 0.25);
+}
+
+/* Logo placeholder — keeps madeby-area correctly offset inside cr-top-bar */
+.cr-logo-placeholder {
+    width: var(--cr-logo-tab-w);
+    flex-shrink: 0;
+}
+
+/* Logo area — absolutely positioned in cr-top, z=4 above cr-top-row2 (z=3) */
+.cr-logo-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--cr-logo-tab-w);
+    height: calc(var(--cr-top-bar-h) + var(--cr-top-ext-h));
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 4;
+    overflow: visible;
+}
+.cr-logo-img {
+    width: 71px;
+    height: 75px;
+    background-size: 120%;
+    background-position: center 50%;
+    background-repeat: no-repeat;
+}
+
+/* Right side: made-by image */
+.cr-madeby-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+    overflow: hidden;
+}
+.cr-madeby-img {
+    height: 40px;
+    width: auto;
+}
+
+/* container2Top — below the bar: spacer(71px) + triangle */
+/* z-index: 3 so triangle paints above cr-top-bar's box-shadow */
+.cr-top-row2 {
+    display: flex;
+    flex-direction: row;
+    height: var(--cr-top-ext-h);
+    background: transparent;
+    position: relative;
+    z-index: 3;
+}
+.cr-top-rect-spacer {
+    width: var(--cr-logo-tab-w);
+    height: var(--cr-top-ext-h);
+    background: var(--cr-bar);
+    flex-shrink: 0;
+}
+/* toplefttriangleTop — CSS border trick triangle */
+.cr-top-triangle {
+    width: 0;
+    height: 0;
+    border-top: var(--cr-top-ext-h) solid var(--cr-bar);
+    border-right: 40px solid transparent;
+}
+
+/* ── Content horizontal scroll ── */
+.cr-scroll {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 1;
+}
+.cr-scroll::-webkit-scrollbar { display: none; }
+.cr-scroll { cursor: grab; }
+.cr-scroll[data-dragging] { cursor: grabbing; user-select: none; }
+
+.cr-page {
+    flex-shrink: 0;
+    width: var(--cr-iw);
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+    padding: 8px 14px 0;
+    box-sizing: border-box;
+    gap: 0;
+}
+
+.cr-page-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* GradientofGrey — exact colors from modus_genius/constants/GradientofGrey.js
+   filter:drop-shadow mimics MaskedView textShadow: it shadows the gradient shape itself
+   (not a separate color like CSS text-shadow would) */
+.cr-section-label {
+    font-size: 22px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 22px;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167)   0%,
+        rgb(65, 120, 188)  30%,
+        rgb(65, 120, 188)  60%,
+        rgb(13, 85, 167)   100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0.5px 0.5px 0px rgba(13, 50, 150, 0.45));
+}
+
+.cr-body {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 20px;
+    letter-spacing: -0.5px;
+    text-align: justify;
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167)   0%,
+        rgb(65, 120, 188)  30%,
+        rgb(65, 120, 188)  60%,
+        rgb(13, 85, 167)   100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.cr-body--thisgetsyou,
+.cr-body--keepinmind {
+    filter: drop-shadow(0.3px 0.3px 0px rgba(13, 50, 150, 0.4));
+}
+.cr-body--description {
+    filter: drop-shadow(0.4px 0.4px 0.5px rgba(103, 193, 245, 0.6));
+}
+
+.cr-page-img {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 8px 0 0;
+}
+.cr-float-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    opacity: 0.8;
+    animation: cr-float 1.5s ease-in-out infinite;
+}
+@keyframes cr-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+
+/* ── Pagination — absolute within cr-inner, just above the bottom bar ── */
+.cr-pagination {
+    position: absolute;
+    bottom: var(--cr-bot-bar-h);
+    left: 0;
+    right: 0;
+    height: var(--cr-pag-h);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    z-index: 3;
+    pointer-events: none;
+}
+.cr-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+.cr-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 2px;
+    background: rgb(18, 188, 248);
+    opacity: 0.3;
+    transition: width 0.2s ease, opacity 0.2s ease;
+}
+.cr-dot--on {
+    width: 10px;
+    opacity: 1;
+}
+.cr-counter {
+    font-size: 12px;
+    font-weight: 800;
+    color: rgb(103, 193, 245);
+    background: var(--cr-notif);
+    border-radius: 10px;
+    padding: 1px 8px;
+    line-height: 1.4;
+}
+
+/* ── CardBottomBar ── */
+.cr-bot {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    width: var(--cr-iw);
+    height: calc(var(--cr-bot-conn-h) + var(--cr-bot-bar-h));
+}
+
+/* container1 — 30px connector (transparent, lets bg show) */
+.cr-bot-conn {
+    height: var(--cr-bot-conn-h);
+    background: transparent;
+}
+
+/* author bar */
+.cr-bot-bar {
+    height: var(--cr-bot-bar-h);
+    background: var(--cr-bar);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    display: flex;
+    align-items: center;
+    margin-top: -1px;
+}
+
+.cr-bot-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+.cr-icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 1px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cr-heart   {
+    color: var(--cr-gold);
+    filter: drop-shadow(0.5px 0.5px 1px rgba(137, 162, 189, 0.8));
+}
+.cr-comment {
+    color: rgb(185, 200, 235);
+    filter: drop-shadow(0.5px 0.5px 1px rgba(137, 162, 189, 0.8));
+    margin-top: 2px;
+}
+
+.cr-name-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+    height: 100%;
+}
+.cr-agent-name {
+    font-family: 'GoldenSignature', 'Georgia', serif;
+    font-size: 38px;
+    line-height: 44px;
+    font-style: normal;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-self: center;
+    background: linear-gradient(90deg,
+        rgb(246, 207, 129),
+        rgb(226, 172,   0),
+        rgb(246, 207, 129)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    padding-right: 2px;
+    min-font-size: 10px;
+}
+
+/* Diamond placeholder keeps the flex item width */
+.cr-diamond-placeholder {
+    width: 62px;
+    flex-shrink: 0;
+}
+
+/* Diamond avatar — absolute, straddles connector / bar boundary */
+.cr-diamond-slot {
+    position: absolute;
+    right: 14px;
+    top: 4px;
+    width: 48px;
+    height: 48px;
+}
+.cr-diamond {
+    width: 48px;
+    height: 48px;
+    transform: rotate(45deg);
+    overflow: hidden;
+    border-radius: 2px;
+    position: relative;
+    background: var(--cr-bar);
+}
+.cr-diamond-gold {
+    display: none;
+}
+/* gold ring via box-shadow — inset 5px leaves 3px of cr-bar visible beyond the 2px gold ring */
+.cr-diamond-frame {
+    position: absolute;
+    inset: 5px;
+    border-radius: 1px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 0 0 2px rgb(226, 172, 0);
+}
+.cr-avatar {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: rotate(-45deg) scale(1.5);
+    transform-origin: center;
+}

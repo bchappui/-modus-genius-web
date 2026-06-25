@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\\\\src\\\\assets\\\\fonts\")",
+      "Bash(cp \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus_genius\\\\assets\\\\fonts\\\\GoldenSignature.ttf\" \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\\\\src\\\\assets\\\\fonts\\\\GoldenSignature.ttf\")",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Id, CPU, StartTime)",
+      "Bash(Format-Table)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\" -Recurse -Directory | Select-Object -First 20 | ForEach-Object { $_.FullName })"
+    ]
+  }
+}
