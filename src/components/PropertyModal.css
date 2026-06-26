@@ -84,6 +84,7 @@
     border-radius: 10px;
     overflow: hidden;
     background: var(--bg);
+    box-shadow: 0 0 18px 4px rgba(178, 189, 237, 0.55);
 }
 
 .pm-outer-gradient {
@@ -91,7 +92,7 @@
     inset: 0;
     border-radius: 10px;
     background: linear-gradient(
-        135deg,
+        107deg,
         transparent   20%,
         var(--bg)     30%,
         var(--border) 50%,

@@ -121,21 +121,21 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
-/* gradientOverlayTop — from top-right corner inward */
+/* gradientOverlayTop — from top-right corner inward (matches RN start:{x:0.5,y:0.5}→end:{x:1,y:0}) */
 .cr-grad-tr {
     position: absolute;
     inset: 0;
     margin-top: 45px;
-    background: linear-gradient(to top right, transparent 50%, var(--cr-notif) 140%);
+    background: linear-gradient(to top right, transparent 50%, var(--cr-notif) 100%);
     pointer-events: none;
     z-index: 0;
 }
-/* gradientOverlayBottom — from bottom-left corner inward */
+/* gradientOverlayBottom — from bottom-left corner inward (matches RN start:{x:0.6,y:0.6}→end:{x:0,y:1}) */
 .cr-grad-bl {
     position: absolute;
     inset: 0;
     margin-bottom: 45px;
-    background: linear-gradient(to bottom left, transparent 50%, var(--cr-notif) 140%);
+    background: linear-gradient(to bottom left, transparent 50%, var(--cr-notif) 100%);
     pointer-events: none;
     z-index: 0;
 }
