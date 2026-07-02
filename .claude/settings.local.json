@@ -8,7 +8,14 @@
       "Bash(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
       "Bash(Select-Object Id, CPU, StartTime)",
       "Bash(Format-Table)",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\" -Recurse -Directory | Select-Object -First 20 | ForEach-Object { $_.FullName })"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\" -Recurse -Directory | Select-Object -First 20 | ForEach-Object { $_.FullName })",
+      "Skill(run)",
+      "Bash(kill %1)",
+      "Bash(pkill -f \"npx --no-install playwright\")",
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --no-sandbox --allow-file-access-from-files --virtual-time-budget=3000 --screenshot=C:/Users/Bruno/AppData/Local/Temp/claude/C--Users-Bruno-Desktop-modus-genius/db7b0f99-b59a-48ee-baa0-0fbd01438bd1/scratchpad/scroll-capture-test.png --window-size=500,700 file:///C:/Users/Bruno/AppData/Local/Temp/claude/C--Users-Bruno-Desktop-modus-genius/db7b0f99-b59a-48ee-baa0-0fbd01438bd1/scratchpad/scroll-capture-test.html)",
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --no-sandbox --allow-file-access-from-files --virtual-time-budget=3000 --screenshot=C:/Users/Bruno/AppData/Local/Temp/claude/C--Users-Bruno-Desktop-modus-genius/db7b0f99-b59a-48ee-baa0-0fbd01438bd1/scratchpad/scroll-capture-test2.png --window-size=500,400 file:///C:/Users/Bruno/AppData/Local/Temp/claude/C--Users-Bruno-Desktop-modus-genius/db7b0f99-b59a-48ee-baa0-0fbd01438bd1/scratchpad/scroll-capture-test2.html)"
     ]
   }
 }

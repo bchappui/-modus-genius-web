@@ -1,7 +1,7 @@
 import React from 'react'
-import './MovieCard.css'
+import './MiniCard.css'
 
-const MovieCard = ({ property, onSelect }) => {
+const MiniCard = ({ property, onSelect }) => {
     const { name, background, type } = property;
 
     return (
@@ -15,4 +15,4 @@ const MovieCard = ({ property, onSelect }) => {
     )
 }
 
-export default MovieCard
+export default MiniCard

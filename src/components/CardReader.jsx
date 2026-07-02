@@ -1,11 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
+import { flushSync } from 'react-dom'
 import { MdDownload, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdFavorite, MdChatBubble } from 'react-icons/md'
 import './CardReader.css'
+import CommentsOverlay from './CommentsOverlay'
+import { captureNode } from '../lib/domCapture.js'
 
 const LOGOCENTER_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a07239d002ed6eff7fc/view?project=693e8acd001582e2562a';
 const MADE_BY_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
 
-/* ── Share icon (same curved arrow as PropertyModal's MciShare) ── */
+/* ── Share icon (same curved arrow as CardHome's MciShare) ── */
 const ShareIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="rgb(137,162,189)">
         <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
@@ -60,14 +63,43 @@ function generateCards(property) {
     return cards;
 }
 
-const CardReader = ({ property, onClose }) => {
+const CardReader = forwardRef(({
+    property, onClose, currentUserName, currentUserAvatar, onCommentCountChange,
+    isLiked, onToggleLike, hasCommented, onOwnCommentChange,
+}, ref) => {
     const agent = Array.isArray(property?.agent)
         ? (property.agent[0] ?? null)
         : (property?.agent && typeof property.agent === 'object' ? property.agent : null);
 
     const cards = generateCards(property);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [commentsOpen, setCommentsOpen] = useState(false);
+    // Non-null while exporting: only this page is mounted in cr-scroll (see render below).
+    // html-to-image clones nodes for rasterizing and does NOT preserve scroll offsets of
+    // descendants, so scrolling cr-scroll before capturing doesn't work — every capture
+    // came out as page 1. Rendering exactly one page at a time sidesteps that entirely.
+    const [captureIndex, setCaptureIndex] = useState(null);
     const scrollRef = useRef(null);
+    // cr-outer (330×587), not cr-inner — matches the size of the CardHome cover
+    // page (pm-card-outer) captured by CardHome, so every PDF page is the same size.
+    const outerRef = useRef(null);
+
+    useImperativeHandle(ref, () => ({
+        captureAllPages: async () => {
+            const node = outerRef.current;
+            if (!node) return [];
+            const images = [];
+            for (let i = 0; i < cards.length; i++) {
+                flushSync(() => setCaptureIndex(i));
+                images.push(await captureNode(node));
+            }
+            flushSync(() => setCaptureIndex(null));
+            return images;
+        },
+    }), [cards.length]);
+
+    const displayIndex = captureIndex ?? currentIndex;
+    const pageCards = captureIndex !== null ? [cards[captureIndex]] : cards;
 
     // ── Scroll tracking ──
     useEffect(() => {
@@ -115,12 +147,13 @@ const CardReader = ({ property, onClose }) => {
     };
 
     useEffect(() => {
-        const onKey = e => { if (e.key === 'Escape') onClose(); };
+        const onKey = e => { if (e.key === 'Escape' && !commentsOpen) onClose(); };
         document.addEventListener('keydown', onKey);
         return () => document.removeEventListener('keydown', onKey);
-    }, [onClose]);
+    }, [onClose, commentsOpen]);
 
     return (
+        <>
         <div className="cr-overlay" onClick={onClose}>
             <div className="cr-container" onClick={e => e.stopPropagation()}>
 
@@ -150,7 +183,7 @@ const CardReader = ({ property, onClose }) => {
                     </button>
 
                 {/* ── CHROME OUTER ── */}
-                <div className="cr-outer">
+                <div className="cr-outer" ref={outerRef}>
                     <div className="cr-inner">
 
                         {/* corner notif glows — same as CardWrapper gradientOverlayTop/Bottom */}
@@ -185,8 +218,8 @@ const CardReader = ({ property, onClose }) => {
                             onMouseUp={onDragEnd}
                             onMouseLeave={onDragEnd}
                         >
-                            {cards.map((card, i) => (
-                                <div key={i} className="cr-page">
+                            {pageCards.map((card, i) => (
+                                <div key={captureIndex ?? i} className="cr-page">
                                     <div className="cr-page-text">
                                         {(card.type === 'thisgetsyou' || card.type === 'keepinmind') && (
                                             <span className="cr-section-label">
@@ -208,10 +241,10 @@ const CardReader = ({ property, onClose }) => {
                         <div className="cr-pagination">
                             <div className="cr-dots">
                                 {cards.map((_, i) => (
-                                    <div key={i} className={`cr-dot${i === currentIndex ? ' cr-dot--on' : ''}`} />
+                                    <div key={i} className={`cr-dot${i === displayIndex ? ' cr-dot--on' : ''}`} />
                                 ))}
                             </div>
-                            <div className="cr-counter">{currentIndex + 1}/{cards.length}</div>
+                            <div className="cr-counter">{displayIndex + 1}/{cards.length}</div>
                         </div>
 
                         {/* ── BOTTOM BAR (CardBottomBar) ── */}
@@ -222,11 +255,19 @@ const CardReader = ({ property, onClose }) => {
                             <div className="cr-bot-bar">
                                 {/* Left: heart + comment */}
                                 <div className="cr-bot-actions">
-                                    <button className="cr-icon-btn">
-                                        <MdFavorite size={21} className="cr-heart" />
+                                    <button className="cr-icon-btn" onClick={onToggleLike}>
+                                        <MdFavorite
+                                            size={21}
+                                            className="cr-heart"
+                                            style={{ color: isLiked ? 'var(--cr-gold)' : 'rgb(185,200,235)' }}
+                                        />
                                     </button>
-                                    <button className="cr-icon-btn">
-                                        <MdChatBubble size={19} className="cr-comment" />
+                                    <button className="cr-icon-btn" onClick={() => setCommentsOpen(true)}>
+                                        <MdChatBubble
+                                            size={19}
+                                            className="cr-comment"
+                                            style={{ color: hasCommented ? 'var(--cr-gold)' : 'rgb(185,200,235)' }}
+                                        />
                                     </button>
                                 </div>
                                 {/* Center: agent name */}
@@ -268,7 +309,19 @@ const CardReader = ({ property, onClose }) => {
 
             </div>
         </div>
+
+        {commentsOpen && (
+            <CommentsOverlay
+                property={property}
+                currentUserName={currentUserName}
+                currentUserAvatar={currentUserAvatar}
+                onClose={() => setCommentsOpen(false)}
+                onCommentCountChange={onCommentCountChange}
+                onOwnCommentChange={onOwnCommentChange}
+            />
+        )}
+        </>
     );
-};
+});
 
 export default CardReader;

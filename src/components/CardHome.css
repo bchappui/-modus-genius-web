@@ -368,6 +368,7 @@
     bottom: 0;
     left: -15px;
     width: calc(100% + 30px);
+    max-width: none; /* override Tailwind preflight's img{max-width:100%}, which was capping this intentional overflow */
     height: 90px;
     object-fit: cover;
     opacity: 0.4;
@@ -841,4 +842,41 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* ══ DOWNLOAD (PDF export) LOADING MODAL ══ */
+.pm-download-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+.pm-download-modal {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 28px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 0 18px 4px rgba(178, 189, 237, 0.55);
+}
+.pm-download-title {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    color: rgb(13, 85, 167);
+}
+.pm-download-hint {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(65, 120, 188);
+    opacity: 0.75;
 }

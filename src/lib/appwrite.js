@@ -1,11 +1,16 @@
-import { Client, Databases, Query } from 'appwrite';
+import { Client, Databases, Account, OAuthProvider, Query } from 'appwrite';
 
 const client = new Client()
     .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
     .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
 
 export const databases = new Databases(client);
+export const account = new Account(client);
+export { OAuthProvider };
 export const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 export const PROPERTIES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_PROPERTIES_COLLECTION_ID;
 export const AGENTS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_AGENTS_COLLECTION_ID;
+export const FAVORITES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_FAVORITES_COLLECTION_ID;
+export const LIKES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_LIKES_COLLECTION_ID;
+export const REVIEWS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_REVIEWS_COLLECTION_ID;
 export { Query };

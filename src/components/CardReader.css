@@ -430,11 +430,9 @@
     justify-content: center;
 }
 .cr-heart   {
-    color: var(--cr-gold);
     filter: drop-shadow(0.5px 0.5px 1px rgba(137, 162, 189, 0.8));
 }
 .cr-comment {
-    color: rgb(185, 200, 235);
     filter: drop-shadow(0.5px 0.5px 1px rgba(137, 162, 189, 0.8));
     margin-top: 2px;
 }

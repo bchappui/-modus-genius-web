@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import './PropertyModal.css'
+import React, { useEffect, useState, useRef } from 'react'
+import './CardHome.css'
 import {
     MdDownload, MdTimer, MdTouchApp,
     MdFavorite, MdBookmark, MdChatBubble, MdStar,
 } from 'react-icons/md'
 import { FiX } from 'react-icons/fi'
 import CardReader from './CardReader'
+import CommentsOverlay from './CommentsOverlay'
+import ShareModal from './ShareModal'
+import Spinner from './Spinner'
+import { captureNode } from '../lib/domCapture.js'
+import { buildPdfFromDataUrls } from '../lib/pdfExport.js'
 
 /* MCIcons "share" — curved right-arrow (not the 3-node Android variant) */
 const MciShare = () => (
@@ -93,17 +98,46 @@ const SvgDefs = () => (
     </svg>
 );
 
-const PropertyModal = ({ property, onClose }) => {
+const CardHome = ({
+    property, onClose, isFavorite, onToggleFavorite, isLiked, onToggleLike,
+    currentUserName, currentUserAvatar, onCommentCountChange,
+    hasCommented, onOwnCommentChange,
+}) => {
     const [cardReaderOpen, setCardReaderOpen] = useState(false);
+    const [commentsOpen, setCommentsOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
+    const [downloading, setDownloading] = useState(false);
+    const cardOuterRef = useRef(null);
+    const exportReaderRef = useRef(null);
 
     useEffect(() => {
         setCardReaderOpen(false);
+        setCommentsOpen(false);
+        setShareOpen(false);
     }, [property?.$id]);
+
+    const handleDownload = async () => {
+        if (downloading || !property || !cardOuterRef.current) return;
+        setDownloading(true);
+        try {
+            const images = [await captureNode(cardOuterRef.current)];
+            const readerImages = await exportReaderRef.current?.captureAllPages();
+            if (readerImages?.length) images.push(...readerImages);
+
+            const safeName = (property.name || 'card').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            await buildPdfFromDataUrls(images, `${safeName || 'card'}.pdf`);
+        } catch (e) {
+            console.error('Error generating PDF', e);
+            alert('Could not generate the PDF.');
+        } finally {
+            setDownloading(false);
+        }
+    };
 
     useEffect(() => {
         if (!property) return;
         const onKey = (e) => {
-            if (e.key === 'Escape' && !cardReaderOpen) onClose();
+            if (e.key === 'Escape' && !cardReaderOpen && !commentsOpen && !shareOpen) onClose();
         };
         document.addEventListener('keydown', onKey);
         document.body.style.overflow = 'hidden';
@@ -111,7 +145,7 @@ const PropertyModal = ({ property, onClose }) => {
             document.removeEventListener('keydown', onKey);
             document.body.style.overflow = '';
         };
-    }, [property, onClose, cardReaderOpen]);
+    }, [property, onClose, cardReaderOpen, commentsOpen, shareOpen]);
 
     if (!property) return null;
 
@@ -130,19 +164,19 @@ const PropertyModal = ({ property, onClose }) => {
 
                 {/* ── TOP BAR ── */}
                 <div className="pm-topbar">
-                    <button className="pm-ctrl-btn">
+                    <button className="pm-ctrl-btn" onClick={handleDownload} disabled={downloading} style={{ cursor: downloading ? 'wait' : 'pointer', opacity: downloading ? 0.6 : 1 }}>
                         <MdDownload size={20} color="rgb(137,162,189)" />
                     </button>
                     <button className="pm-ctrl-btn pm-ctrl-close" onClick={onClose}>
                         <FiX size={30} color="rgb(137,162,189)" />
                     </button>
-                    <button className="pm-ctrl-btn">
+                    <button className="pm-ctrl-btn" onClick={() => setShareOpen(true)}>
                         <MciShare />
                     </button>
                 </div>
 
                 {/* ── OUTER CARD ── */}
-                <div className="pm-card-outer">
+                <div className="pm-card-outer" ref={cardOuterRef}>
                     <div className="pm-outer-gradient" />
                     <div className="pm-outer-fill" />
 
@@ -275,8 +309,8 @@ const PropertyModal = ({ property, onClose }) => {
 
                         {/* Like count + 3D circle (top-right) */}
                         <div className="pm-like-overlay">
-                            <span className="pm-stat-count">0</span>
-                            <div className="pm-circle-btn">
+                            <span className="pm-stat-count">{property.likeCount || 0}</span>
+                            <div className="pm-circle-btn" onClick={onToggleLike} style={{ cursor: 'pointer' }}>
                                 <div className="pm-circle-rainbow" />
                                 <div className="pm-circle-specular" />
                                 <MdFavorite size={18} style={{ position: 'relative', zIndex: 1, fill: 'url(#pm-g-circle) rgb(255,220,80)' }} />
@@ -285,12 +319,12 @@ const PropertyModal = ({ property, onClose }) => {
 
                         {/* Comment count + 3D circle (top-left) */}
                         <div className="pm-comment-overlay">
-                            <div className="pm-circle-btn">
+                            <div className="pm-circle-btn" onClick={() => setCommentsOpen(true)} style={{ cursor: 'pointer' }}>
                                 <div className="pm-circle-rainbow" />
                                 <div className="pm-circle-specular" />
                                 <MdChatBubble size={18} style={{ position: 'relative', zIndex: 1, fill: 'url(#pm-g-circle) rgb(255,220,80)' }} />
                             </div>
-                            <span className="pm-stat-count">0</span>
+                            <span className="pm-stat-count">{property.reviewCount || 0}</span>
                         </div>
 
                         {/* Reading time — bottom-left */}
@@ -307,16 +341,28 @@ const PropertyModal = ({ property, onClose }) => {
 
                         {/* Actions panel — right side */}
                         <div className="pm-actions">
-                            {/* Heart — gray (inactive) */}
-                            <button className="pm-action-btn">
-                                <MdFavorite size={27} style={{ fill: 'rgba(160,160,160,0.55)', opacity: 0.78 }} />
+                            {/* Heart — colored rainbow when liked, gray otherwise */}
+                            <button className="pm-action-btn" onClick={onToggleLike} style={{ cursor: 'pointer' }}>
+                                <MdFavorite
+                                    size={27}
+                                    style={{
+                                        fill: isLiked ? 'url(#pm-g-rainbow) rgb(255,225,50)' : 'rgba(160,160,160,0.55)',
+                                        opacity: 0.78,
+                                    }}
+                                />
                             </button>
-                            {/* Bookmark — gray (inactive) */}
-                            <button className="pm-action-btn">
-                                <MdBookmark size={26} style={{ fill: 'rgba(160,160,160,0.55)', opacity: 0.78 }} />
+                            {/* Bookmark — colored rainbow when favorited, gray otherwise */}
+                            <button className="pm-action-btn" onClick={onToggleFavorite} style={{ cursor: 'pointer' }}>
+                                <MdBookmark
+                                    size={26}
+                                    style={{
+                                        fill: isFavorite ? 'url(#pm-g-rainbow) rgb(255,225,50)' : 'rgba(160,160,160,0.55)',
+                                        opacity: 0.78,
+                                    }}
+                                />
                             </button>
                             {/* Comment — rainbow */}
-                            <button className="pm-action-btn">
+                            <button className="pm-action-btn" onClick={() => setCommentsOpen(true)} style={{ cursor: 'pointer' }}>
                                 <MdChatBubble size={23} style={{ fill: 'url(#pm-g-rainbow) rgb(55,220,255)', opacity: 0.78 }} />
                             </button>
                             {/* READ CARD — ripple + circle */}
@@ -343,11 +389,54 @@ const PropertyModal = ({ property, onClose }) => {
             </div>
         </div>
 
+        {/* Off-screen CardReader instance kept mounted purely so its pages can be
+            rasterized for the PDF export, regardless of whether the reader is open.
+            The transform gives cr-overlay's position:fixed a new (translated) containing
+            block, so the whole reader renders fully laid-out but off the visible page. */}
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', transform: 'translateX(-9999px)', pointerEvents: 'none' }} aria-hidden="true">
+            <CardReader ref={exportReaderRef} property={property} onClose={() => {}} />
+        </div>
+
         {cardReaderOpen && (
-            <CardReader property={property} onClose={() => setCardReaderOpen(false)} />
+            <CardReader
+                property={property}
+                onClose={() => setCardReaderOpen(false)}
+                currentUserName={currentUserName}
+                currentUserAvatar={currentUserAvatar}
+                onCommentCountChange={onCommentCountChange}
+                isLiked={isLiked}
+                onToggleLike={onToggleLike}
+                hasCommented={hasCommented}
+                onOwnCommentChange={onOwnCommentChange}
+            />
+        )}
+
+        {commentsOpen && (
+            <CommentsOverlay
+                property={property}
+                currentUserName={currentUserName}
+                currentUserAvatar={currentUserAvatar}
+                onClose={() => setCommentsOpen(false)}
+                onCommentCountChange={onCommentCountChange}
+                onOwnCommentChange={onOwnCommentChange}
+            />
+        )}
+
+        {shareOpen && (
+            <ShareModal property={property} onClose={() => setShareOpen(false)} />
+        )}
+
+        {downloading && (
+            <div className="pm-download-overlay">
+                <div className="pm-download-modal">
+                    <Spinner />
+                    <p className="pm-download-title">Generating PDF…</p>
+                    <p className="pm-download-hint">This can take up to 20 seconds.</p>
+                </div>
+            </div>
         )}
         </>
     );
 };
 
-export default PropertyModal;
+export default CardHome;
