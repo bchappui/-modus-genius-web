@@ -1,0 +1,122 @@
+.sem-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    background: rgba(5, 10, 20, 0.55);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 90px 20px;
+    backdrop-filter: blur(2px);
+}
+
+.sem-panel {
+    width: 100%;
+    max-width: 720px;
+    max-height: 78vh;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sem-search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(15, 30, 55, 0.12);
+    flex-shrink: 0;
+}
+.sem-search-icon { color: rgba(15, 30, 55, 0.45); flex-shrink: 0; }
+.sem-search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    color: rgba(15, 30, 55, 0.55);
+    background: none;
+}
+.sem-search-input::placeholder { color: rgba(15, 30, 55, 0.4); }
+
+.sem-results {
+    overflow-y: auto;
+    padding: 16px 20px 22px;
+}
+
+.sem-section-title {
+    margin: 4px 0 12px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: rgba(15, 30, 55, 0.55);
+    text-transform: uppercase;
+}
+
+.sem-hint {
+    margin: 10px 0 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    color: rgba(15, 30, 55, 0.45);
+    text-align: center;
+}
+
+.sem-error { color: rgb(200, 60, 60); font-size: 14px; }
+.sem-empty { color: rgba(15, 30, 55, 0.5); font-size: 14px; }
+
+.sem-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 150px);
+    justify-content: center;
+    gap: 16px;
+}
+
+.sem-card-item {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    aspect-ratio: 330 / 587;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: left;
+}
+.sem-card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #e4e8f0;
+}
+/* Dim the bottom of the image so the gradient title text stays readable,
+   same idea as CardHome's .pm-main-overlay behind its own title. */
+.sem-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none;
+}
+.sem-card-name {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    background: var(--rainbow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.sem-card-item:hover .sem-card-img { filter: brightness(0.92); }

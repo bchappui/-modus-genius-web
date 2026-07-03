@@ -1,0 +1,183 @@
+.sp-page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0a1526;
+    overflow: hidden;
+}
+
+.sp-logo-btn {
+    position: absolute;
+    top: 26px;
+    left: 4.3vw;
+    z-index: 2;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+.sp-logo-btn .ep-nav-logo-img {
+    height: 90px;
+}
+.sp-logo-btn .ep-nav-tagline {
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    font-weight: 900;
+}
+
+.sp-login-btn {
+    position: absolute;
+    top: 28px;
+    right: 1vw;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 9px 20px 9px 16px;
+    color: rgba(190, 205, 230, 0.85);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.sp-login-btn:hover { background: rgba(255,255,255,0.12); }
+
+/* ── HERO — same medallion positioning technique as ExplorePage ── */
+.sp-hero {
+    position: relative;
+    flex: 1;
+    padding: 60px 5vw 100px 4.5vw;
+    min-height: 620px;
+    background:
+        radial-gradient(ellipse 900px 500px at 55% 15%, rgba(70,100,150,0.35), transparent 60%),
+        linear-gradient(180deg, #0a1830 0%, #0c1e38 55%, #0a1830 100%);
+}
+
+.sp-content {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+    margin-top: 130px;
+}
+
+.sp-headline {
+    margin: 0 0 22px;
+    text-align: left;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1.25;
+    background: linear-gradient(90deg,
+        rgb(15,70,105)   0%,
+        rgb(55,150,185)  25%,
+        rgb(190,215,225) 50%,
+        rgb(230,235,235) 65%,
+        rgb(215,195,155) 85%,
+        rgb(200,175,130) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sp-subtext {
+    margin: 0 0 16px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: rgba(190, 205, 230, 0.85);
+    max-width: 480px;
+}
+.sp-subtext strong { color: rgb(201, 151, 44); font-weight: 600; }
+
+.sp-form-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 26px;
+    margin-bottom: 26px;
+    max-width: 560px;
+}
+.sp-email-input {
+    flex: 1;
+    min-width: 0;
+    height: 50px;
+    box-sizing: border-box;
+    border: 1px solid rgba(120, 150, 190, 0.4);
+    border-radius: 8px;
+    padding: 0 18px;
+    background: #0d1f38;
+    color: rgba(220, 230, 245, 0.95);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    outline: none;
+}
+.sp-email-input::placeholder { color: rgba(150, 165, 195, 0.75); }
+
+.sp-cta-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 50px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgb(230,175,90), rgb(201,151,44));
+    color: #1a1200;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sp-cta-btn:hover { filter: brightness(1.05); }
+
+.sp-social-proof {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.sp-avatars {
+    display: flex;
+}
+.sp-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0a1526;
+    margin-left: -10px;
+    background: #1a2e46;
+}
+.sp-avatar:first-child { margin-left: 0; }
+
+.sp-proof-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.sp-stars {
+    color: rgb(230, 175, 90);
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+.sp-subscriber-count {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(220, 230, 245, 0.9);
+}
+
+@media (max-width: 640px) {
+    .sp-hero { padding: 40px 5vw 60px; }
+    .sp-headline { font-size: 26px; }
+    .sp-form-row { flex-direction: column; }
+}

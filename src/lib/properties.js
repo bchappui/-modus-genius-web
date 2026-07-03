@@ -1,4 +1,4 @@
-import { databases, DATABASE_ID, AGENTS_COLLECTION_ID } from './appwrite.js';
+import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID, AGENTS_COLLECTION_ID, Query } from './appwrite.js';
 
 export const enrichWithAgents = async (documents) => {
     return Promise.all(
@@ -16,4 +16,18 @@ export const enrichWithAgents = async (documents) => {
             return prop;
         })
     );
+};
+
+export const getPropertiesByIds = async (ids) => {
+    if (!ids.length) return [];
+    try {
+        const result = await databases.listDocuments(DATABASE_ID, PROPERTIES_COLLECTION_ID, [
+            Query.equal('$id', ids),
+            Query.limit(ids.length),
+        ]);
+        return enrichWithAgents(result.documents);
+    } catch (e) {
+        console.error('getPropertiesByIds error', e);
+        return [];
+    }
 };

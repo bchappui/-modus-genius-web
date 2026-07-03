@@ -1,0 +1,365 @@
+@font-face {
+    font-family: 'Bell MT';
+    src: url('../assets/fonts/BellMT.ttf') format('truetype');
+    font-weight: 400;
+}
+@font-face {
+    font-family: 'Bell MT';
+    src: url('../assets/fonts/BellMT-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+
+.ep-page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0a1526;
+}
+
+/* ── DECORATIVE NAV ── */
+.ep-nav {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 5vw 14px 2vw;
+    background-color: #0e1c30;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.7);
+    z-index: 2;
+}
+.ep-nav-logo {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+.ep-nav-logo-img {
+    height: 70px;
+    width: auto;
+    object-fit: contain;
+    margin-top: -10px;
+}
+/* Taken out of the flex column (absolutely positioned) so it doesn't add to
+   .ep-nav-logo's height — that way the logo image alone is what gets
+   vertically centered in the nav bar. */
+.ep-nav-tagline {
+    position: absolute;
+    left: 3px;
+    bottom: 10px;
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: rgba(180, 195, 220, 0.8);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.ep-nav-links {
+    display: flex;
+    gap: 22px;
+    flex: 1;
+}
+.ep-nav-link {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.85);
+    text-transform: uppercase;
+    padding-bottom: 3px;
+    white-space: nowrap;
+}
+.ep-nav-link--active {
+    border-bottom: 2px solid #fff;
+}
+.ep-nav-link-btn {
+    background: none;
+    border: none;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    cursor: pointer;
+}
+.ep-nav-link-btn.ep-nav-link--active {
+    border-bottom: 2px solid #fff;
+}
+.ep-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    margin-right: -35px;
+}
+.ep-nav-create,
+.ep-nav-login {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.85);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.ep-nav-login { cursor: pointer; }
+.ep-nav-login:hover { color: #fff; }
+.ep-nav-login--active {
+    color: #fff;
+    margin-top: 5px;
+    padding-bottom: 3px;
+    border-bottom: 2px solid #fff;
+}
+.ep-nav-membership {
+    background: linear-gradient(135deg, rgb(230,175,90), rgb(201,151,44));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+.ep-nav-search-icon {
+    color: rgba(255,255,255,0.85);
+    flex-shrink: 0;
+}
+.ep-nav-search-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    cursor: pointer;
+}
+.ep-nav-search-btn:hover .ep-nav-search-icon { color: #fff; }
+
+/* ── HERO ── */
+.ep-hero {
+    position: relative;
+    flex: 1;
+    min-height: 560px;
+    padding: 48px 5vw 56px;
+    background:
+        radial-gradient(ellipse 900px 500px at 55% 15%, rgba(70,100,150,0.35), transparent 60%),
+        linear-gradient(180deg, #0a1830 0%, #0c1e38 55%, #0a1830 100%);
+    overflow: hidden;
+}
+
+/* Box sized to the medallion PNG's own aspect ratio (1399x1124) so object-fit:contain
+   doesn't letterbox it — the source art itself only fills x:14-86%/y:8-89% of its
+   canvas, so top/right below are computed from that, not guessed. */
+.ep-hero-medallion {
+    position: absolute;
+    top: -80px;
+    right: -630px;
+    width: 1250px;
+    height: 1063px;
+    pointer-events: none;
+    opacity: 0.9;
+}
+.ep-medallion-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(0.75) saturate(0.6);
+}
+/* Independent box from .ep-hero-medallion — move this one to reposition the
+   circular text only, without touching the image. */
+.ep-medallion-text {
+    position: absolute;
+    top: -85px;
+    right: -600px;
+    width: 1250px;
+    height: 1063px;
+    pointer-events: none;
+}
+.ep-circle-text-el {
+    font-family: 'Bell MT', Georgia, 'Cambria', serif;
+    font-size: 15px;
+    letter-spacing: 23px;
+    fill: rgba(201, 151, 44, 0.85);
+    text-transform: uppercase;
+}
+
+.ep-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.ep-hero-intro {
+    max-width: 858px;
+    margin-top: 110px;
+    text-align: center;
+}
+
+/* One continuous gradient across the whole line — mirrors the MODUS GENIUS
+   logo's blue-to-gold sweep — not separate gradients per word. Blue dominates
+   through "Upskill" (~0-20%), white through the middle words, gold on "less". */
+.ep-headline {
+    margin: 0 0 18px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1.15;
+    background: linear-gradient(90deg,
+        rgb(15,70,105)   0%,
+        rgb(30,110,150)  10%,
+        rgb(55,150,185)  20%,
+        rgb(120,195,220) 30%,
+        rgb(255,255,255) 58%,
+        rgb(240,222,185) 84%,
+        rgb(200,175,130) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ep-subtext {
+    margin: 0 0 28px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: rgba(190, 205, 230, 0.85);
+    text-align: center;
+}
+
+.ep-search-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    max-width: 480px;
+    margin: 0 auto 40px;
+    border-radius: 8px;
+    padding: 1.5px;
+    background: linear-gradient(90deg, rgb(80,150,255) 0%, rgb(90,220,180) 45%, rgb(255,140,70) 100%);
+}
+.ep-search-input {
+    flex: 1;
+    min-width: 0;
+    height: 46px;
+    border: none;
+    border-radius: 7px 0 0 7px;
+    padding: 0 18px;
+    background: #0a1830;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    color: rgba(190, 205, 230, 0.85);
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+}
+.ep-search-input::placeholder { color: rgba(190, 205, 230, 0.85); }
+.ep-search-btn {
+    flex-shrink: 0;
+    width: 52px;
+    height: 46px;
+    border: none;
+    border-radius: 0 7px 7px 0;
+    background: #0a1830;
+    color: rgba(220, 230, 245, 0.9);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ep-search-btn:hover { background: #0e2140; }
+
+.ep-categories-title {
+    margin: 30px 0 20px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 40px;
+    font-weight: 900;
+    background: linear-gradient(90deg, rgb(15,70,105) 0%, rgb(55,150,185) 35%, rgb(120,195,220) 50%, rgb(230,235,235) 75%, rgb(215,195,155) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.ep-categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 204px);
+    gap: 14px;
+    max-width: 858px;
+}
+
+.ep-back-btn {
+    position: absolute;
+    top: -132px;
+    left: -60px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+}
+.ep-back-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+.ep-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(204px, 1fr));
+    gap: 14px;
+    max-width: 1100px;
+}
+
+.ep-results-error {
+    color: rgb(255, 130, 130);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+}
+.ep-results-empty {
+    color: rgba(190, 205, 230, 0.85);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+}
+
+.ep-category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    aspect-ratio: 1 / 1;
+    padding: 20px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1a2e46 0%, #0d1b2e 60%, #0a1526 100%);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+}
+.ep-category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+.ep-category-icon {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+}
+.ep-category-label {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: #fff;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.3;
+}
+
+@media (max-width: 640px) {
+    .ep-nav-links { display: none; }
+    .ep-nav-create, .ep-nav-tagline { display: none; }
+    .ep-hero-medallion { opacity: 0.35; width: 320px; height: 320px; right: -100px; }
+    .ep-headline { font-size: 28px; }
+}
