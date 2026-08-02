@@ -14,3 +14,12 @@ export async function captureNode(node, pixelRatio = 2) {
     await waitForImages(node);
     return toPng(node, { pixelRatio, cacheBust: true });
 }
+
+export function downloadDataUrl(dataUrl, filename) {
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+}

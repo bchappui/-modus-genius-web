@@ -1,0 +1,234 @@
+/* QuoteHome — reuses CardHome's shell (pm-overlay/pm-topbar/pm-card-outer/pm-card-inner/
+   pm-top/pm-shimmer-mover/pm-shimmer-beam/pm-download-*) so the modal matches CardHome's
+   exact 330×587 proportions. Content-specific pieces below use the "qc-" prefix and mirror
+   modus_genius's app/(root)/quotes/[id].tsx. */
+
+@font-face {
+    font-family: 'fairfaxstation';
+    src: url('../assets/fonts/fairfaxstation.ttf') format('truetype');
+}
+
+/* Same icon font quotes/[id].tsx uses for its two big decorative quote marks
+   (Fontisto "quote-a-right"/"quote-a-left", glyphs 0xE9C1/0xE9C0). */
+@font-face {
+    font-family: 'Fontisto';
+    src: url('../assets/fonts/Fontisto.ttf') format('truetype');
+}
+
+/* ══ FULL-BLEED IMAGE + OVERLAYS (quote card has no bottom agent section,
+   so unlike pm-bg-img/pm-main-overlay/pm-shimmer it goes edge-to-edge) ══ */
+/* Same pale periwinkle as the card's top "MODUS GENIUS" strip (--bg in
+   CardHome.css), thinner, framing the other 3 edges of the card. */
+.qc-frame {
+    border-left: 2px solid rgb(241, 244, 255);
+    border-right: 2px solid rgb(241, 244, 255);
+    border-bottom: 2px solid rgb(241, 244, 255);
+    box-sizing: border-box;
+}
+
+.qc-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.qc-main-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, black 0%, transparent 50%, black 100%);
+}
+
+.qc-level-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+    background-repeat: repeat;
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+.qc-shimmer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ══ TOP: MODUS GENIUS strip + logo + gold line (sits inside .pm-top) ══ */
+.qc-made-strip {
+    position: relative;
+    width: 100%;
+    height: 14px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    margin-top: -2px;
+}
+.qc-made-img {
+    position: relative;
+    z-index: 1;
+    height: 12px;
+    width: 120px;
+    object-fit: contain;
+}
+
+.qc-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+.qc-logo-img {
+    height: 110px;
+    width: 144px;
+    object-fit: contain;
+    opacity: 0.6;
+    margin-top: -6px;
+}
+
+.qc-gold-line {
+    position: absolute;
+    top: 11px;
+    left: calc(50% - 125px);
+    width: 250px;
+    height: 3px;
+    z-index: 3;
+    background: var(--gold-fade);
+}
+
+/* ══ MIDDLE: quote text + author signature ══ */
+.qc-middle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 9px;
+    right: 9px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 60px;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.qc-quote-block {
+    position: relative;
+    width: 100%;
+    padding-top: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.qc-quote-icon {
+    position: absolute;
+    font-family: 'Fontisto';
+    font-style: normal;
+    color: rgba(201, 151, 44, 0.3);
+    line-height: 1;
+}
+.qc-quote-icon-left  { top: -50px; left: 10px; font-size: 40px; }
+.qc-quote-icon-right { bottom: -50px; right: 10px; font-size: 40px; }
+
+.qc-quote-text {
+    margin: 0;
+    font-family: 'fairfaxstation', Georgia, serif;
+    font-size: 24px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 31px;
+    text-transform: uppercase;
+    background: linear-gradient(105deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.qc-author-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 20px;
+}
+.qc-author-name {
+    font-family: 'GoldenSignature', cursive;
+    font-size: 63px;
+    line-height: 60px;
+    text-transform: capitalize;
+    background: linear-gradient(105deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    white-space: nowrap;
+}
+
+/* ══ COMMENT ACTION (bottom center) ══ */
+.qc-actions {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+@keyframes qc-ripple {
+    0%   { transform: scale(0.3); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+.qc-ripple {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 2px solid rgb(214, 180, 64);
+    opacity: 0.45;
+    pointer-events: none;
+    animation: qc-ripple 3s infinite;
+}
+
+.qc-comment-btn {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    overflow: hidden;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.qc-comment-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgba(255,220,80,0.75) 0%, rgba(201,151,44,0.55) 50%, rgba(80,45,0,0.65) 100%
+    );
+}
+.qc-comment-specular {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(150deg,
+        rgba(255,245,150,0.55) 0%, transparent 60%
+    );
+}

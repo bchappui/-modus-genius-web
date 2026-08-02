@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { FiUser, FiArrowUpRight } from 'react-icons/fi'
+import React from 'react'
+import { FiUser } from 'react-icons/fi'
 import './ExplorePage.css'
 import './SubscribePage.css'
 
@@ -18,8 +18,6 @@ const AVATAR_URLS = [
 ];
 
 const SubscribePage = ({ onBack, onLoginClick }) => {
-    const [email, setEmail] = useState('')
-
     return (
         <div className="sp-page">
             <button className="sp-logo-btn ep-nav-logo" onClick={onBack} aria-label="Back to Explore">
@@ -61,19 +59,10 @@ const SubscribePage = ({ onBack, onLoginClick }) => {
                         strategies designed and taught by top global experts.
                     </p>
 
-                    <div className="sp-form-row">
-                        <input
-                            className="sp-email-input"
-                            type="email"
-                            placeholder="Your Email Address..."
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                        />
-                        <button className="sp-cta-btn">
-                            Upskill For Free
-                            <FiArrowUpRight size={22} strokeWidth={2.5} />
-                        </button>
+                    <div className="sp-beehiiv-embed">
+                        <script async src="https://subscribe-forms.beehiiv.com/v3/loader.js" data-beehiiv-form="81460cc6-cd7c-47c9-8bde-1bbd1919adfb" />
                     </div>
+                    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js" />
 
                     <div className="sp-social-proof">
                         <div className="sp-avatars">

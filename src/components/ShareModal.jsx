@@ -4,11 +4,13 @@ import { FaLinkedin, FaFacebook, FaWhatsapp, FaXTwitter } from 'react-icons/fa6'
 import { SiGmail } from 'react-icons/si'
 import './ShareModal.css'
 
-const ShareModal = ({ property, onClose }) => {
+const ShareModal = ({ property, id, name, paramName = 'property', onClose }) => {
     const [copied, setCopied] = useState(false);
 
-    const shareUrl = `${window.location.origin}${window.location.pathname}?property=${property?.$id ?? ''}`;
-    const shareText = property?.name ? `Check out "${property.name}" on Modus Genius` : 'Check this out on Modus Genius';
+    const shareId = id ?? property?.$id ?? '';
+    const shareName = name ?? property?.name;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${paramName}=${shareId}`;
+    const shareText = shareName ? `Check out "${shareName}" on Modus Genius` : 'Check this out on Modus Genius';
 
     const handleCopy = async () => {
         try {

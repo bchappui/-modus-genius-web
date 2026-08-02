@@ -1,0 +1,212 @@
+/* .ep-headline has no max-width (fine for ExplorePage's short one-liner) —
+   this page's longer headline needs one so it wraps into shorter lines. */
+.np-headline {
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.np-popular-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.np-view-all-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px;
+    padding: 9px 20px;
+    color: rgba(220, 230, 245, 0.9);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+}
+.np-view-all-btn:hover { background: rgba(255,255,255,0.1); }
+
+.np-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin-bottom: 60px;
+}
+
+.np-card {
+    border-radius: 10px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a2e46 0%, #0d1b2e 60%, #0a1526 100%);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.np-card:hover { transform: translateY(-3px); }
+
+.np-card-thumb {
+    aspect-ratio: 1140 / 616;
+    background: url('../assets/images/vignette-newsletter.png') center / cover no-repeat;
+}
+
+.np-card-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 14px 16px 0;
+}
+
+.np-card-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+/* Icon is masked so the same rainbow gradient as the badge text can paint
+   through it — react-icons' currentColor fill can't take a gradient directly. */
+.np-card-badge-icon {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #e8412c, #f5941f, #f7d038, #6fbf4a, #29c3c8, #3f8ce8, #9b6fe0, #e15fc0);
+    -webkit-mask-image: url('../assets/icons/coupon.svg');
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-image: url('../assets/icons/coupon.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+/* Same rainbow gradient as .ap-quote-hashtag / .hp-hashtag. */
+.np-card-badge-text {
+    font-weight: 900;
+    background: linear-gradient(90deg, #e8412c, #f5941f, #f7d038, #6fbf4a, #29c3c8, #3f8ce8, #9b6fe0, #e15fc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.np-card-body {
+    padding: 10px 16px 16px;
+}
+.np-card-title {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1.2;
+    color: #fff;
+}
+.np-card-title-num {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 900;
+    color: #fff;
+}
+.np-card-subtitle {
+    margin: 4px 0 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+}
+
+/* Same copy/gradient as SubscribePage's .sp-headline, compacted into a
+   horizontal promo banner instead of a full hero. */
+/* Bleeds past .ep-hero's own 5vw side padding to span the full screen width
+   edge-to-edge; its own padding re-adds that same 5vw so the headline text
+   still lines up with "Most Popular" / "Recent Posts" above and below. */
+.np-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: calc(100% + 10vw);
+    margin-left: -5vw;
+    margin-right: -5vw;
+    margin-top: 100px;
+    margin-bottom: 60px;
+    padding: 32px 5vw;
+    background:
+        radial-gradient(ellipse 500px 200px at 32% 15%, rgba(90,130,190,0.6), transparent 58%),
+        linear-gradient(180deg, #0e2038 0%, #0c1e38 100%);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+}
+.np-banner-text {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1.2;
+    background: linear-gradient(90deg,
+        rgb(15,70,105)   0%,
+        rgb(55,150,185)  25%,
+        rgb(190,215,225) 50%,
+        rgb(230,235,235) 65%,
+        rgb(215,195,155) 85%,
+        rgb(200,175,130) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.np-banner-btn {
+    flex-shrink: 0;
+    height: 46px;
+    padding: 0 28px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgb(230,175,90), rgb(201,151,44));
+    color: #1a1200;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.np-banner-btn:hover { filter: brightness(1.05); }
+
+.np-recent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin-top: 4px;
+}
+
+.np-recent-card {
+    border-radius: 10px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a2e46 0%, #0d1b2e 60%, #0a1526 100%);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.np-recent-card:hover { transform: translateY(-3px); }
+
+.np-recent-thumb {
+    aspect-ratio: 1140 / 616;
+    background: url('../assets/images/vignette-newsletter.png') center / cover no-repeat;
+}
+
+
+.np-see-all-row {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px 0 60px;
+}
+

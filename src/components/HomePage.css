@@ -38,20 +38,33 @@
     font-size: 40px;
     font-weight: 900;
     font-style: italic;
-    background: linear-gradient(90deg, red, orange, gold, limegreen, dodgerblue, blueviolet);
+    background: linear-gradient(90deg, #e8412c, #f5941f, #f7d038, #6fbf4a, #29c3c8, #3f8ce8, #9b6fe0, #e15fc0);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-/* Fixed-height box so the dots below never shift position, whichever slide
-   (with or without caption, small or large image) is showing. */
-.hp-slide-content {
+/* Carousel: a fixed-height viewport clips a track holding all slides side by
+   side (each 1/N of the track's N*100% width, set inline since N depends on
+   CAROUSEL_SLIDES.length); translateX-ing the track by 100%/N per step
+   slides left/right between them instead of an instant swap. The fixed
+   height also keeps the dots below from shifting position between slides. */
+.hp-slide-viewport {
+    overflow: hidden;
     height: 360px;
+}
+.hp-slide-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s ease;
+}
+.hp-slide-content {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
 }
 
 .hp-badge {

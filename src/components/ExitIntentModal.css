@@ -1,0 +1,143 @@
+.eim-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    background: rgba(5, 10, 20, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    backdrop-filter: blur(2px);
+    overflow-y: auto;
+}
+
+.eim-panel {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: rgb(16, 20, 28);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+    padding: 32px 30px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.eim-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    padding: 4px;
+    color: rgba(220, 230, 245, 0.5);
+    cursor: pointer;
+    display: flex;
+}
+.eim-close-btn:hover { color: rgba(220, 230, 245, 0.9); }
+
+.eim-face {
+    height: 66px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: -18px;
+}
+.eim-logo {
+    height: 78px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 22px;
+}
+
+.eim-eyebrow {
+    margin: 0 0 8px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.eim-headline {
+    margin: 0 0 20px;
+    padding: 0 8px;
+    max-width: 340px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1.25;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #e8412c, #f5941f, #f7d038, #6fbf4a, #29c3c8, #3f8ce8, #9b6fe0, #e15fc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.eim-subtext {
+    margin: 0 0 16px;
+    max-width: 340px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: rgba(220, 230, 245, 0.75);
+}
+.eim-subtext:last-of-type { margin-bottom: 24px; }
+.eim-subtext strong { color: rgb(230, 175, 90); font-weight: 700; }
+
+.eim-limited-badge {
+    margin: 0 0 24px;
+    padding: 6px 16px;
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 3px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #fff;
+}
+
+.eim-cards-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+.eim-cards-divider {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(255,255,255,0.25);
+}
+.eim-card {
+    width: 74px;
+    aspect-ratio: 2 / 3;
+    border-radius: 6px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.eim-redeem-btn {
+    width: 100%;
+    height: 42px;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    color: rgb(15, 20, 28);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+.eim-redeem-btn:hover { background: rgb(235, 238, 245); }
+
+.eim-beehiiv-embed {
+    width: 100%;
+}

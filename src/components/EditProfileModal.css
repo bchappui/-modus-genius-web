@@ -1,0 +1,290 @@
+.epm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    background: rgba(5, 10, 20, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    backdrop-filter: blur(2px);
+}
+
+/* Rounded on all 4 corners regardless of inner scroll — overflow:hidden lives
+   here, the actual scrolling happens in .epm-scroll so a scrollbar can never
+   square off the right-hand corners. */
+.epm-panel {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    max-height: 90vh;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.epm-scroll {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.epm-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    padding: 4px;
+    color: rgba(15, 30, 55, 0.45);
+    cursor: pointer;
+    display: flex;
+}
+.epm-close-btn:hover { color: rgba(15, 30, 55, 0.8); }
+
+.epm-headline {
+    margin: 0 0 18px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgb(15, 30, 55);
+}
+
+.epm-loading {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    color: rgba(15, 30, 55, 0.5);
+    padding: 30px 0;
+}
+
+.epm-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.epm-avatar-wrap {
+    position: relative;
+    width: 78px;
+    height: 78px;
+}
+.epm-avatar-img {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: rgba(15, 30, 55, 0.06);
+}
+.epm-avatar-placeholder {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: rgba(15, 30, 55, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(15, 30, 55, 0.35);
+}
+.epm-avatar-pencil {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: rgb(201, 151, 44);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.epm-avatar-pencil:disabled { opacity: 0.6; cursor: default; }
+.epm-file-input { display: none; }
+.epm-remove-avatar {
+    background: none;
+    border: none;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: rgb(200, 60, 60);
+    cursor: pointer;
+    padding: 0;
+}
+.epm-remove-avatar:disabled { opacity: 0.6; cursor: default; }
+
+/* ── Avatar crop/reposition step ── */
+.epm-crop-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 6px 0 4px;
+}
+.epm-crop-frame {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(15, 30, 55, 0.06);
+    box-shadow: 0 0 0 3px rgba(201, 151, 44, 0.5);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+.epm-crop-frame:active { cursor: grabbing; }
+.epm-crop-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: none;
+    transform-origin: center;
+    pointer-events: none;
+}
+.epm-crop-hint {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    font-style: italic;
+    color: rgba(15, 30, 55, 0.45);
+}
+.epm-zoom-slider {
+    width: 180px;
+    accent-color: rgb(201, 151, 44);
+}
+.epm-crop-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 6px;
+}
+.epm-crop-cancel,
+.epm-crop-confirm {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.epm-crop-cancel {
+    background: rgba(15, 30, 55, 0.06);
+    color: rgba(15, 30, 55, 0.7);
+}
+.epm-crop-cancel:hover { background: rgba(15, 30, 55, 0.1); }
+.epm-crop-confirm {
+    background: rgb(201, 151, 44);
+    color: #fff;
+}
+.epm-crop-confirm:hover { filter: brightness(1.1); }
+.epm-crop-cancel:disabled,
+.epm-crop-confirm:disabled { opacity: 0.6; cursor: default; }
+
+.epm-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.epm-label {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: rgba(15, 30, 55, 0.55);
+    margin-top: 12px;
+}
+
+.epm-input,
+.epm-select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    padding: 10px 12px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgb(15, 30, 55);
+    outline: none;
+    background: rgba(15, 30, 55, 0.05);
+    transition: background 0.15s, border-color 0.15s;
+}
+.epm-input::placeholder { color: rgba(15, 30, 55, 0.4); }
+.epm-input:focus,
+.epm-select:focus {
+    background: #fff;
+    border-color: rgb(201, 151, 44);
+}
+
+.epm-location-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 30, 55, 0.05);
+    border-radius: 9px;
+    padding: 0 12px;
+}
+.epm-location-row:focus-within { background: #fff; }
+.epm-flag {
+    width: 22px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+.epm-select {
+    flex: 1;
+    cursor: pointer;
+    background: transparent;
+    padding-left: 0;
+}
+
+.epm-error {
+    margin: 10px 0 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgb(200, 60, 60);
+}
+
+.epm-save-btn {
+    width: 100%;
+    margin-top: 18px;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #123259, #0a1830);
+    box-shadow: 0 8px 18px rgba(10, 24, 48, 0.35);
+    color: #fff;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: filter 0.15s;
+}
+.epm-save-btn:hover { filter: brightness(1.15); }
+.epm-save-btn:disabled { opacity: 0.7; cursor: default; }

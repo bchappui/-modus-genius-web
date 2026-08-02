@@ -55,7 +55,7 @@
     padding: 60px 5vw 100px 4.5vw;
     min-height: 620px;
     background:
-        radial-gradient(ellipse 900px 500px at 55% 15%, rgba(70,100,150,0.35), transparent 60%),
+        radial-gradient(ellipse 900px 600px at 32% 260px, rgba(90,130,190,0.6), transparent 58%),
         linear-gradient(180deg, #0a1830 0%, #0c1e38 55%, #0a1830 100%);
 }
 
@@ -97,47 +97,11 @@
 }
 .sp-subtext strong { color: rgb(201, 151, 44); font-weight: 600; }
 
-.sp-form-row {
-    display: flex;
-    gap: 10px;
+.sp-beehiiv-embed {
     margin-top: 26px;
     margin-bottom: 26px;
     max-width: 560px;
 }
-.sp-email-input {
-    flex: 1;
-    min-width: 0;
-    height: 50px;
-    box-sizing: border-box;
-    border: 1px solid rgba(120, 150, 190, 0.4);
-    border-radius: 8px;
-    padding: 0 18px;
-    background: #0d1f38;
-    color: rgba(220, 230, 245, 0.95);
-    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    font-size: 16px;
-    outline: none;
-}
-.sp-email-input::placeholder { color: rgba(150, 165, 195, 0.75); }
-
-.sp-cta-btn {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 50px;
-    padding: 0 22px;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgb(230,175,90), rgb(201,151,44));
-    color: #1a1200;
-    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    font-size: 15px;
-    font-weight: 800;
-    cursor: pointer;
-    white-space: nowrap;
-}
-.sp-cta-btn:hover { filter: brightness(1.05); }
 
 .sp-social-proof {
     display: inline-flex;
@@ -179,5 +143,4 @@
 @media (max-width: 640px) {
     .sp-hero { padding: 40px 5vw 60px; }
     .sp-headline { font-size: 26px; }
-    .sp-form-row { flex-direction: column; }
 }

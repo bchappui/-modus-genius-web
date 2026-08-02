@@ -64,7 +64,41 @@
     display: flex;
     justify-content: center;
     gap: 14px;
+    margin-bottom: 20px;
+}
+
+.gp-countdown-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 44px;
     margin-bottom: 40px;
+}
+.gp-countdown-timer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: linear-gradient(135deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+}
+.gp-countdown-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+    color: rgb(20, 20, 20);
+}
+.gp-countdown-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgb(20, 20, 20);
+    animation: gp-countdown-blink 1.2s ease-in-out infinite;
+}
+@keyframes gp-countdown-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 .gp-tab {
     display: flex;
@@ -124,17 +158,28 @@
 .gp-hof-entry {
     width: 100vw;
     margin-left: -5vw;
-    margin-top: 70px;
+    margin-top: 130px;
     text-align: center;
 }
 .gp-hof-category-title {
     margin: 0 0 20px;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    font-size: 15px;
+    font-size: 40px;
     font-weight: 900;
+    line-height: 1.15;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: rgba(230, 175, 90, 0.85);
+    background: linear-gradient(90deg,
+        rgb(120,80,20)   0%,
+        rgb(180,130,40)  20%,
+        rgb(230,175,90)  40%,
+        rgb(255,235,190) 55%,
+        rgb(230,175,90)  75%,
+        rgb(160,110,40)  100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .gp-hof-winner {
@@ -157,9 +202,9 @@
 .gp-hof-card-wrap {
     position: absolute;
     left: 50%;
-    top: 42%;
+    top: 44%;
     transform: translate(-50%, -50%);
-    width: 180px;
+    width: 240px;
     aspect-ratio: 330 / 587;
     border-radius: 8px;
     overflow: hidden;
@@ -175,26 +220,33 @@
     background: rgba(255,255,255,0.08);
 }
 .gp-hof-flag {
-    margin-top: -34px;
-    width: 56px;
+    position: relative;
+    z-index: 1;
+    margin-top: -80px;
+    width: 68px;
     height: auto;
     border-radius: 4px;
     box-shadow: 0 0 0 1px rgba(255,255,255,0.25);
 }
 .gp-hof-name {
-    margin: 14px 0 4px;
+    position: relative;
+    z-index: 1;
+    margin: 26px 0 4px;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
     font-size: 40px;
     font-weight: 900;
+    text-transform: uppercase;
     background: linear-gradient(90deg, rgb(120,195,220) 0%, rgb(255,255,255) 60%, rgb(230,200,150) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 .gp-hof-title {
+    position: relative;
+    z-index: 1;
     margin: 0;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
     color: rgba(190, 205, 230, 0.75);
 }

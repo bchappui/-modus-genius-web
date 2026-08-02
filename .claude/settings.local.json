@@ -55,7 +55,28 @@
       "Bash(curl *)",
       "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --no-sandbox --allow-file-access-from-files --screenshot=C:/Users/Bruno/AppData/Local/Temp/claude/C--Users-Bruno-Desktop-modus-genius/db7b0f99-b59a-48ee-baa0-0fbd01438bd1/scratchpad/filtertest.png --window-size=900,300 file:///C:/Users/Bruno/AppData/Local/Temp/claude/C--Users-Bruno-Desktop-modus-genius/db7b0f99-b59a-48ee-baa0-0fbd01438bd1/scratchpad/gen-filtertest.html)",
       "Bash(cat .env.local)",
-      "Bash(cat .env)"
+      "Bash(cat .env)",
+      "Bash(ls -la .env*)",
+      "Bash(identify \"C:\\\\Users\\\\Bruno\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Bruno-Desktop-modus-genius\\\\4fde0853-1cfe-443b-a065-47d70bf83507\\\\scratchpad\\\\wreath.png\")",
+      "Bash(find .claude/skills -name \"SKILL.md\")",
+      "Bash(ls .claude/skills)",
+      "Bash(command -v chromium-cli)",
+      "Bash(find / -maxdepth 4 -iname \"*modus_genius*\" -type d)",
+      "Bash(find /c -maxdepth 6 -iname \"*modus_genius*\")",
+      "Bash(python3 -c ' *)",
+      "Bash(git stash *)",
+      "Bash(npx --version)",
+      "Bash(find . -maxdepth 2 -iname \"*.env*\" -not -path \"./node_modules/*\")",
+      "Read(//tmp/**)",
+      "PowerShell($tmp = \"$env:TEMP\\\\favicon_check.png\"; Invoke-WebRequest -Uri \"https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a5b220600112f80e8eb/view?project=693e8acd001582e2562a\" -OutFile $tmp; Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\($tmp\\); \"Width=$\\($img.Width\\) Height=$\\($img.Height\\)\"; $img.Dispose\\(\\))",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Bitmap]::FromFile\\(\"$env:TEMP\\\\favicon_check.png\"\\); $p = $img.GetPixel\\(0,0\\); \"R=$\\($p.R\\) G=$\\($p.G\\) B=$\\($p.B\\) A=$\\($p.A\\)\"; $img.Dispose\\(\\))",
+      "WebFetch(domain:www.beehiiv.com)",
+      "Read(//c/Users/Bruno/Downloads/**)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\\\\src\\\\assets\\\\images\")",
+      "Bash(cp \"C:\\\\Users\\\\Bruno\\\\OneDrive\\\\Projets\\\\modusgenius\\\\icones logo\\\\Vignette newsletter.png\" \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\\\\src\\\\assets\\\\images\\\\vignette-newsletter.png\")",
+      "Bash(git fetch *)",
+      "Read(//c/Users/Bruno/Desktop/**)",
+      "Read(//c/Users/Bruno/**)"
     ]
   }
 }

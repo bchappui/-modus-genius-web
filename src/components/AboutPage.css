@@ -1,0 +1,293 @@
+.ap-intro {
+    max-width: 680px;
+    margin-top: 90px;
+    text-align: left;
+}
+
+/* Same .hp-headline gradient/size/weight as HomePage, just left-aligned
+   instead of centered (the carousel's own headline stays centered). */
+.ap-headline {
+    text-align: left;
+}
+.ap-hashtag {
+    text-align: center;
+}
+
+.ap-body {
+    margin: 0 0 18px;
+    max-width: 640px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.7;
+    color: rgba(230, 238, 250, 0.9);
+}
+
+/* Full-bleed, split down the middle of the actual screen — bleeds past
+   .ep-hero's own 5vw side padding (same technique as NewsletterPage's
+   .np-banner), so the photo half nearly touches the right edge of the
+   viewport, with a small gap left on that side. */
+.ap-testimonial {
+    display: flex;
+    align-items: stretch;
+    width: calc(100% + 7vw);
+    margin: 90px -2vw 90px -5vw;
+    min-height: 420px;
+    background: linear-gradient(180deg, #0e2038 0%, #0c1e38 100%);
+    overflow: hidden;
+}
+
+.ap-testimonial-text {
+    position: relative;
+    width: 50%;
+    box-sizing: border-box;
+    padding: 50px 5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Big decorative quote marks sitting behind the text, not inline with it. */
+.ap-quote-mark {
+    position: absolute;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.08);
+    z-index: 0;
+    pointer-events: none;
+}
+.ap-quote-mark--open {
+    top: 10px;
+    left: 20px;
+    font-size: 260px;
+}
+.ap-quote-mark--close {
+    bottom: -140px;
+    right: 20px;
+    font-size: 260px;
+}
+
+.ap-quote {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 16px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 23px;
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.55;
+    color: rgba(230, 238, 250, 0.9);
+}
+/* Same rainbow gradient as .hp-hashtag / .ap-hashtag at the top of the page. */
+.ap-quote-hashtag {
+    font-weight: 900;
+    background: linear-gradient(90deg, #e8412c, #f5941f, #f7d038, #6fbf4a, #29c3c8, #3f8ce8, #9b6fe0, #e15fc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.ap-quote-attribution {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+.ap-quote-author {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 23px;
+    font-weight: 600;
+    font-style: italic;
+    color: rgba(230, 238, 250, 0.9);
+}
+.ap-quote-stars {
+    color: rgb(230, 175, 90);
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.ap-testimonial-photo {
+    flex-shrink: 0;
+    width: 50%;
+    border-radius: 16px;
+    overflow: hidden;
+}
+.ap-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ap-pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1100px;
+    width: 100%;
+    margin: 320px auto 260px;
+}
+
+.ap-pillar-card {
+    position: relative;
+    border: 1px solid rgba(120, 180, 220, 0.35);
+    border-radius: 10px;
+    padding: 70px 26px 50px;
+    text-align: center;
+}
+
+.ap-pillar-hex {
+    position: absolute;
+    top: -55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 95px;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ap-pillar-icon-img {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+}
+.ap-pillar-sparkle {
+    width: 78%;
+    height: 78%;
+    color: rgb(15, 25, 40);
+}
+
+/* Same gradient/weight as .hp-headline, scaled down for a short one-word title. */
+.ap-pillar-title {
+    margin: 0 0 18px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg,
+        rgb(15,70,105)   0%,
+        rgb(30,110,150)  10%,
+        rgb(55,150,185)  20%,
+        rgb(120,195,220) 30%,
+        rgb(255,255,255) 58%,
+        rgb(240,222,185) 84%,
+        rgb(200,175,130) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ap-pillar-text {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1.6;
+    color: rgba(230, 238, 250, 0.9);
+}
+
+.ap-pillar-plus {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgb(70, 150, 210);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+.ap-pillar-plus:hover { background: rgb(90, 170, 230); }
+
+/* Bleeds past .ep-hero's own 5vw right padding only — the text side stays
+   aligned with the rest of the column, the photo side runs to the screen edge. */
+.ap-split-row {
+    display: flex;
+    align-items: stretch;
+    width: calc(100% + 5vw);
+    margin: 100px -5vw 60px 0;
+    min-height: 480px;
+}
+
+.ap-split-text {
+    width: 62%;
+    box-sizing: border-box;
+    padding-right: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.ap-split-title {
+    text-align: left;
+    margin-bottom: 20px;
+}
+.ap-split-body {
+    margin: 0 0 20px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.7;
+    color: rgba(230, 238, 250, 0.9);
+}
+.ap-split-body strong { font-weight: 800; }
+
+.ap-split-photo {
+    flex-shrink: 0;
+    width: 38%;
+}
+
+/* Mirrors the whole row — photo bleeds off the left edge instead of the
+   right, text sits on the right with its gap-to-photo padding flipped too. */
+.ap-split-row--reverse {
+    flex-direction: row-reverse;
+    margin: 100px 0 60px -5vw;
+}
+.ap-split-row--reverse .ap-split-text {
+    width: 76%;
+    padding-right: 0;
+    padding-left: 50px;
+}
+.ap-split-row--reverse .ap-split-title {
+    text-align: right;
+}
+.ap-split-row--reverse .ap-split-photo {
+    width: 24%;
+}
+
+.ap-split-row--narrow-photo .ap-split-text {
+    width: 72%;
+}
+.ap-split-row--narrow-photo .ap-split-photo {
+    width: 28%;
+}
+
+@media (max-width: 800px) {
+    .ap-testimonial { flex-direction: column; min-height: 0; }
+    .ap-testimonial-text, .ap-testimonial-photo { width: 100%; }
+    .ap-testimonial-photo { height: 260px; }
+    .ap-pillars { grid-template-columns: 1fr; }
+    .ap-split-row, .ap-split-row--reverse { flex-direction: column; width: 100%; margin-left: 0; margin-right: 0; min-height: 0; }
+    .ap-split-text, .ap-split-photo,
+    .ap-split-row--reverse .ap-split-text, .ap-split-row--reverse .ap-split-photo,
+    .ap-split-row--narrow-photo .ap-split-text, .ap-split-row--narrow-photo .ap-split-photo { width: 100%; }
+    .ap-split-text, .ap-split-row--reverse .ap-split-text { padding-right: 0; padding-left: 0; margin-bottom: 24px; text-align: left; }
+    .ap-split-row--reverse .ap-split-title { text-align: left; }
+    .ap-split-photo { height: 260px; }
+}
+
+@media (max-width: 640px) {
+    .ap-intro { margin-top: 60px; }
+}

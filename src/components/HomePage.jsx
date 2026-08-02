@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import {
     getTop10Properties, getMissedProperties, getMostWantedProperties,
     getClassicsProperties, getNewProperties, getMGSelectsProperties,
 } from '../lib/discover.js'
 import { useUserTopHashtags } from '../lib/useUserTopHashtags.js'
 import SearchModal from './SearchModal.jsx'
+import CreateModal from './CreateModal.jsx'
+import TopNav from './TopNav.jsx'
 import './ExplorePage.css'
 import './HomePage.css'
 
-const LOGO_TEXT_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
 const MEDALLION_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a465c42001e90b9a93c/view?project=693e8acd001582e2562a';
-const NAV_BG_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a465c800035bdea516f/view?project=693e8acd001582e2562a';
 const CIRCLE_TEXT = 'YOUR EXPERTISE  •  OUR COLLECTION  •  ';
 
 // Carousel slides — auto-rotates. The "Join the Global Movement" / "#DISRUPTIVY"
@@ -94,10 +94,12 @@ const CarouselSection = ({ title, items, loading, showNumbers, onSelectProperty 
 };
 
 const HomePage = ({
-    agentId, searchTerm, onSearchChange, onShowFavorites, onLogout,
-    onGoToExplore, onShowSubscribe, onShowGenius, movieList, isLoading, errorMessage, onSelectProperty,
+    agentId, searchTerm, onSearchChange, onShowFavorites, onLogout, isLoggedIn,
+    onGoToExplore, onShowNewsletter, onShowGenius, onShowQuotes, onShowCreate, onShowSubscribe, onLearnMore, movieList, isLoading, errorMessage, onSelectProperty,
+    agentAvatar, onOpenProfile,
 }) => {
     const [searchModalOpen, setSearchModalOpen] = useState(false);
+    const [createModalOpen, setCreateModalOpen] = useState(false);
     const { sections: hashtagSections } = useUserTopHashtags(agentId);
 
     const [slideIndex, setSlideIndex] = useState(0);
@@ -128,28 +130,15 @@ const HomePage = ({
     return (
         <div className="ep-page">
 
-            {/* ── DECORATIVE TOP NAV — same as ExplorePage, "Home" active here ── */}
-            <div className="ep-nav" style={{ backgroundImage: `url(${NAV_BG_URL})` }}>
-                <div className="ep-nav-logo">
-                    <img src={LOGO_TEXT_URL} alt="Modus Genius" className="ep-nav-logo-img" />
-                    <span className="ep-nav-tagline">Your Expertise&nbsp;&nbsp;|&nbsp;&nbsp;Our Collection</span>
-                </div>
-                <nav className="ep-nav-links">
-                    <span className="ep-nav-link ep-nav-link--active">Home</span>
-                    <button className="ep-nav-link ep-nav-link-btn" onClick={onGoToExplore}>Explore</button>
-                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowGenius}>Genius</button>
-                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowSubscribe}>Newsletter</button>
-                </nav>
-                <div className="ep-nav-right">
-                    <span className="ep-nav-create">+ Create</span>
-                    <button className="ep-nav-login" onClick={onShowFavorites}>Favorites</button>
-                    <button className="ep-nav-login" onClick={onLogout}>Log out</button>
-                    <span className="ep-nav-membership">Membership</span>
-                    <button className="ep-nav-search-btn" onClick={() => setSearchModalOpen(true)} aria-label="Search">
-                        <FiSearch size={18} className="ep-nav-search-icon" />
-                    </button>
-                </div>
-            </div>
+            <TopNav
+                activeLink="home" disableActiveLink
+                onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
+                onLogout={onLogout} isLoggedIn={isLoggedIn}
+                agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}
+                onOpenSearch={() => setSearchModalOpen(true)}
+            />
 
             {searchModalOpen && (
                 <SearchModal
@@ -161,6 +150,10 @@ const HomePage = ({
                     onSelectProperty={onSelectProperty}
                     onClose={() => setSearchModalOpen(false)}
                 />
+            )}
+
+            {createModalOpen && (
+                <CreateModal onClose={() => setCreateModalOpen(false)} />
             )}
 
             {/* ── HERO — same medallion technique as ExplorePage ── */}
@@ -196,49 +189,61 @@ const HomePage = ({
                         >
                             <FiChevronRight size={22} />
                         </button>
-                        <div className="hp-slide-content">
-                            {CAROUSEL_SLIDES[slideIndex].type === 'wreath' ? (
-                                <div className="hp-wreath-slide">
-                                    <h1 className="hp-headline">{CAROUSEL_SLIDES[slideIndex].headline}</h1>
-                                    <div className="hp-wreath-body">
-                                        <img src={CAROUSEL_SLIDES[slideIndex].wreathImage} alt="" className="hp-wreath-img" />
-                                        <div className="hp-wreath-text">
-                                            {CAROUSEL_SLIDES[slideIndex].lines.map(line => (
-                                                <p key={line} className="hp-wreath-line">{line}</p>
-                                            ))}
-                                            <p className="hp-wreath-line">
-                                                Your contribution could earn a place in the{' '}
-                                                <em className="hp-wreath-genius">GENIUS<sup>10</sup></em> ranking.
-                                            </p>
-                                        </div>
-                                        <button className="hp-learn-btn hp-wreath-btn">{CAROUSEL_SLIDES[slideIndex].buttonLabel}</button>
+                        <div className="hp-slide-viewport">
+                            <div
+                                className="hp-slide-track"
+                                style={{
+                                    width: `${CAROUSEL_SLIDES.length * 100}%`,
+                                    transform: `translateX(-${slideIndex * (100 / CAROUSEL_SLIDES.length)}%)`,
+                                }}
+                            >
+                                {CAROUSEL_SLIDES.map((slide, i) => (
+                                    <div key={i} className="hp-slide-content" style={{ width: `${100 / CAROUSEL_SLIDES.length}%` }}>
+                                        {slide.type === 'wreath' ? (
+                                            <div className="hp-wreath-slide">
+                                                <h1 className="hp-headline">{slide.headline}</h1>
+                                                <div className="hp-wreath-body">
+                                                    <img src={slide.wreathImage} alt="" className="hp-wreath-img" />
+                                                    <div className="hp-wreath-text">
+                                                        {slide.lines.map(line => (
+                                                            <p key={line} className="hp-wreath-line">{line}</p>
+                                                        ))}
+                                                        <p className="hp-wreath-line">
+                                                            Your contribution could earn a place in the{' '}
+                                                            <em className="hp-wreath-genius">GENIUS<sup>10</sup></em> ranking.
+                                                        </p>
+                                                    </div>
+                                                    <button className="hp-learn-btn hp-wreath-btn" onClick={() => setCreateModalOpen(true)}>{slide.buttonLabel}</button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {slide.headline && (
+                                                    <h1 className="hp-headline">
+                                                        {slide.headline}
+                                                    </h1>
+                                                )}
+                                                {slide.hashtag && (
+                                                    <p className="hp-hashtag">{slide.hashtag}</p>
+                                                )}
+                                                <img
+                                                    src={slide.image}
+                                                    alt=""
+                                                    className={`hp-badge${slide.large ? ' hp-badge--large' : ''}`}
+                                                />
+                                                {slide.headline && (
+                                                    <button className="hp-learn-btn" onClick={onLearnMore}>Learn More</button>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
-                                </div>
-                            ) : (
-                                <>
-                                    {CAROUSEL_SLIDES[slideIndex].headline && (
-                                        <h1 className="hp-headline">
-                                            {CAROUSEL_SLIDES[slideIndex].headline}
-                                        </h1>
-                                    )}
-                                    {CAROUSEL_SLIDES[slideIndex].hashtag && (
-                                        <p className="hp-hashtag">{CAROUSEL_SLIDES[slideIndex].hashtag}</p>
-                                    )}
-                                    <img
-                                        src={CAROUSEL_SLIDES[slideIndex].image}
-                                        alt=""
-                                        className={`hp-badge${CAROUSEL_SLIDES[slideIndex].large ? ' hp-badge--large' : ''}`}
-                                    />
-                                    {CAROUSEL_SLIDES[slideIndex].headline && (
-                                        <button className="hp-learn-btn">Learn More</button>
-                                    )}
-                                </>
-                            )}
+                                ))}
+                            </div>
                         </div>
                         <div className="hp-dots">
                             {CAROUSEL_SLIDES.map((slide, i) => (
                                 <button
-                                    key={slide.image}
+                                    key={i}
                                     className={`hp-dot${i === slideIndex ? ' hp-dot--active' : ''}`}
                                     aria-label={`Slide ${i + 1}`}
                                     onClick={() => setSlideIndex(i)}

@@ -112,40 +112,47 @@
 }
 .cm-load-more:disabled { opacity: 0.5; cursor: default; }
 
-/* ── Input row — replaces cr-bot-actions inside cr-bot-bar ── */
-.cm-input-row {
+/* ── Input row — replaces cr-bot-actions inside cr-bot-bar.
+   Stays on the shared cr-bot-bar (45px, vertically centered) so nothing
+   overflows the fixed-height card — same row used for CardReader's own
+   heart/comment icons.
+   NOTE: named cmt-* (not cm-*) — CreateModal.css already owns .cm-input /
+   .cm-send-btn for its own form and was clobbering these rules. ── */
+.cmt-input-row {
     flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding-left: 8px;
-    padding-right: 6px;
+    gap: 8px;
+    padding: 0 8px 0 10px;
 }
-.cm-input {
+.cmt-input {
     flex: 1;
-    height: 30px;
+    min-width: 0;
+    height: 34px;
     border: 1px solid var(--cr-border);
-    border-radius: 15px;
-    padding: 0 12px;
-    font-size: 12px;
+    border-radius: 17px;
+    padding: 0 14px;
+    font-size: 12.5px;
     font-weight: 600;
     color: rgb(13, 85, 167);
-    background: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.65);
     outline: none;
+    box-sizing: border-box;
 }
-.cm-input::placeholder { color: rgba(65, 120, 188, 0.6); }
+.cmt-input::placeholder { color: rgba(65, 120, 188, 0.6); }
 
-.cm-send-btn {
+.cmt-send-btn {
+    flex-shrink: 0;
     width: 30px;
     height: 30px;
     border-radius: 50%;
     border: none;
     background: var(--cr-gold);
     color: white;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    cursor: pointer;
 }
-.cm-send-btn:disabled { opacity: 0.5; cursor: default; }
+.cmt-send-btn:disabled { opacity: 0.5; cursor: default; }

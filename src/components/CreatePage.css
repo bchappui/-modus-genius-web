@@ -1,0 +1,95 @@
+.cp-genius-mention {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    color: rgb(201, 151, 44);
+    font-weight: 700;
+    cursor: pointer;
+}
+.cp-genius-mention:hover { text-decoration: underline; }
+.cp-genius-mention sup {
+    font-size: 0.7em;
+}
+
+/* .ep-headline has no max-width — this page's shorter headline needs one so
+   it wraps and never renders wider than the subtext paragraph below it. */
+.cp-headline {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cp-cta-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.cp-social-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* One large, translucent wreath (mirrors the gold HOF_WREATH_URL wreath used
+   on GeniusPage) sits behind the whole avatar cluster instead of one per
+   avatar. */
+.cp-bg-wreath {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -54%);
+    width: 400px;
+    height: 400px;
+    max-width: none;
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.cp-social-row .sp-avatars {
+    position: relative;
+    z-index: 1;
+}
+
+/* Sized so the 5-avatar row spans the same ~480px as .cp-headline. */
+.cp-avatar {
+    width: 114px;
+    height: 114px;
+    margin-left: -23px;
+}
+.cp-avatar:first-child { margin-left: 0; }
+
+.cp-start {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.cp-start-btn {
+    height: 50px;
+    padding: 0 34px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgb(230,175,90), rgb(201,151,44));
+    color: #1a1200;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.cp-start-btn:hover { filter: brightness(1.05); }
+.cp-start-caption {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-style: italic;
+    color: rgba(190, 205, 230, 0.7);
+}

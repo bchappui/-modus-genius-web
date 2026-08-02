@@ -1,49 +1,35 @@
 import React, { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
 import { SKILL_CATEGORIES, getCategoryImageUrl } from '../lib/categories.js'
-import MiniCard from './MiniCard.jsx'
 import Spinner from './Spinner.jsx'
 import SearchModal from './SearchModal.jsx'
+import TopNav from './TopNav.jsx'
 import './ExplorePage.css'
+import './HomePage.css'
 
-const LOGO_TEXT_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
 const MEDALLION_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a465c42001e90b9a93c/view?project=693e8acd001582e2562a';
-const NAV_BG_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a465c800035bdea516f/view?project=693e8acd001582e2562a';
 
 const CIRCLE_TEXT = 'YOUR EXPERTISE  •  OUR COLLECTION  •  ';
 
 const ExplorePage = ({
-    searchTerm, onSearchChange, onSelectCategory, propertiesCount, onShowFavorites, onLogout,
-    selectedType, onGoToExplore, onShowSubscribe, onGoHome, onShowGenius, movieList, isLoading, errorMessage, onSelectProperty,
+    searchTerm, onSearchChange, onSelectCategory, propertiesCount, onShowFavorites, onLogout, isLoggedIn,
+    selectedType, onGoToExplore, onShowNewsletter, onGoHome, onShowGenius, onShowQuotes, onShowCreate, onShowSubscribe, movieList, isLoading, errorMessage, onSelectProperty,
+    agentAvatar, onOpenProfile,
 }) => {
     const showResults = !!searchTerm || !!selectedType;
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     return (
         <div className="ep-page">
 
-            {/* ── DECORATIVE TOP NAV — matches the PowerPoint design, not yet wired to real pages.
-                Favorites/Log out (real actions) live in ep-nav-right below. */}
-            <div className="ep-nav" style={{ backgroundImage: `url(${NAV_BG_URL})` }}>
-                <div className="ep-nav-logo">
-                    <img src={LOGO_TEXT_URL} alt="Modus Genius" className="ep-nav-logo-img" />
-                    <span className="ep-nav-tagline">Your Expertise&nbsp;&nbsp;|&nbsp;&nbsp;Our Collection</span>
-                </div>
-                <nav className="ep-nav-links">
-                    <button className="ep-nav-link ep-nav-link-btn" onClick={onGoHome}>Home</button>
-                    <button className="ep-nav-link ep-nav-link--active ep-nav-link-btn" onClick={onGoToExplore}>Explore</button>
-                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowGenius}>Genius</button>
-                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowSubscribe}>Newsletter</button>
-                </nav>
-                <div className="ep-nav-right">
-                    <span className="ep-nav-create">+ Create</span>
-                    <button className="ep-nav-login" onClick={onShowFavorites}>Favorites</button>
-                    <button className="ep-nav-login" onClick={onLogout}>Log out</button>
-                    <span className="ep-nav-membership">Membership</span>
-                    <button className="ep-nav-search-btn" onClick={() => setSearchModalOpen(true)} aria-label="Search">
-                        <FiSearch size={18} className="ep-nav-search-icon" />
-                    </button>
-                </div>
-            </div>
+            <TopNav
+                activeLink="explore"
+                onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
+                onLogout={onLogout} isLoggedIn={isLoggedIn}
+                agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}
+                onOpenSearch={() => setSearchModalOpen(true)}
+            />
 
             {searchModalOpen && (
                 <SearchModal
@@ -90,6 +76,8 @@ const ExplorePage = ({
                         <p className="ep-subtext">
                             Explore our library of {propertiesCount != null ? `more than ${propertiesCount}` : 'hundreds of'} cards from the world's biggest experts.
                             <br />
+                            Turn big ideas into practice. Grow your career through real-world learning.
+                            <br />
                             Get instant access today.
                         </p>
 
@@ -121,7 +109,15 @@ const ExplorePage = ({
                             ) : (
                                 <div className="ep-results-grid">
                                     {movieList.map(property => (
-                                        <MiniCard key={property.$id} property={property} onSelect={() => onSelectProperty(property)} />
+                                        <button
+                                            key={property.$id}
+                                            className="hp-hashtag-item"
+                                            onClick={() => onSelectProperty(property)}
+                                        >
+                                            <img src={property.background || '/no-movie.png'} alt="" className="hp-hashtag-img" />
+                                            <div className="hp-hashtag-overlay" />
+                                            <span className="hp-hashtag-name">{property.name}</span>
+                                        </button>
                                     ))}
                                 </div>
                             )}

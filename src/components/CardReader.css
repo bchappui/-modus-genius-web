@@ -345,7 +345,7 @@
 /* ── Pagination — absolute within cr-inner, just above the bottom bar ── */
 .cr-pagination {
     position: absolute;
-    bottom: var(--cr-bot-bar-h);
+    bottom: calc(var(--cr-bot-bar-h) + 10px);
     left: 0;
     right: 0;
     height: var(--cr-pag-h);

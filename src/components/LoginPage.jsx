@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
 import { account, OAuthProvider } from '../lib/appwrite.js'
 import { ID } from 'appwrite'
+import SearchModal from './SearchModal.jsx'
 import './ExplorePage.css'
 import './LoginPage.css'
 
@@ -19,13 +20,17 @@ const googleOAuth = () => {
     )
 }
 
-const LoginPage = ({ onLoginSuccess }) => {
+const LoginPage = ({
+    onLoginSuccess, onBack, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCreate,
+    searchTerm, onSearchChange, movieList, isLoading: searchLoading, errorMessage, onSelectProperty,
+}) => {
     // views: 'email' | 'password' | 'signup' | 'signup-password'
     const [view, setView] = useState('email')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [searchModalOpen, setSearchModalOpen] = useState(false)
 
     const nav = (v) => { setView(v); setError('') }
 
@@ -85,23 +90,38 @@ const LoginPage = ({ onLoginSuccess }) => {
 
             {/* ── DECORATIVE TOP NAV — same as ExplorePage, purely visual here (not logged in yet) ── */}
             <div className="ep-nav" style={{ backgroundImage: `url(${NAV_BG_URL})` }}>
-                <div className="ep-nav-logo">
+                <button className="ep-nav-logo lp-logo-btn" onClick={onBack} aria-label="Back">
                     <img src={LOGO_TEXT_URL} alt="Modus Genius" className="ep-nav-logo-img" />
                     <span className="ep-nav-tagline">Your Expertise&nbsp;&nbsp;|&nbsp;&nbsp;Our Collection</span>
-                </div>
+                </button>
                 <nav className="ep-nav-links">
-                    <span className="ep-nav-link">Home</span>
-                    <span className="ep-nav-link">Explore</span>
-                    <span className="ep-nav-link">Genius</span>
-                    <span className="ep-nav-link">Newsletter</span>
+                    <button className="ep-nav-link ep-nav-link-btn" onClick={onGoHome}>Home</button>
+                    <button className="ep-nav-link ep-nav-link-btn" onClick={onGoToExplore}>Explore</button>
+                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowGenius}>Genius</button>
+                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowQuotes}>Quotes</button>
+                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowNewsletter}>Newsletter</button>
                 </nav>
                 <div className="ep-nav-right">
-                    <span className="ep-nav-create">+ Create</span>
+                    <button className="ep-nav-create" onClick={onShowCreate}>+ Create</button>
                     <span className="ep-nav-login ep-nav-login--active">Login</span>
                     <span className="ep-nav-membership">Membership</span>
-                    <FiSearch size={18} className="ep-nav-search-icon" />
+                    <button className="ep-nav-search-btn" onClick={() => setSearchModalOpen(true)} aria-label="Search">
+                        <FiSearch size={18} className="ep-nav-search-icon" />
+                    </button>
                 </div>
             </div>
+
+            {searchModalOpen && (
+                <SearchModal
+                    searchTerm={searchTerm}
+                    onSearchChange={onSearchChange}
+                    movieList={movieList}
+                    isLoading={searchLoading}
+                    errorMessage={errorMessage}
+                    onSelectProperty={onSelectProperty}
+                    onClose={() => setSearchModalOpen(false)}
+                />
+            )}
 
             {/* ── HERO ── */}
             <div className="ep-hero">

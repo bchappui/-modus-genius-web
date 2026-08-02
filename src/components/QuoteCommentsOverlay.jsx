@@ -2,19 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { MdKeyboardArrowLeft, MdSend, MdDeleteOutline, MdChatBubbleOutline } from 'react-icons/md'
 import './CardReader.css'
 import './CommentsOverlay.css'
-import { getPropertyComments, addComment, deleteComment, hasUserCommented } from '../lib/comments.js'
+import { getQuoteComments, addQuoteComment, deleteQuoteComment, hasUserCommentedQuote } from '../lib/quotes.js'
 
 const LOGOCENTER_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a07239d002ed6eff7fc/view?project=693e8acd001582e2562a';
 const MADE_BY_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
 
 const PAGE_SIZE = 20;
 
-const CommentsOverlay = ({ property, currentUserName, currentUserAvatar, onClose, onCommentCountChange, onOwnCommentChange }) => {
-    const agent = Array.isArray(property?.agent)
-        ? (property.agent[0] ?? null)
-        : (property?.agent && typeof property.agent === 'object' ? property.agent : null);
-
-    const propertyId = property?.$id;
+const QuoteCommentsOverlay = ({ quote, currentUserId, currentUserName, currentUserAvatar, onClose, onCommentCountChange, onOwnCommentChange }) => {
+    const quoteId = quote?.$id;
 
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -25,49 +21,49 @@ const CommentsOverlay = ({ property, currentUserName, currentUserAvatar, onClose
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
-        if (!propertyId) return;
+        if (!quoteId) return;
         const load = async () => {
             setLoading(true);
             try {
-                const { items, hasMore: more } = await getPropertyComments({ propertyId, limit: PAGE_SIZE, offset: 0 });
+                const { items, hasMore: more } = await getQuoteComments({ quoteId, limit: PAGE_SIZE, offset: 0 });
                 setComments(items);
                 setHasMore(more);
                 setOffset(items.length);
             } catch (e) {
-                console.error('Error loading comments', e);
+                console.error('Error loading quote comments', e);
             } finally {
                 setLoading(false);
             }
         };
         load();
-    }, [propertyId]);
+    }, [quoteId]);
 
     const loadMore = async () => {
         if (!hasMore || loadingMore || loading) return;
         setLoadingMore(true);
         try {
-            const { items, hasMore: more } = await getPropertyComments({ propertyId, limit: PAGE_SIZE, offset });
+            const { items, hasMore: more } = await getQuoteComments({ quoteId, limit: PAGE_SIZE, offset });
             setComments(prev => [...prev, ...items]);
             setHasMore(more);
             setOffset(prev => prev + items.length);
         } catch (e) {
-            console.error('Error loading more comments', e);
+            console.error('Error loading more quote comments', e);
         } finally {
             setLoadingMore(false);
         }
     };
 
     const handleAdd = async () => {
-        if (!text.trim() || !currentUserName || submitting) return;
+        if (!text.trim() || !currentUserId || !currentUserName || submitting) return;
         setSubmitting(true);
         try {
-            const { comment, reviewCount } = await addComment(propertyId, text.trim(), currentUserName, currentUserAvatar || '');
+            const { comment, commentCount } = await addQuoteComment(quoteId, currentUserId, text.trim(), currentUserName, currentUserAvatar || '');
             setComments(prev => [comment, ...prev]);
             setText('');
-            onCommentCountChange?.(reviewCount);
+            onCommentCountChange?.(commentCount);
             onOwnCommentChange?.(true);
         } catch (e) {
-            console.error('Error adding comment', e);
+            console.error('Error adding quote comment', e);
         } finally {
             setSubmitting(false);
         }
@@ -75,14 +71,14 @@ const CommentsOverlay = ({ property, currentUserName, currentUserAvatar, onClose
 
     const handleDelete = async (commentId) => {
         try {
-            const { reviewCount } = await deleteComment(commentId, propertyId);
+            const { commentCount } = await deleteQuoteComment(commentId, quoteId);
             setComments(prev => prev.filter(c => c.$id !== commentId));
-            onCommentCountChange?.(reviewCount);
-            if (currentUserName) {
-                hasUserCommented(propertyId, currentUserName).then(onOwnCommentChange).catch(() => {});
+            onCommentCountChange?.(commentCount);
+            if (currentUserId) {
+                hasUserCommentedQuote(quoteId, currentUserId).then(onOwnCommentChange).catch(() => {});
             }
         } catch (e) {
-            console.error('Error deleting comment', e);
+            console.error('Error deleting quote comment', e);
         }
     };
 
@@ -141,15 +137,15 @@ const CommentsOverlay = ({ property, currentUserName, currentUserAvatar, onClose
                                         <div key={c.$id} className="cm-row">
                                             <div
                                                 className="cm-avatar"
-                                                style={c.avatar ? { backgroundImage: `url(${c.avatar})` } : undefined}
+                                                style={c.userAvatar ? { backgroundImage: `url(${c.userAvatar})` } : undefined}
                                             />
                                             <div className="cm-body">
-                                                <span className="cm-name">{c.name}</span>
-                                                <span className="cm-text">{c.review}</span>
+                                                <span className="cm-name">{c.userName}</span>
+                                                <span className="cm-text">{c.comment}</span>
                                             </div>
                                             <div className="cm-right">
                                                 <span className="cm-date">{new Date(c.$createdAt).toLocaleDateString()}</span>
-                                                {c.name === currentUserName && (
+                                                {c.userId === currentUserId && (
                                                     <button className="cm-delete-btn" onClick={() => handleDelete(c.$id)}>
                                                         <MdDeleteOutline size={15} color="rgb(239,68,68)" />
                                                     </button>
@@ -187,8 +183,8 @@ const CommentsOverlay = ({ property, currentUserName, currentUserAvatar, onClose
                             <div className="cr-diamond-slot">
                                 <div className="cr-diamond">
                                     <div className="cr-diamond-frame">
-                                        {agent?.avatar && (
-                                            <img src={agent.avatar} className="cr-avatar" alt="" />
+                                        {currentUserAvatar && (
+                                            <img src={currentUserAvatar} className="cr-avatar" alt="" />
                                         )}
                                     </div>
                                 </div>
@@ -203,4 +199,4 @@ const CommentsOverlay = ({ property, currentUserName, currentUserAvatar, onClose
     );
 };
 
-export default CommentsOverlay;
+export default QuoteCommentsOverlay;

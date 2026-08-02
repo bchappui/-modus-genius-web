@@ -1,0 +1,124 @@
+/* Narrower line-length than the shared .ep-hero-intro's 858px, while staying
+   centered within that same flush-left box — so everything still lines up
+   under the title instead of drifting toward the viewport's true center. */
+.ta-intro .ep-subtext,
+.ta-intro .hp-hashtag,
+.ta-intro .ta-checklist {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* "Welcome to..." reuses .hp-hashtag's rainbow gradient (same look as
+   "#DISRUPTIVY" elsewhere) at its natural size, matching the h1 above it —
+   just tighter line-height since it wraps onto multiple lines here. */
+.ta-welcome {
+    line-height: 1.15;
+}
+
+/* Shared plain-line style for the checklist items below "In this
+   newsletter, you can expect:" (that line itself now reuses .ep-headline —
+   same size as "YOU'RE IN!" — see .ta-expect below, which only adds
+   spacing). */
+.ta-line {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: rgba(190, 205, 230, 0.85);
+}
+.ta-expect {
+    margin: 0 0 16px;
+}
+
+/* Same rainbow gradient as "Welcome to...", requested for the 3 checklist
+   items specifically — kept off the ✔️ itself (separate span) so the emoji
+   stays its native green instead of being clipped transparent by the
+   gradient-text trick. */
+.ta-checklist-item {
+    font-size: 40px;
+    font-style: italic;
+    background: linear-gradient(90deg, #e8412c, #f5941f, #f7d038, #6fbf4a, #29c3c8, #3f8ce8, #9b6fe0, #e15fc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.ta-emoji {
+    font-size: 40px;
+    -webkit-text-fill-color: initial;
+    font-style: normal;
+}
+.ta-gift-emoji {
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.ta-checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Carousel: a viewport clips a track holding all slides side by side (each
+   1/SLIDE_COUNT of the track's SLIDE_COUNT*100% width, set inline in the
+   JSX since SLIDE_COUNT depends on EXPECT_ITEMS.length); translateX-ing the
+   track by 100%/SLIDE_COUNT per step slides left/right between them instead
+   of an instant swap — same technique as HomePage's hero carousel. Slides
+   vary a lot in height (one line vs. a long paragraph), so the viewport's
+   own height is measured from the active slide (JSX) and animated here,
+   instead of a fixed height that either clips the long slide or leaves a
+   gap before the dots on the short ones. */
+.ta-slide-viewport {
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+.ta-slide-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s ease;
+}
+.ta-slide {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+}
+
+/* Dots reuse HomePage's .hp-dots/.hp-dot exactly (same style, same
+   "requested to match" ask) — this file only adds nothing extra. Their
+   position never shifts since they're a sibling of the fixed-height
+   .ta-slide-viewport, not inside it. */
+
+/* Reuses .ep-headline's gradient/size, left-aligned instead of the
+   inherited center, with extra breathing room above it. */
+.ta-first-issue {
+    margin-top: 60px;
+    text-align: left;
+}
+
+/* Extra breathing room above the vignettes — card sizing itself is untouched
+   (still .np-card-grid's default auto-fill columns). */
+.ta-vignette-grid {
+    margin-top: 50px;
+}
+
+/* The button is a grid item INSIDE .np-card-grid (not a sibling below it),
+   spanning the first 3 column tracks — the same ones the 3 visible cards
+   sit in. auto-fill can add extra empty tracks on wide screens beyond what
+   the cards use, so matching the grid's own outer width (e.g. max-width)
+   would make the button wider than the cards actually appear; spanning
+   "the first 3 tracks" instead guarantees an exact match regardless. */
+.ta-cta-row {
+    grid-column: span 3;
+    margin-top: 20px;
+}
+.ta-start-btn {
+    width: 100%;
+    height: 52px;
+    font-size: 16px;
+}
