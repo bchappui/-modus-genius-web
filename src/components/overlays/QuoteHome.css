@@ -5,14 +5,14 @@
 
 @font-face {
     font-family: 'fairfaxstation';
-    src: url('../assets/fonts/fairfaxstation.ttf') format('truetype');
+    src: url('../../assets/fonts/fairfaxstation.ttf') format('truetype');
 }
 
 /* Same icon font quotes/[id].tsx uses for its two big decorative quote marks
    (Fontisto "quote-a-right"/"quote-a-left", glyphs 0xE9C1/0xE9C0). */
 @font-face {
     font-family: 'Fontisto';
-    src: url('../assets/fonts/Fontisto.ttf') format('truetype');
+    src: url('../../assets/fonts/Fontisto.ttf') format('truetype');
 }
 
 /* ══ FULL-BLEED IMAGE + OVERLAYS (quote card has no bottom agent section,

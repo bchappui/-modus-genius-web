@@ -1,7 +1,7 @@
 /* ── GoldenSignature font ── */
 @font-face {
     font-family: 'GoldenSignature';
-    src: url('../assets/fonts/GoldenSignature.ttf') format('truetype');
+    src: url('../../assets/fonts/GoldenSignature.ttf') format('truetype');
 }
 
 :root {

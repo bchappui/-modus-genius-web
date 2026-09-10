@@ -48,7 +48,7 @@
 
 .np-card-thumb {
     aspect-ratio: 1140 / 616;
-    background: url('../assets/images/vignette-newsletter.png') center / cover no-repeat;
+    background: url('../../assets/images/vignette-newsletter.png') center / cover no-repeat;
 }
 
 .np-card-badge-row {
@@ -79,11 +79,11 @@
     height: 12px;
     flex-shrink: 0;
     background: linear-gradient(90deg, #e8412c, #f5941f, #f7d038, #6fbf4a, #29c3c8, #3f8ce8, #9b6fe0, #e15fc0);
-    -webkit-mask-image: url('../assets/icons/coupon.svg');
+    -webkit-mask-image: url('../../assets/icons/coupon.svg');
     -webkit-mask-size: contain;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
-    mask-image: url('../assets/icons/coupon.svg');
+    mask-image: url('../../assets/icons/coupon.svg');
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
@@ -200,7 +200,7 @@
 
 .np-recent-thumb {
     aspect-ratio: 1140 / 616;
-    background: url('../assets/images/vignette-newsletter.png') center / cover no-repeat;
+    background: url('../../assets/images/vignette-newsletter.png') center / cover no-repeat;
 }
 
 
