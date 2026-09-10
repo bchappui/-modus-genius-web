@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
-import { SKILL_CATEGORIES, getCategoryImageUrl } from '../lib/categories.js'
-import Spinner from './Spinner.jsx'
-import SearchModal from './SearchModal.jsx'
-import TopNav from './TopNav.jsx'
+import { SKILL_CATEGORIES, getCategoryImageUrl } from '../../lib/categories.js'
+import Spinner from '../shared/Spinner.jsx'
+import SearchModal from '../modals/SearchModal.jsx'
+import TopNav from '../shared/TopNav.jsx'
 import './ExplorePage.css'
 import './HomePage.css'
 

@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import Spinner from "./components/Spinner.jsx";
+import Spinner from "./components/shared/Spinner.jsx";
 import { databases, account, DATABASE_ID, PROPERTIES_COLLECTION_ID, AGENTS_COLLECTION_ID, Query } from './lib/appwrite.js';
-import CardHome from "./components/CardHome.jsx";
-import QuoteHome from "./components/QuoteHome.jsx";
-import QuotesPage from "./components/QuotesPage.jsx";
-import LoginPage from "./components/LoginPage.jsx";
-import FavoritesPage from "./components/FavoritesPage.jsx";
-import ExplorePage from "./components/ExplorePage.jsx";
-import SubscribePage from "./components/SubscribePage.jsx";
-import HomePage from "./components/HomePage.jsx";
-import GeniusPage from "./components/GeniusPage.jsx";
-import NewsletterPage from "./components/NewsletterPage.jsx";
-import CreatePage from "./components/CreatePage.jsx";
-import AboutPage from "./components/AboutPage.jsx";
-import ThanksArchive from "./components/ThanksArchive.jsx";
-import ExitIntentModal from "./components/ExitIntentModal.jsx";
-import NewsletterExitModal from "./components/NewsletterExitModal.jsx";
-import AuthRequiredModal from "./components/AuthRequiredModal.jsx";
-import EditProfileModal from "./components/EditProfileModal.jsx";
-import MonthlyLimitModal from "./components/MonthlyLimitModal.jsx";
+import CardHome from "./components/overlays/CardHome.jsx";
+import QuoteHome from "./components/overlays/QuoteHome.jsx";
+import QuotesPage from "./components/pages/QuotesPage.jsx";
+import LoginPage from "./components/pages/LoginPage.jsx";
+import FavoritesPage from "./components/pages/FavoritesPage.jsx";
+import ExplorePage from "./components/pages/ExplorePage.jsx";
+import SubscribePage from "./components/pages/SubscribePage.jsx";
+import HomePage from "./components/pages/HomePage.jsx";
+import GeniusPage from "./components/pages/GeniusPage.jsx";
+import NewsletterPage from "./components/pages/NewsletterPage.jsx";
+import CreatePage from "./components/pages/CreatePage.jsx";
+import AboutPage from "./components/pages/AboutPage.jsx";
+import ThanksArchive from "./components/pages/ThanksArchive.jsx";
+import ExitIntentModal from "./components/modals/ExitIntentModal.jsx";
+import NewsletterExitModal from "./components/modals/NewsletterExitModal.jsx";
+import AuthRequiredModal from "./components/modals/AuthRequiredModal.jsx";
+import EditProfileModal from "./components/modals/EditProfileModal.jsx";
+import MonthlyLimitModal from "./components/modals/MonthlyLimitModal.jsx";
 import { enrichWithAgents } from './lib/properties.js';
 import { getFavoriteIds, toggleFavorite } from './lib/favorites.js';
 import { getLikeIds, toggleLike } from './lib/likes.js';
@@ -556,7 +556,7 @@ const App = () => {
             ) : showSubscribe ? (
                 <SubscribePage
                     onBack={() => navigateTo({ showSubscribe: false })}
-                    onLoginClick={() => account.deleteSession('current').catch(() => {}).finally(() => setAuthUser(null))}
+                    onLoginClick={handleAuthAction}
                 />
             ) : showCreate ? (
                 <CreatePage

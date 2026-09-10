@@ -3,11 +3,11 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import {
     getTop10Properties, getMissedProperties, getMostWantedProperties,
     getClassicsProperties, getNewProperties, getMGSelectsProperties,
-} from '../lib/discover.js'
-import { useUserTopHashtags } from '../lib/useUserTopHashtags.js'
-import SearchModal from './SearchModal.jsx'
-import CreateModal from './CreateModal.jsx'
-import TopNav from './TopNav.jsx'
+} from '../../lib/discover.js'
+import { useUserTopHashtags } from '../../lib/useUserTopHashtags.js'
+import SearchModal from '../modals/SearchModal.jsx'
+import CreateModal from '../modals/CreateModal.jsx'
+import TopNav from '../shared/TopNav.jsx'
 import './ExplorePage.css'
 import './HomePage.css'
 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
-import { account, OAuthProvider } from '../lib/appwrite.js'
+import { account, OAuthProvider } from '../../lib/appwrite.js'
 import { ID } from 'appwrite'
-import SearchModal from './SearchModal.jsx'
+import SearchModal from '../modals/SearchModal.jsx'
 import './ExplorePage.css'
 import './LoginPage.css'
 

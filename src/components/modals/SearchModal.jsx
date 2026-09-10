@@ -1,6 +1,6 @@
 import React from 'react'
 import { FiSearch } from 'react-icons/fi'
-import Spinner from './Spinner.jsx'
+import Spinner from '../shared/Spinner.jsx'
 import './SearchModal.css'
 
 const SearchModal = ({ searchTerm, onSearchChange, movieList, isLoading, errorMessage, onSelectProperty, onClose }) => {

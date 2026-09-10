@@ -7,10 +7,10 @@ import {
 import { FiX } from 'react-icons/fi'
 import CardReader from './CardReader'
 import CommentsOverlay from './CommentsOverlay'
-import ShareModal from './ShareModal'
-import Spinner from './Spinner'
-import { captureNode } from '../lib/domCapture.js'
-import { buildPdfFromDataUrls } from '../lib/pdfExport.js'
+import ShareModal from '../modals/ShareModal'
+import Spinner from '../shared/Spinner'
+import { captureNode } from '../../lib/domCapture.js'
+import { buildPdfFromDataUrls } from '../../lib/pdfExport.js'
 
 /* MCIcons "share" — curved right-arrow (not the 3-node Android variant) */
 const MciShare = () => (

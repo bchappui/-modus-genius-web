@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { FiX } from 'react-icons/fi'
-import { account, OAuthProvider } from '../lib/appwrite.js'
+import { account, OAuthProvider } from '../../lib/appwrite.js'
 import { ID } from 'appwrite'
-import { findRedeemableGiftCodeForProperty, giftCodeErrorMessage } from '../lib/giftcodes.js'
+import { findRedeemableGiftCodeForProperty, giftCodeErrorMessage } from '../../lib/giftcodes.js'
 import './ExitIntentModal.css'
-import './LoginPage.css'
+import '../pages/LoginPage.css'
 
 const googleOAuth = () => {
     account.createOAuth2Session(

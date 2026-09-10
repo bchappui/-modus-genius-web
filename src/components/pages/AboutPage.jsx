@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import SearchModal from './SearchModal.jsx'
-import TopNav from './TopNav.jsx'
+import SearchModal from '../modals/SearchModal.jsx'
+import TopNav from '../shared/TopNav.jsx'
 import './ExplorePage.css'
 import './HomePage.css'
 import './AboutPage.css'

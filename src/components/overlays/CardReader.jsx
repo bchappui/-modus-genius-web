@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import { MdDownload, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdFavorite, MdChatBubble } from 'react-icons/md'
 import './CardReader.css'
 import CommentsOverlay from './CommentsOverlay'
-import { captureNode } from '../lib/domCapture.js'
+import { captureNode } from '../../lib/domCapture.js'
 
 const LOGOCENTER_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a07239d002ed6eff7fc/view?project=693e8acd001582e2562a';
 const MADE_BY_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';

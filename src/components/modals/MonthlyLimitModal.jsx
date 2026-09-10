@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { FiX } from 'react-icons/fi'
 import './ExitIntentModal.css'
-import './LoginPage.css'
-import { findRedeemableGiftCodeForProperty, giftCodeErrorMessage, redeemGiftCode } from '../lib/giftcodes.js'
+import '../pages/LoginPage.css'
+import { findRedeemableGiftCodeForProperty, giftCodeErrorMessage, redeemGiftCode } from '../../lib/giftcodes.js'
 
 // Shown to a logged-in free account that already used this month's one free
 // card on a different property. A gift code here only unlocks the ONE card

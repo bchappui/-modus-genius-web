@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FiX, FiUser, FiCamera } from 'react-icons/fi'
 import './EditProfileModal.css'
-import { databases, DATABASE_ID, AGENTS_COLLECTION_ID } from '../lib/appwrite.js'
-import { updateAgent, uploadAvatar } from '../lib/agents.js'
-import { COUNTRIES, getFlagImageUrl } from '../lib/countries.js'
+import { databases, DATABASE_ID, AGENTS_COLLECTION_ID } from '../../lib/appwrite.js'
+import { updateAgent, uploadAvatar } from '../../lib/agents.js'
+import { COUNTRIES, getFlagImageUrl } from '../../lib/countries.js'
 
 const FRAME = 180; // crop preview diameter, px
 const OUTPUT = 480; // exported avatar size, px

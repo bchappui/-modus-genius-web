@@ -1,6 +1,6 @@
 import React from 'react'
 import { FiSearch, FiUser } from 'react-icons/fi'
-import './ExplorePage.css'
+import '../pages/ExplorePage.css'
 
 const LOGO_TEXT_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
 const NAV_BG_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a465c800035bdea516f/view?project=693e8acd001582e2562a';

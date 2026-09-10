@@ -4,9 +4,9 @@ import './QuoteHome.css'
 import { MdDownload, MdChatBubble } from 'react-icons/md'
 import { FiX } from 'react-icons/fi'
 import QuoteCommentsOverlay from './QuoteCommentsOverlay'
-import ShareModal from './ShareModal'
-import Spinner from './Spinner'
-import { captureNode, downloadDataUrl } from '../lib/domCapture.js'
+import ShareModal from '../modals/ShareModal'
+import Spinner from '../shared/Spinner'
+import { captureNode, downloadDataUrl } from '../../lib/domCapture.js'
 
 /* MCIcons "share" — curved right-arrow (not the 3-node Android variant) */
 const MciShare = () => (

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import SearchModal from './SearchModal.jsx'
-import TopNav from './TopNav.jsx'
-import { SKILL_CATEGORIES } from '../lib/categories.js'
-import { getHofWinner, getRankWinner } from '../lib/hof.js'
+import SearchModal from '../modals/SearchModal.jsx'
+import TopNav from '../shared/TopNav.jsx'
+import { SKILL_CATEGORIES } from '../../lib/categories.js'
+import { getHofWinner, getRankWinner } from '../../lib/hof.js'
 import './ExplorePage.css'
 import './GeniusPage.css'
 

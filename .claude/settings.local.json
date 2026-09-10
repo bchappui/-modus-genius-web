@@ -76,7 +76,12 @@
       "Bash(cp \"C:\\\\Users\\\\Bruno\\\\OneDrive\\\\Projets\\\\modusgenius\\\\icones logo\\\\Vignette newsletter.png\" \"C:\\\\Users\\\\Bruno\\\\Desktop\\\\modus genius\\\\src\\\\assets\\\\images\\\\vignette-newsletter.png\")",
       "Bash(git fetch *)",
       "Read(//c/Users/Bruno/Desktop/**)",
-      "Read(//c/Users/Bruno/**)"
+      "Read(//c/Users/Bruno/**)",
+      "Bash(grep -n \"^import.*from '\\\\./\\\\|^import.*from \\\\\"\\\\./\" src/components/*.jsx)",
+      "Bash(grep -n \"^import '\\\\./\\\\|^import \\\\\"\\\\./\" src/components/*.jsx)",
+      "Bash(grep -n \"from '\\\\.\\\\./\\\\|from \\\\\"\\\\.\\\\./\" src/components/*.jsx)",
+      "Bash(git mv *)",
+      "Bash(grep -rn \"from '\\\\./\\\\|from \\\\\"\\\\./\" src/components/*.jsx)"
     ]
   }
 }
