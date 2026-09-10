@@ -40,16 +40,29 @@
 .eim-close-btn:hover { color: rgba(220, 230, 245, 0.9); }
 
 .eim-face {
-    height: 66px;
+    height: 46px;
     width: auto;
     object-fit: contain;
-    margin-bottom: -18px;
+    margin-bottom: -12px;
 }
 .eim-logo {
-    height: 78px;
+    height: 54px;
     width: auto;
     object-fit: contain;
-    margin-bottom: 22px;
+    margin-bottom: -9px;
+}
+/* Same size/weight/letter-spacing as .ep-nav-tagline (the nav bar's "Your
+   Expertise | Our Collection" line) — just laid out in-flow, centered under
+   the bigger modal logo instead of absolutely positioned under a nav icon. */
+.eim-tagline {
+    margin: 0 0 16px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 6px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: rgba(180, 195, 220, 0.8);
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .eim-eyebrow {
@@ -90,6 +103,15 @@
 .eim-subtext:last-of-type { margin-bottom: 24px; }
 .eim-subtext strong { color: rgb(230, 175, 90); font-weight: 700; }
 
+/* ── Countdown (NewsletterExitModal) — its own line, under the eyebrow. ── */
+.nlm-countdown {
+    margin: 0 0 12px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgb(220, 60, 60);
+}
+
 .eim-limited-badge {
     margin: 0 0 24px;
     padding: 6px 16px;
@@ -125,6 +147,10 @@
 .eim-redeem-btn {
     width: 100%;
     height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     border: none;
     border-radius: 8px;
     background: #fff;
@@ -141,3 +167,141 @@
 .eim-beehiiv-embed {
     width: 100%;
 }
+
+/* ── Plan-option rows (OutOfFreeCardsModal / OutOfEssentialsCardsModal) ── */
+.oc-options {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.oc-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 42px;
+    box-sizing: border-box;
+    background: #0a1830;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0 16px;
+    cursor: pointer;
+    text-align: left;
+}
+.oc-option-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.oc-option-radio {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(190, 205, 230, 0.6);
+    flex-shrink: 0;
+    position: relative;
+}
+.oc-option--active .oc-option-radio::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: rgba(190, 205, 230, 0.6);
+}
+.oc-option-label {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(180, 195, 220, 0.8);
+}
+.oc-option-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+.oc-option-price-main {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(180, 195, 220, 0.8);
+}
+.oc-option-price-strike {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1;
+    color: rgb(200, 45, 45);
+    text-decoration: line-through;
+}
+
+/* ── Perk-tile row (SeasonPassRequiredModal) ── */
+.spm-perks-row {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    /* Large top margin is intentional — reserves room for an image to be
+       placed between the subtext and this row. */
+    margin: 160px 0 26px;
+}
+.spm-perk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+}
+.spm-perk-tile {
+    width: 58px;
+    height: 58px;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    box-shadow: 0 8px 18px rgba(60, 40, 160, 0.4);
+}
+.spm-perk-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+.spm-perk-label {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    color: rgba(190, 205, 230, 0.85);
+}
+
+.spm-price-caption {
+    margin: 10px 0 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    font-style: italic;
+    color: rgba(190, 205, 230, 0.6);
+}
+
+/* ── WhereToStartModal (Explore exit-intent) ── */
+.wts-cta-btn {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    color: rgb(20, 20, 20);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.wts-cta-btn:hover { filter: brightness(1.05); }

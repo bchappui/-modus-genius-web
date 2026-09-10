@@ -16,9 +16,12 @@ import AboutPage from "./components/pages/AboutPage.jsx";
 import ThanksArchive from "./components/pages/ThanksArchive.jsx";
 import ExitIntentModal from "./components/modals/ExitIntentModal.jsx";
 import NewsletterExitModal from "./components/modals/NewsletterExitModal.jsx";
+import WhereToStartModal from "./components/modals/WhereToStartModal.jsx";
 import AuthRequiredModal from "./components/modals/AuthRequiredModal.jsx";
 import EditProfileModal from "./components/modals/EditProfileModal.jsx";
-import MonthlyLimitModal from "./components/modals/MonthlyLimitModal.jsx";
+import OutOfFreeCardsModal from "./components/modals/OutOfFreeCardsModal.jsx";
+import OutOfEssentialsCardsModal from "./components/modals/OutOfEssentialsCardsModal.jsx";
+import SeasonPassRequiredModal from "./components/modals/SeasonPassRequiredModal.jsx";
 import { enrichWithAgents } from './lib/properties.js';
 import { getFavoriteIds, toggleFavorite } from './lib/favorites.js';
 import { getLikeIds, toggleLike } from './lib/likes.js';
@@ -26,6 +29,8 @@ import { hasUserCommented } from './lib/comments.js';
 import { getQuoteById, hasUserCommentedQuote } from './lib/quotes.js';
 import { updateAgent, getCurrentMonthKey } from './lib/agents.js';
 import { redeemGiftCode, getGiftUnlockedPropertyIds } from './lib/giftcodes.js';
+import { getPropertyAccessDecision, getTier } from './lib/membership.js';
+import { getCurrentSeasonKey } from './lib/seasons.js';
 
 const App = () => {
     const [authUser, setAuthUser] = useState(null);
@@ -54,16 +59,23 @@ const App = () => {
     const [hasCommentedQuote, setHasCommentedQuote] = useState(false);
     const [propertiesCount, setPropertiesCount] = useState(null);
     const [exitIntentOpen, setExitIntentOpen] = useState(false);
+    const [wtsOpen, setWtsOpen] = useState(false);
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const [profileModalOpen, setProfileModalOpen] = useState(false);
     const [limitModalOpen, setLimitModalOpen] = useState(false);
     const [limitedProperty, setLimitedProperty] = useState(null);
+    const [limitReason, setLimitReason] = useState('monthly-limit');
 
     // Mirrors the render ternary below: Favorites only actually renders once
     // every other page flag is false and showFavorites is true.
     const isFavoritesPage = !showLogin && !showHome && !showAbout && !showSubscribe
         && !showCreate && !showNewsletter && !showGenius && !showQuotes && !showThanksArchive && showFavorites;
+
+    // Same mirroring, for the other end of that ternary — Explore is what
+    // renders when every other page flag (including Favorites) is false.
+    const isExplorePage = !showLogin && !showHome && !showAbout && !showSubscribe
+        && !showCreate && !showNewsletter && !showGenius && !showQuotes && !showThanksArchive && !showFavorites;
 
     // Browsing the site never requires an account — only opening a card
     // (and, consistently, viewing Favorites) does. Wrap any handler that
@@ -93,21 +105,37 @@ const App = () => {
         if (agentProfile?.unlockedPropertyIds?.includes(property.$id)) { navigateTo({ selectedProperty: property }); return; }
 
         const month = getCurrentMonthKey();
-        const usedThisMonth = agentProfile?.freeCardMonth === month;
-        const sameCard = usedThisMonth && agentProfile?.freeCardPropertyId === property.$id;
+        const decision = getPropertyAccessDecision(agentProfile, property, month);
 
-        if (!usedThisMonth || sameCard) {
+        if (!decision.allowed) {
+            setLimitedProperty(property);
+            setLimitReason(decision.reason);
+            setLimitModalOpen(true);
+            return;
+        }
+
+        // Record quota usage for tiers with a numeric monthly cap (free: one
+        // slot, essentials: up to N distinct ids) — unlimited tiers (extra/
+        // premium) have nothing to record.
+        if (decision.tier.key === 'free') {
+            const usedThisMonth = agentProfile?.freeCardMonth === month;
             if (!usedThisMonth) {
                 setAgentProfile(prev => prev ? { ...prev, freeCardMonth: month, freeCardPropertyId: property.$id } : prev);
                 updateAgent(agentId, { freeCardMonth: month, freeCardPropertyId: property.$id })
                     .catch(e => console.error('Error recording monthly card use', e));
             }
-            navigateTo({ selectedProperty: property });
-            return;
+        } else if (decision.tier.cardsPerMonth != null) {
+            const usedThisMonth = agentProfile?.essentialsCardMonth === month;
+            const usedIds = usedThisMonth ? (agentProfile?.essentialsCardPropertyIds || []) : [];
+            if (!usedIds.includes(property.$id)) {
+                const nextIds = [...usedIds, property.$id];
+                setAgentProfile(prev => prev ? { ...prev, essentialsCardMonth: month, essentialsCardPropertyIds: nextIds } : prev);
+                updateAgent(agentId, { essentialsCardMonth: month, essentialsCardPropertyIds: nextIds })
+                    .catch(e => console.error('Error recording monthly card use', e));
+            }
         }
 
-        setLimitedProperty(property);
-        setLimitModalOpen(true);
+        navigateTo({ selectedProperty: property });
     };
 
     const requireAuthForQuote = (quote) => {
@@ -127,6 +155,31 @@ const App = () => {
         } else {
             setShowLogin(true);
         }
+    };
+
+    // Test-mode "checkout" — no payment processor yet, so choosing a tier or
+    // buying a Season Pass applies immediately. Swap these for real Stripe
+    // calls (post-payment-success callbacks) once that's wired up.
+    const handleSelectMembershipTier = (tierKey) => {
+        if (!agentId) return;
+        setAgentProfile(prev => prev ? { ...prev, membershipTier: tierKey } : prev);
+        updateAgent(agentId, { membershipTier: tierKey })
+            .catch(e => console.error('Error updating membership tier', e));
+    };
+
+    const handleBuySeasonPass = () => {
+        if (!agentId) return;
+        const seasonKey = getCurrentSeasonKey();
+        setAgentProfile(prev => prev ? { ...prev, seasonPassSeasonKey: seasonKey } : prev);
+        updateAgent(agentId, { seasonPassSeasonKey: seasonKey })
+            .catch(e => console.error('Error updating season pass', e));
+    };
+
+    const handleCancelSeasonPass = () => {
+        if (!agentId) return;
+        setAgentProfile(prev => prev ? { ...prev, seasonPassSeasonKey: '' } : prev);
+        updateAgent(agentId, { seasonPassSeasonKey: '' })
+            .catch(e => console.error('Error canceling season pass', e));
     };
 
     // Keeps the nav avatar/name in sync right after EditProfileModal saves,
@@ -162,11 +215,18 @@ const App = () => {
                     freeCardMonth: doc?.freeCardMonth || '',
                     freeCardPropertyId: doc?.freeCardPropertyId || '',
                     unlockedPropertyIds,
+                    membershipTier: doc?.membershipTier || 'free',
+                    seasonPassSeasonKey: doc?.seasonPassSeasonKey || '',
+                    essentialsCardMonth: doc?.essentialsCardMonth || '',
+                    essentialsCardPropertyIds: doc?.essentialsCardPropertyIds || [],
                 });
             } catch (e) {
                 console.error('Error resolving agent id', e);
                 setAgentId(authUser.$id);
-                setAgentProfile({ name: authUser.name || 'Anonymous', avatar: '', freeCardMonth: '', freeCardPropertyId: '', unlockedPropertyIds: [] });
+                setAgentProfile({
+                    name: authUser.name || 'Anonymous', avatar: '', freeCardMonth: '', freeCardPropertyId: '', unlockedPropertyIds: [],
+                    membershipTier: 'free', seasonPassSeasonKey: '', essentialsCardMonth: '', essentialsCardPropertyIds: [],
+                });
             }
         };
         resolveAgentId();
@@ -321,9 +381,8 @@ const App = () => {
     // the viewport — the classic desktop exit-intent trick. Fires once per
     // page context (Subscribe / Favorites / everything else), only once the
     // user is logged into the app. Re-arms on navigation between those
-    // contexts so Subscribe's promo modal and the newsletter modal elsewhere
-    // each get their own shot, instead of one global "used up" flag blocking
-    // the other for the rest of the tab.
+    // contexts so each context's own modal gets its own shot, instead of one
+    // global "used up" flag blocking the others for the rest of the tab.
     useEffect(() => {
         if (!authUser) return;
         let shown = false;
@@ -335,6 +394,30 @@ const App = () => {
         document.addEventListener('mouseout', onMouseOut);
         return () => document.removeEventListener('mouseout', onMouseOut);
     }, [authUser, showSubscribe, isFavoritesPage]);
+
+    // WhereToStartModal (personality-test pitch): shown on Explore via the
+    // same exit-intent trick, OR on Home once the visitor scrolls past the
+    // hero — two different "about to disengage" signals for two different
+    // page shapes (Explore has no scroll depth to speak of on entry; Home's
+    // hero is the first thing you'd scroll past).
+    useEffect(() => {
+        if (!authUser || !(isExplorePage || showHome)) return;
+        let shown = false;
+        const trigger = () => { if (!shown) { shown = true; setWtsOpen(true); } };
+        const onMouseOut = (e) => {
+            if (!isExplorePage || e.clientY > 10 || e.relatedTarget) return;
+            trigger();
+        };
+        const onScroll = () => {
+            if (showHome && window.scrollY > 600) trigger();
+        };
+        document.addEventListener('mouseout', onMouseOut);
+        window.addEventListener('scroll', onScroll);
+        return () => {
+            document.removeEventListener('mouseout', onMouseOut);
+            window.removeEventListener('scroll', onScroll);
+        };
+    }, [authUser, isExplorePage, showHome]);
 
     // Every navigational action (category, favorites, subscribe, opening a card)
     // pushes a history entry so the browser's back button always steps back
@@ -557,6 +640,11 @@ const App = () => {
                 <SubscribePage
                     onBack={() => navigateTo({ showSubscribe: false })}
                     onLoginClick={handleAuthAction}
+                    isLoggedIn={!!authUser}
+                    agentProfile={agentProfile}
+                    onSelectTier={handleSelectMembershipTier}
+                    onBuySeasonPass={handleBuySeasonPass}
+                    onCancelSeasonPass={handleCancelSeasonPass}
                 />
             ) : showCreate ? (
                 <CreatePage
@@ -710,9 +798,19 @@ const App = () => {
             {exitIntentOpen && showSubscribe && (
                 <ExitIntentModal onClose={() => setExitIntentOpen(false)} />
             )}
-            {exitIntentOpen && !showSubscribe && !isFavoritesPage && !showThanksArchive && (
+            {wtsOpen && (
+                <WhereToStartModal
+                    onClose={() => setWtsOpen(false)}
+                    onGetStarted={() => setWtsOpen(false)}
+                />
+            )}
+            {exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && getTier(agentProfile?.membershipTier).key === 'free' && (
                 <NewsletterExitModal
                     onClose={() => setExitIntentOpen(false)}
+                    onGetStarted={() => {
+                        setExitIntentOpen(false);
+                        navigateTo({ showSubscribe: true });
+                    }}
                 />
             )}
             {authModalOpen && (
@@ -728,18 +826,33 @@ const App = () => {
                     onSaved={handleProfileSaved}
                 />
             )}
-            {limitModalOpen && agentId && (
-                <MonthlyLimitModal
-                    agentId={agentId}
-                    property={limitedProperty}
+            {limitModalOpen && agentId && limitReason === 'season-pass-required' && (
+                <SeasonPassRequiredModal
                     onClose={() => { setLimitModalOpen(false); setLimitedProperty(null); }}
-                    onGiftCodeRedeemed={() => {
-                        setAgentProfile(prev => prev
-                            ? { ...prev, unlockedPropertyIds: [...(prev.unlockedPropertyIds || []), limitedProperty?.$id] }
-                            : prev);
+                    onGetSeasonPass={() => {
                         setLimitModalOpen(false);
-                        if (limitedProperty) navigateTo({ selectedProperty: limitedProperty });
                         setLimitedProperty(null);
+                        navigateTo({ showSubscribe: true });
+                    }}
+                />
+            )}
+            {limitModalOpen && agentId && limitReason === 'monthly-limit' && getTier(agentProfile?.membershipTier).key === 'free' && (
+                <OutOfFreeCardsModal
+                    onClose={() => { setLimitModalOpen(false); setLimitedProperty(null); }}
+                    onContinue={() => {
+                        setLimitModalOpen(false);
+                        setLimitedProperty(null);
+                        navigateTo({ showSubscribe: true });
+                    }}
+                />
+            )}
+            {limitModalOpen && agentId && limitReason === 'monthly-limit' && getTier(agentProfile?.membershipTier).key !== 'free' && (
+                <OutOfEssentialsCardsModal
+                    onClose={() => { setLimitModalOpen(false); setLimitedProperty(null); }}
+                    onContinue={() => {
+                        setLimitModalOpen(false);
+                        setLimitedProperty(null);
+                        navigateTo({ showSubscribe: true });
                     }}
                 />
             )}

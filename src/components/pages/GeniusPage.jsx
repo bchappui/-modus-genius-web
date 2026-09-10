@@ -3,6 +3,7 @@ import SearchModal from '../modals/SearchModal.jsx'
 import TopNav from '../shared/TopNav.jsx'
 import { SKILL_CATEGORIES } from '../../lib/categories.js'
 import { getHofWinner, getRankWinner } from '../../lib/hof.js'
+import { getNextSeasonEnd } from '../../lib/seasons.js'
 import './ExplorePage.css'
 import './GeniusPage.css'
 
@@ -50,15 +51,6 @@ function getNextRadarEnd(now) {
     const end = new Date(start);
     end.setUTCDate(start.getUTCDate() + 7);
     return end;
-}
-function getNextSeasonEnd(now) {
-    const year = now.getUTCFullYear();
-    const month = now.getUTCMonth();
-    let startMonth = 0;
-    if (month >= 3 && month < 6) startMonth = 3;
-    else if (month >= 6 && month < 9) startMonth = 6;
-    else if (month >= 9) startMonth = 9;
-    return new Date(Date.UTC(year, startMonth + 3, 1));
 }
 function getNextYearEnd(now) {
     return new Date(Date.UTC(now.getUTCFullYear() + 1, 0, 1));
