@@ -75,6 +75,15 @@
     color: #fff;
 }
 
+.spm-season-label {
+    margin: 0 0 6px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgb(240, 244, 252);
+}
 .eim-headline {
     margin: 0 0 20px;
     padding: 0 8px;

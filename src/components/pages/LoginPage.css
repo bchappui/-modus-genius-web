@@ -40,6 +40,14 @@
     object-fit: contain;
 }
 
+.lp-subtext {
+    margin: -20px 0 24px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(190, 205, 230, 0.75);
+}
+
 .lp-form {
     display: flex;
     flex-direction: column;

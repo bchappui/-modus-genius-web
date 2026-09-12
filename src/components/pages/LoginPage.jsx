@@ -141,9 +141,19 @@ const LoginPage = ({
 
                 <div className="lp-form-wrap">
                     <h1 className="lp-heading">
-                        <span className="lp-heading-gradient">Log in to</span>
-                        <img src={LOGO_TEXT_URL} alt="Modus Genius" className="lp-heading-logo" />
+                        {isSignup ? (
+                            <span className="lp-heading-gradient">Create an account</span>
+                        ) : (
+                            <>
+                                <span className="lp-heading-gradient">Log in to</span>
+                                <img src={LOGO_TEXT_URL} alt="Modus Genius" className="lp-heading-logo" />
+                            </>
+                        )}
                     </h1>
+
+                    {view === 'signup-password' && (
+                        <p className="lp-subtext">Just a few more steps and you're done! We hate paperwork, too.</p>
+                    )}
 
                     <div className="lp-form">
                         <input

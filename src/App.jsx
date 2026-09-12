@@ -641,10 +641,24 @@ const App = () => {
                     onBack={() => navigateTo({ showSubscribe: false })}
                     onLoginClick={handleAuthAction}
                     isLoggedIn={!!authUser}
-                    agentProfile={agentProfile}
+                    onAccountCreated={() => account.get().then(setAuthUser)}
                     onSelectTier={handleSelectMembershipTier}
-                    onBuySeasonPass={handleBuySeasonPass}
-                    onCancelSeasonPass={handleCancelSeasonPass}
+                    onGoHome={() => navigateTo({ showHome: true, showSubscribe: false })}
+                    onGoToExplore={() => { goToExplore(); }}
+                    onShowGenius={() => navigateTo({ showGenius: true, showSubscribe: false })}
+                    onShowQuotes={() => navigateTo({ showQuotes: true, showSubscribe: false })}
+                    onShowNewsletter={() => navigateTo({ showNewsletter: true, showSubscribe: false })}
+                    onShowCreate={() => navigateTo({ showCreate: true, showSubscribe: false })}
+                    onShowFavorites={requireAuth(() => navigateTo({ showFavorites: true, showSubscribe: false }))}
+                    onLogout={handleAuthAction}
+                    agentAvatar={agentProfile?.avatar}
+                    onOpenProfile={() => setProfileModalOpen(true)}
+                    searchTerm={searchTerm}
+                    onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
+                    movieList={movieList}
+                    isLoading={isLoading}
+                    errorMessage={errorMessage}
+                    onSelectProperty={requireAuthForProperty}
                 />
             ) : showCreate ? (
                 <CreatePage

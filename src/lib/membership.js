@@ -55,6 +55,41 @@ export const SEASON_PASS_PRICE = 39.99;
 
 export const VISIBLE_TIERS = Object.values(MEMBERSHIP_TIERS).filter(t => t.visible);
 
+// Fictional placeholder pricing for the Membership wizard's billing-period
+// toggle (Step 2) — swap freely, none of this feeds the gating logic above.
+export const BILLING_PERIODS = {
+    monthly: {
+        key: 'monthly', label: 'Monthly', priceSuffix: '',
+        essentialsPrice: 1, essentialsStrike: 6, extraPrice: 3, extraStrike: 6, hint: null,
+    },
+    annual: {
+        key: 'annual', label: 'Annual', priceSuffix: '',
+        essentialsPrice: 10, essentialsStrike: 60, extraPrice: 30, extraStrike: 60, hint: '2 months free',
+    },
+    lifetime: {
+        key: 'lifetime', label: 'Lifetime', priceSuffix: '',
+        essentialsPrice: 50, essentialsStrike: 150, extraPrice: 100, extraStrike: 200, hint: null,
+    },
+};
+
+// Feature comparison table (Step 2) — Extra is a strict superset of
+// Essentials; Season Pass is shown as its own highlighted row separately.
+// `icon` is a lookup key into MembershipStep2's own icon map (kept out of
+// this data-only module so it stays React/JSX-free).
+export const PLAN_COMPARISON_ROWS = [
+    { label: 'Every issue of the newsletter including full archive access', icon: 'newsletter', essentials: true, extra: true },
+    { label: '5 cards of your choice every month', icon: 'cards', essentials: true, extra: true },
+    { label: 'Access to 200+ cards across 11 categories ($996 value)', icon: 'cards', essentials: false, extra: true },
+    { label: 'Access to 50+ decks across 11 categories ($555 value)', icon: 'decks', essentials: false, extra: true },
+    { label: 'Access to a private community with 1200+ members', icon: 'community', essentials: false, extra: true },
+    { label: 'Access to 2000+ member profiles and contact details', icon: 'profiles', essentials: false, extra: true },
+    {
+        label: 'Season Pass',
+        description: 'Early access to new card releases, exclusive events, career-based statistics and leaderboard rankings',
+        icon: 'seasonpass', essentials: false, extra: true,
+    },
+];
+
 export const getTier = (tierKey) => MEMBERSHIP_TIERS[tierKey] || MEMBERSHIP_TIERS.free;
 
 // Extra/Premium bundle a Season Pass automatically; Free/Essentials only have
