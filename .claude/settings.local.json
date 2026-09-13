@@ -81,7 +81,16 @@
       "Bash(grep -n \"^import '\\\\./\\\\|^import \\\\\"\\\\./\" src/components/*.jsx)",
       "Bash(grep -n \"from '\\\\.\\\\./\\\\|from \\\\\"\\\\.\\\\./\" src/components/*.jsx)",
       "Bash(git mv *)",
-      "Bash(grep -rn \"from '\\\\./\\\\|from \\\\\"\\\\./\" src/components/*.jsx)"
+      "Bash(grep -rn \"from '\\\\./\\\\|from \\\\\"\\\\./\" src/components/*.jsx)",
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Get-Item 'C:\\\\Users\\\\Bruno\\\\Downloads\\\\shit.png' | Select-Object LastWriteTime, Length; Get-Item 'C:\\\\Users\\\\Bruno\\\\Downloads\\\\good.jpg' | Select-Object LastWriteTime, Length\")",
+      "Bash(powershell -Command \"Get-CimInstance Win32_Process -Filter \\\\\"name = 'node.exe'\\\\\" | Select-Object ProcessId, CommandLine | Format-List\")",
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Users\\\\Bruno\\\\Downloads' -Filter '*.png' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 5 Name, LastWriteTime; Get-ChildItem 'C:\\\\Users\\\\Bruno\\\\Downloads' -Filter '*.jpg' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 5 Name, LastWriteTime\")",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Users\\\\Bruno\\\\Downloads' -Filter 'good*' -ErrorAction SilentlyContinue | Select-Object Name, LastWriteTime\")",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match '\\\\''vite'\\\\'' } | Select-Object ProcessId, CommandLine')",
+      "Bash(npm install *)",
+      "Bash(git add *)"
     ]
   }
 }

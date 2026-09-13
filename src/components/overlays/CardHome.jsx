@@ -8,6 +8,7 @@ import { FiX } from 'react-icons/fi'
 import CardReader from './CardReader'
 import CommentsOverlay from './CommentsOverlay'
 import ShareModal from '../modals/ShareModal'
+import AgentProfileCard from './AgentProfileCard'
 import Spinner from '../shared/Spinner'
 import { captureNode } from '../../lib/domCapture.js'
 import { buildPdfFromDataUrls } from '../../lib/pdfExport.js'
@@ -22,6 +23,10 @@ const MciShare = () => (
 const LOGO_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0613d600165b2e3046/view?project=693e8acd001582e2562a';
 const LEVEL_URL   = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/69dbeadd003812623c70/view?project=693e8acd001582e2562a';
 const MADE_BY_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
+
+const getFlagImageUrl = (isoCode) => (
+    isoCode && isoCode.length === 2 ? `https://flagcdn.com/w80/${isoCode.toLowerCase()}.png` : null
+);
 
 const DECO_RINGS = [
     { size: 40,  bottom: 120, alpha: 0.2 },
@@ -107,6 +112,7 @@ const CardHome = ({
     const [commentsOpen, setCommentsOpen] = useState(false);
     const [shareOpen, setShareOpen] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    const [agentProfileOpen, setAgentProfileOpen] = useState(false);
     const cardOuterRef = useRef(null);
     const exportReaderRef = useRef(null);
 
@@ -114,6 +120,7 @@ const CardHome = ({
         setCardReaderOpen(false);
         setCommentsOpen(false);
         setShareOpen(false);
+        setAgentProfileOpen(false);
     }, [property?.$id]);
 
     const handleDownload = async () => {
@@ -137,7 +144,7 @@ const CardHome = ({
     useEffect(() => {
         if (!property) return;
         const onKey = (e) => {
-            if (e.key === 'Escape' && !cardReaderOpen && !commentsOpen && !shareOpen) onClose();
+            if (e.key === 'Escape' && !cardReaderOpen && !commentsOpen && !shareOpen && !agentProfileOpen) onClose();
         };
         document.addEventListener('keydown', onKey);
         document.body.style.overflow = 'hidden';
@@ -145,7 +152,7 @@ const CardHome = ({
             document.removeEventListener('keydown', onKey);
             document.body.style.overflow = '';
         };
-    }, [property, onClose, cardReaderOpen, commentsOpen, shareOpen]);
+    }, [property, onClose, cardReaderOpen, commentsOpen, shareOpen, agentProfileOpen]);
 
     if (!property) return null;
 
@@ -269,7 +276,11 @@ const CardHome = ({
                                 />
                             ))}
 
-                            <div className="pm-diamond">
+                            <div
+                                className="pm-diamond"
+                                onClick={() => agent?.$id && setAgentProfileOpen(true)}
+                                style={{ cursor: agent?.$id ? 'pointer' : 'default' }}
+                            >
                                 <div className="pm-diamond-frame">
                                     <div className="pm-diamond-gold-gradient" />
                                     <div className="pm-diamond-img-wrapper">
@@ -287,6 +298,10 @@ const CardHome = ({
                                     {agent?.name} {agent?.surname}
                                 </span>
                             </div>
+
+                            {agent?.Location && getFlagImageUrl(agent.Location) && (
+                                <img src={getFlagImageUrl(agent.Location)} alt={agent.Location} className="pm-agent-flag" />
+                            )}
 
                             <div className="pm-certified">
                                 <div className="pm-certified-badge">
@@ -424,6 +439,10 @@ const CardHome = ({
 
         {shareOpen && (
             <ShareModal property={property} onClose={() => setShareOpen(false)} />
+        )}
+
+        {agentProfileOpen && agent?.$id && (
+            <AgentProfileCard agentId={agent.$id} onClose={() => setAgentProfileOpen(false)} />
         )}
 
         {downloading && (

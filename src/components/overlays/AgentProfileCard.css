@@ -1,0 +1,835 @@
+/* Agent profile card — extends CardHome.css's shared "trading card" chrome
+   (imported alongside this file) with pieces specific to a profile view:
+   a rank-image diamond with a rainbow roman-numeral level instead of a
+   plain avatar diamond, and a small stack of displayed badges. */
+
+.apc-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ══ LEVEL DIAMOND CONTENT ══ (sits inside .pm-diamond > .pm-diamond-frame,
+   replacing .pm-diamond-img-wrapper for the rank-image + level-number case) */
+.apc-level-diamond-inner {
+    position: absolute;
+    inset: 2px;
+    overflow: hidden;
+    border-radius: 1px;
+    background: rgb(20, 20, 20);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.apc-level-diamond-img {
+    position: absolute;
+    width: 105px;
+    height: 105px;
+    /* A global img{max-width:100%} reset (Tailwind preflight) clamps this to
+       its ~66px containing block otherwise, silently shrinking the rotated
+       square so it no longer fully covers the diamond's corners. */
+    max-width: none;
+    object-fit: cover;
+    transform: rotate(-45deg);
+}
+.apc-level-diamond-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.1);
+}
+.apc-roman-numeral {
+    position: relative;
+    z-index: 1;
+    transform: rotate(-45deg);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.5px;
+    text-align: center;
+    white-space: pre-line;
+    background: var(--rainbow-bright);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ══ DISPLAYED BADGES ══ (top-right stack, below the stars stat — top clears
+   .pm-like-overlay's own box, which ends around 62px, with a visible gap) */
+.apc-badges-row {
+    position: absolute;
+    top: 78px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 5;
+}
+.apc-badge {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+.apc-badge-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.apc-badge-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0;
+    padding-bottom: 3px;
+    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%);
+}
+.apc-badge-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 7px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1.2;
+    color: rgb(246, 207, 129);
+    text-align: center;
+}
+
+/* Smaller "modus genius" wordmark for the profile card's own face — the shared
+   .pm-logo-img (95px tall) is sized for the property card; here it's too big. */
+.apc-logo-small {
+    height: 65px;
+}
+
+/* ══ TITLE ══ (agent's headline, upper-left of the card face) */
+.apc-title-wrapper {
+    position: absolute;
+    left: 14px;
+    right: 80px;
+    top: 38px;
+    bottom: 170px;
+    display: flex;
+    align-items: flex-end;
+    z-index: 3;
+}
+.apc-title-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: -1px;
+    /* Buffer so the gradient-clip-text box has room for the last glyph —
+       without it the trailing letter gets cropped (same fix as pm-agent-name's
+       own padding-right in CardHome.css). */
+    padding-right: 0.15em;
+    background: var(--rainbow-bright);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ══ READ CARD SHEET ══ (opened from the actions-panel touch-app button).
+   Mirrors modus_genius's ProfileSheetContent frame — a plain rounded card
+   with a solid border, NOT the trading-card chrome (gold vignette, made-strip,
+   diamond) used by the card face itself, which doesn't fit a scrolling
+   tab sheet. */
+.apc-rc-outer {
+    position: relative;
+    width: 330px;
+    height: 587px;
+    border-radius: 10px;
+    border: 2px solid var(--notif);
+    background: var(--notif);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 18px 4px rgba(178, 189, 237, 0.55);
+}
+.apc-rc-card {
+    position: relative;
+    width: 312px;
+    height: 566px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+.apc-rc-bg-gradient-1, .apc-rc-bg-gradient-2 {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.apc-rc-bg-gradient-1 {
+    background: linear-gradient(135deg, transparent 55%, var(--notif) 100%);
+}
+.apc-rc-bg-gradient-2 {
+    background: linear-gradient(315deg, transparent 55%, var(--notif) 100%);
+}
+.apc-rc-tabbar {
+    position: relative;
+    z-index: 2;
+    height: 44px;
+    display: flex;
+    /* Same shade as the header/footer bars right below/above it (rgb(229,237,255),
+       CardReader's --cr-bar) — it previously used --bg, a slightly different light
+       tone, creating a visible seam between the two. */
+    background: rgb(229, 237, 255);
+}
+
+/* Header — icon tab + page title, mirrors ProfileHeader.tsx using the same
+   light-bar-plus-CSS-triangle technique already proven in CardReader.css
+   (.cr-top-bar / .cr-top-row2 / .cr-top-triangle), including its z-index
+   order: row2 paints ABOVE the bar (so the bar's own shadow can't bleed onto
+   the triangle) and the logo area paints above both (so it can overlap the
+   notch), exactly like .cr-top-bar(2) / .cr-top-row2(3) / .cr-logo-area(4). */
+.apc-rc-header {
+    position: absolute;
+    top: 44px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+.apc-rc-header-bar {
+    height: 45px;
+    width: 100%;
+    background: rgb(229, 237, 255);
+    display: flex;
+    align-items: stretch;
+    position: relative;
+    z-index: 2;
+}
+.apc-rc-header-spacer {
+    width: 71px;
+    flex-shrink: 0;
+}
+.apc-rc-header-title-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 14px;
+    overflow: hidden;
+}
+.apc-rc-header-title {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-right: 0.15em;
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167) 0%, rgb(65, 120, 188) 30%, rgb(65, 120, 188) 60%, rgb(13, 85, 167) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0.5px 0.5px 0px rgba(13, 50, 150, 0.45));
+}
+.apc-rc-header-row2 {
+    display: flex;
+    height: 30px;
+    position: relative;
+    z-index: 3;
+}
+.apc-rc-header-rect {
+    width: 71px;
+    height: 100%;
+    background: rgb(229, 237, 255);
+    flex-shrink: 0;
+}
+/* Top-left notch — exact size from ProfileHeader.tsx's bottomTriangle
+   (borderTopWidth:30, borderRightWidth:40), not an approximation. */
+.apc-rc-header-triangle {
+    width: 0;
+    height: 0;
+    border-top: 30px solid rgb(229, 237, 255);
+    border-right: 40px solid transparent;
+}
+/* Logo/icon area — spans bar+row2 (45+30=75px, matching ProfileHeader.tsx's
+   logoContainer height exactly) and paints above both (z-index 4, like its
+   own logoContainer), so the icon visually overlaps the triangle. */
+.apc-rc-header-logo-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 71px;
+    height: 75px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 8px;
+    z-index: 4;
+    overflow: visible;
+}
+
+/* Footer — download/share on the left, modus genius logo bottom-right with
+   its own notch, mirrors ProfileFooter.tsx (friend-request button omitted).
+   Same layering fix as the header: row1 paints above the bar, and the logo
+   area paints above both so the oversized logo can overlap the notch. */
+.apc-rc-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+.apc-rc-footer-row1 {
+    display: flex;
+    justify-content: flex-end;
+    height: 30px;
+    position: relative;
+    z-index: 3;
+}
+/* Bottom-right notch — exact size from ProfileFooter.tsx's logoTriangle
+   (borderTopWidth:30, borderRightWidth:40, rotated 180deg). */
+.apc-rc-footer-triangle {
+    width: 0;
+    height: 0;
+    border-bottom: 30px solid rgb(229, 237, 255);
+    border-left: 40px solid transparent;
+}
+.apc-rc-footer-rect {
+    width: 70px;
+    height: 100%;
+    background: rgb(229, 237, 255);
+    flex-shrink: 0;
+}
+.apc-rc-footer-bar {
+    height: 45px;
+    width: 100%;
+    background: rgb(229, 237, 255);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+}
+.apc-rc-footer-logo-spacer {
+    width: 70px;
+    flex-shrink: 0;
+}
+/* Matches ProfileFooter.tsx's logoArea (110x75) — spans row1+bar exactly
+   like the header's logo area, sized to fit the oversized 95px logo. */
+.apc-rc-footer-logo-area {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 90px;
+    height: 75px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 4;
+    overflow: visible;
+}
+.apc-rc-footer-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 10px;
+}
+.apc-rc-footer-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Exact size from ProfileFooter.tsx's logoImage (95x95) in its 70px-wide
+   slot — bottom-anchored in .apc-rc-footer-logo-area, so its extra height
+   rises up past the notch instead of sitting boxed inside it. */
+.apc-rc-footer-logo {
+    width: 95px;
+    height: 95px;
+    max-width: none;
+    object-fit: contain;
+    margin-bottom: -8px;
+    margin-right: -6px;
+}
+.apc-rc-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--border);
+}
+.apc-rc-tab.active {
+    color: rgb(201, 151, 44);
+}
+.apc-rc-content {
+    position: absolute;
+    top: 119px;
+    left: 0;
+    right: 0;
+    bottom: 75px;
+    overflow-y: auto;
+    padding: 16px 14px 24px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.apc-rc-content::-webkit-scrollbar { display: none; }
+.apc-rc-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 18px;
+}
+.apc-rc-section-icon { margin-bottom: 4px; }
+.apc-rc-section-title {
+    display: block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    padding-right: 0.15em;
+    background: linear-gradient(90deg,
+        rgb(246,207,129), rgb(201,151,44), rgb(246,207,129)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+}
+.apc-rc-section-content {
+    display: block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    font-style: italic;
+    padding-right: 0.15em;
+    /* Same blue gradient as CardReader's .cr-body — the light card background
+       here made the previous near-white color invisible. */
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167) 0%, rgb(65, 120, 188) 30%, rgb(65, 120, 188) 60%, rgb(13, 85, 167) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0.4px 0.4px 0.5px rgba(103, 193, 245, 0.6));
+}
+.apc-rc-section-content a {
+    background: none;
+    -webkit-text-fill-color: rgb(65, 120, 188);
+    color: rgb(65, 120, 188);
+}
+.apc-rc-flag {
+    width: 30px;
+    height: 20px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+}
+.apc-rc-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--border);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-style: italic;
+    text-align: center;
+    padding: 0 20px;
+}
+
+/* ══ PROFILE BANNER ══ (Infos tab only) — mirrors modus_genius's
+   TopBannerProfileCard.tsx: hearts/stars pill counters flanking a diamond
+   avatar, agent name + certificate badge, "member since" caption. Pixel
+   values below are carried over 1:1 from the RN source's StyleSheet. */
+.apc-rc-banner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 26px;
+}
+/* Pills row — fixed in normal flow. The two diamonds are position:absolute
+   (see below) so moving them never shifts this row or anything after it.
+   No z-index here (was 1) — same stacking-context trap as the pill itself:
+   it would cap every descendant below the diamonds regardless of their own
+   z-index, hiding the pill-nums' numbers wherever a diamond overlaps them. */
+.apc-rc-banner-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 70px;
+}
+.apc-rc-banner-pill-spacer {
+    width: 16px;
+    flex-shrink: 0;
+}
+.apc-rc-banner-pill {
+    /* No z-index here (was 1) — that trapped a stacking context that capped
+       every child, including the numbers, below the diamonds (z-index 3/4)
+       regardless of any z-index set on the numbers themselves. Leaving this
+       at the parent's default stacking order lets .apc-rc-banner-pill-nums's
+       own z-index below compete directly against the diamonds instead. */
+    position: relative;
+    height: 36px;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--bg);
+    /* sharedStyles.shadow1, same as the diamonds */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    /* Reference sets borderColor without a borderWidth — RN defaults
+       borderWidth to 0, so no border actually renders. */
+    border: none;
+}
+.apc-rc-banner-pill::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(135deg,
+        var(--notif) 0%, var(--bg) 30%, var(--bg) 70%, var(--notif) 100%
+    );
+}
+.apc-rc-banner-pill-left {
+    justify-content: flex-start;
+    padding-left: 2px;
+    border-radius: 50px 0 0 50px;
+}
+.apc-rc-banner-pill-right {
+    justify-content: flex-end;
+    padding-right: 2px;
+    border-radius: 0 50px 50px 0;
+}
+.apc-rc-banner-pill-icon {
+    position: relative;
+    width: 30px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.apc-rc-banner-pill-nums {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.apc-rc-banner-count {
+    display: block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1;
+    padding-right: 0.15em;
+    /* Reference wraps this in GradientofGold2 (rgb(246,207,129)->rgb(201,151,44)
+       ->rgb(246,207,129) diagonal) — its own textMQ.color is only the MaskedView's
+       shape reference, not the final visible color. */
+    background: linear-gradient(115deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 5px;
+}
+.apc-rc-banner-needed {
+    display: block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+    color: rgb(137, 162, 189);
+    text-shadow: 0.2px 0.2px 0 rgba(137, 162, 189, 0.6);
+}
+/* Exact 4-layer structure copied from CardHome.css's already-working
+   .pm-diamond/.pm-diamond-frame/.pm-diamond-gold-gradient/.pm-diamond-img-wrapper
+   (outer 80px -> frame inset:5 -> gold inset:0 -> black wrapper inset:2, so
+   the visible gold ring is only ~2px thick, not the 11-15px I was guessing). */
+.apc-rc-banner-avatar {
+    /* Absolute + independent of the pills-row's flow, so its "top" can be
+       tuned freely without shifting the row/name/caption below it. */
+    position: absolute;
+    z-index: 3;
+    top: 20px;
+    left: 50%;
+    margin-left: -39px;
+    width: 78px;
+    height: 78px;
+    transform: rotate(45deg);
+    overflow: hidden;
+    border-radius: 2px;
+    /* Mirrors AgentAvatarProfile.tsx's diamondcontainer: backgroundColor:bg
+       shows through the 5px gap before .apc-rc-banner-avatar-frame starts,
+       reading as a light gray diamond halo behind the gold one, plus its
+       own drop shadow (sharedStyles.shadow1). */
+    background: var(--bg);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+.apc-rc-banner-avatar-frame {
+    position: absolute;
+    inset: 5px;
+    overflow: hidden;
+    border-radius: 1px;
+}
+.apc-rc-banner-avatar-gold {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgb(246,207,129), rgb(201,151,44), rgb(246,207,129)
+    );
+    transform: rotate(90deg) scale(1.1);
+}
+.apc-rc-banner-avatar-inner {
+    position: absolute;
+    inset: 5px;
+    border-radius: 1px;
+    overflow: hidden;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.apc-rc-banner-avatar-img {
+    position: absolute;
+    width: 85px;
+    height: 85px;
+    max-width: none;
+    object-fit: cover;
+    transform: rotate(-45deg);
+}
+
+/* Small level diamond — sits between the two pills, touching the big avatar's
+   bottom tip. Same 4-layer structure as the avatar, scaled down. Absolute +
+   independent of the pills-row, same as the avatar, so it can be moved
+   without affecting the row's layout. */
+.apc-rc-banner-level {
+    position: absolute;
+    z-index: 4;
+    top: 86px;
+    left: 50%;
+    margin-left: -20px;
+    width: 40px;
+    height: 40px;
+    transform: rotate(45deg);
+    overflow: hidden;
+    border-radius: 2px;
+}
+.apc-rc-banner-level-frame {
+    position: absolute;
+    inset: 3px;
+    overflow: hidden;
+    border-radius: 1px;
+}
+.apc-rc-banner-level-gold {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgb(246,207,129), rgb(201,151,44), rgb(246,207,129)
+    );
+    transform: rotate(90deg) scale(1.1);
+}
+.apc-rc-banner-level-inner {
+    position: absolute;
+    inset: 3px;
+    border-radius: 1px;
+    overflow: hidden;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.apc-rc-banner-level-img {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    max-width: none;
+    object-fit: cover;
+    transform: rotate(-45deg);
+}
+.apc-rc-banner-level-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.18);
+}
+.apc-rc-banner-level-roman {
+    position: relative;
+    z-index: 1;
+    transform: rotate(-45deg);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.3px;
+    text-align: center;
+    white-space: pre-line;
+    background: var(--rainbow-bright);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.apc-rc-banner-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 24px;
+}
+.apc-rc-banner-name {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    padding-right: 0.15em;
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167) 0%, rgb(65, 120, 188) 30%, rgb(65, 120, 188) 60%, rgb(13, 85, 167) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0.4px 0.4px 0px rgba(103, 193, 245, 0.6));
+}
+.apc-rc-banner-member {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 7px;
+    font-weight: 900;
+    color: rgb(137, 162, 189);
+    letter-spacing: 2px;
+    margin-top: 4px;
+}
+
+/* ══ SKILLS TAB ══ (mirrors SkillsScreen.tsx) — a "Creator Skills" and an
+   "Advisor Skills" section, each with a rank badge and per-category bars. */
+.apc-rc-skills-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 22px;
+}
+.apc-rc-rank-badge {
+    width: 100%;
+    text-align: center;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.5px;
+    color: var(--bg);
+    background: linear-gradient(135deg, rgb(246,207,129), rgb(201,151,44), rgb(246,207,129));
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+.apc-rc-statbar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.apc-rc-statbar-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+.apc-rc-statbar-body { flex: 1; min-width: 0; }
+.apc-rc-statbar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+.apc-rc-statbar-label {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgb(65, 120, 188);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.apc-rc-statbar-value {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgb(201, 151, 44);
+    flex-shrink: 0;
+}
+.apc-rc-statbar-track {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--border);
+    overflow: hidden;
+}
+.apc-rc-statbar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgb(246,207,129), rgb(201,151,44));
+}
+
+/* ══ FAVORITES / CREATIONS GRID ══ — scaled-down version of this app's own
+   .hp-hashtag-item tile (HomePage.css), sized for a 2-column layout instead
+   of the homepage's horizontal rail. */
+.apc-rc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+}
+.apc-rc-grid-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 330 / 587;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+}
+.apc-rc-grid-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #16233a;
+}
+.apc-rc-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none;
+}
+.apc-rc-grid-name {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    text-align: left;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.15;
+    color: #fff;
+}

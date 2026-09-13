@@ -31,3 +31,19 @@ export const getPropertiesByIds = async (ids) => {
         return [];
     }
 };
+
+// Mirrors modus_genius/lib/appwrite's getPropertiesByAgent — the cards an
+// agent has created, for the ReadCard sheet's Creations tab.
+export const getPropertiesByAgent = async (agentId) => {
+    if (!agentId) return [];
+    try {
+        const result = await databases.listDocuments(DATABASE_ID, PROPERTIES_COLLECTION_ID, [
+            Query.equal('agent', agentId),
+            Query.limit(1000),
+        ]);
+        return enrichWithAgents(result.documents);
+    } catch (e) {
+        console.error('getPropertiesByAgent error', e);
+        return [];
+    }
+};

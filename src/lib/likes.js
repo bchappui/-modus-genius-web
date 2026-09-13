@@ -25,6 +25,47 @@ export async function getLikeIds(userId) {
     return result.documents.map(d => d.propertyId).filter(Boolean);
 }
 
+// Mirrors modus_genius/lib/appwrite/likes.ts countLikesForAgent — sum of
+// likeCount across every property belonging to this agent.
+export async function countLikesForAgent(agentId) {
+    if (!agentId) return 0;
+    try {
+        const propertiesRes = await databases.listDocuments(DATABASE_ID, PROPERTIES_COLLECTION_ID, [
+            Query.equal('agent', agentId),
+            Query.select(['likeCount']),
+            Query.limit(1000),
+        ]);
+        return propertiesRes.documents.reduce((acc, p) => acc + (typeof p.likeCount === 'number' ? p.likeCount : 0), 0);
+    } catch (error) {
+        console.error('countLikesForAgent error:', error);
+        return 0;
+    }
+}
+
+// Mirrors modus_genius/lib/appwrite/likes.ts getLikesStatsForAgent — sum of
+// likeCount across this agent's properties, grouped by property type/category.
+export async function getLikesStatsForAgent(agentId) {
+    if (!agentId) return {};
+    try {
+        const propertiesRes = await databases.listDocuments(DATABASE_ID, PROPERTIES_COLLECTION_ID, [
+            Query.equal('agent', agentId),
+            Query.select(['type', 'likeCount']),
+            Query.limit(1000),
+        ]);
+        if (!propertiesRes.documents.length) return {};
+        const stats = {};
+        for (const property of propertiesRes.documents) {
+            const type = property.type ?? 'Unknown';
+            const count = typeof property.likeCount === 'number' ? property.likeCount : 0;
+            stats[type] = (stats[type] || 0) + count;
+        }
+        return stats;
+    } catch (error) {
+        console.error('getLikesStatsForAgent error:', error);
+        return {};
+    }
+}
+
 export async function toggleLike(userId, propertyId, propertyType, agentId) {
     const existing = await databases.listDocuments(DATABASE_ID, LIKES_COLLECTION_ID, [
         Query.equal('userId', userId),

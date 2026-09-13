@@ -456,6 +456,10 @@
 .pm-diamond-avatar {
     width: 105px;
     height: 105px;
+    /* A global img{max-width:100%} reset (Tailwind preflight) clamps this to
+       its ~66px containing block otherwise, silently shrinking the rotated
+       square so it no longer fully covers the diamond's corners. */
+    max-width: none;
     object-fit: cover;
     transform: rotate(-45deg) scale(1.15);
 }
@@ -489,6 +493,20 @@
     justify-content: center;
     align-items: center;
     gap: 0;
+}
+/* Location flag chip — sits between the signature name and the certified
+   strip below it (18px clears .pm-certified's 14px-tall zone). */
+.pm-agent-flag {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 13px;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid var(--notif);
+    z-index: 3;
 }
 .pm-agent-name {
     font-family: 'GoldenSignature', cursive;

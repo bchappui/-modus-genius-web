@@ -1,0 +1,266 @@
+/* ══ GLOBAL LEVEL MODAL ══ mirrors modus_genius's /levelpath/globallevel
+   transparent-modal screen (the "GROWTH PATH" tier list) opened from the
+   level diamond on AgentProfileCard. */
+
+.glm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.glm-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.glm-close {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg, #fff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* Same outer/inner sizing as CardReader's .cr-outer/.cr-inner (330x587 outer,
+   312x565 inner) — the gap between them is what actually SHOWS the
+   notification-blue frame as a visible mat around the card, giving real edge
+   depth instead of a flush 2px line. */
+.glm-outer-border {
+    width: 330px;
+    height: 587px;
+    border: 2px solid var(--notif, rgba(205,220,255,1));
+    background: var(--notif, rgba(205,220,255,1));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 18px 4px rgba(178, 189, 237, 0.55);
+}
+
+.glm-inner-card {
+    width: 312px;
+    height: 565px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg, #fff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/* Whole-card diagonal sheen — same trick as CardReader's .cr-grad-tr/.cr-grad-bl
+   (mirrors CardChrome.tsx's two full-card gradientOverlayTop/Bottom layers),
+   the "3D" glossy look shared by every card frame in this app. */
+.glm-grad-tr {
+    position: absolute;
+    inset: 0;
+    margin-top: 48px;
+    background: linear-gradient(to top right, transparent 50%, var(--notif, rgba(205,220,255,1)) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+.glm-grad-bl {
+    position: absolute;
+    inset: 0;
+    margin-bottom: 50px;
+    background: linear-gradient(to bottom left, transparent 50%, var(--notif, rgba(205,220,255,1)) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Double diagonal transparent->notification sheen — same "glass bar" trick
+   as every header/footer/pill bar elsewhere in this app (see
+   .apc-rc-bg-gradient-1/2 in AgentProfileCard.css), mirroring the reference's
+   two overlaid LinearGradients on its header/rankBar/bottomBar. */
+.glm-gloss {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.glm-gloss-1 { background: linear-gradient(135deg, transparent 55%, var(--notif, rgba(205,220,255,1)) 100%); }
+.glm-gloss-2 { background: linear-gradient(315deg, transparent 55%, var(--notif, rgba(205,220,255,1)) 100%); }
+
+.glm-header {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 48px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg, #fff);
+}
+
+.glm-header-text {
+    position: relative;
+    display: inline-block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 18px;
+    line-height: 21px;
+    padding-right: 6px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, rgb(13,85,167) 0%, rgb(65,120,188) 30%, rgb(65,120,188) 60%, rgb(13,85,167) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glm-list {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 62px;
+    box-sizing: border-box;
+}
+.glm-list::-webkit-scrollbar {
+    display: none;
+}
+
+.glm-placeholder {
+    margin-top: 40px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    font-style: italic;
+    color: rgb(137, 162, 189);
+}
+
+.glm-tier {
+    width: 100%;
+    background: var(--notif, rgba(205,220,255,1));
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.glm-roman-row {
+    position: relative;
+    height: 100px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.glm-roman {
+    position: relative;
+    display: inline-block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 30px;
+    line-height: 35px;
+    padding-right: 8px;
+    font-weight: 900;
+    font-style: italic;
+    background: var(--rainbow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glm-roman-sep {
+    font-size: 16px;
+    font-weight: 900;
+    color: rgba(201, 151, 44, 0.7);
+}
+
+@keyframes glm-scan-bounce {
+    0%, 100% { transform: translateY(-5px); }
+    50%      { transform: translateY(5px); }
+}
+
+.glm-scan {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.9;
+    animation: glm-scan-bounce 1.5s ease-in-out infinite;
+}
+
+.glm-tier-bar {
+    position: relative;
+    width: calc(100% - 16px);
+    height: 40px;
+    margin: 10px 8px 14px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bg, #fff);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glm-tier-name {
+    position: relative;
+    display: inline-block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 19px;
+    padding-right: 6px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, rgb(13,85,167) 0%, rgb(65,120,188) 30%, rgb(65,120,188) 60%, rgb(13,85,167) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glm-bottom-bar {
+    position: absolute;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    overflow: hidden;
+    background: var(--bg, #fff);
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.glm-cta-text {
+    position: relative;
+    display: inline-block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    line-height: 15px;
+    padding-right: 5px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, rgb(13,85,167) 0%, rgb(65,120,188) 30%, rgb(65,120,188) 60%, rgb(13,85,167) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}

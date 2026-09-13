@@ -1,0 +1,547 @@
+/* ══ DETAILED LEVEL MODAL ══ mirrors modus_genius's /levelpath/detailedlevel
+   screen — every rank of a tier broken down level by level, with each rank's
+   own maze artwork as a real background, opened by tapping a rank bar in
+   GlobalLevelModal. Reuses the same CardReader-style outer/inner frame sizing
+   (330x587 / 312x565) as GlobalLevelModal. */
+
+.dlm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+}
+
+.dlm-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dlm-close {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg, #fff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.dlm-outer-border {
+    width: 330px;
+    height: 587px;
+    border: 2px solid var(--notif, rgba(205,220,255,1));
+    background: var(--notif, rgba(205,220,255,1));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 18px 4px rgba(178, 189, 237, 0.55);
+}
+
+.dlm-inner-card {
+    width: 312px;
+    height: 565px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg, #fff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.dlm-gloss {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.dlm-gloss-1 { background: linear-gradient(135deg, transparent 55%, var(--notif, rgba(205,220,255,1)) 100%); }
+.dlm-gloss-2 { background: linear-gradient(315deg, transparent 55%, var(--notif, rgba(205,220,255,1)) 100%); }
+
+/* ══ TOP BAR ══ left-aligned totals + a small gold badge on the right */
+.dlm-topbar {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 64px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg, #fff);
+    box-sizing: border-box;
+    padding: 0 12px;
+}
+
+.dlm-topbar-text {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.dlm-topbar-label {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 19px;
+    padding-right: 6px;
+    font-weight: 900;
+    font-style: italic;
+    background: linear-gradient(90deg, rgb(13,85,167) 0%, rgb(65,120,188) 30%, rgb(65,120,188) 60%, rgb(13,85,167) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dlm-topbar-stats {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.dlm-topbar-num {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 19px;
+    padding-right: 2px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgb(201, 151, 44);
+}
+
+.dlm-topbar-and {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 19px;
+    padding-right: 6px;
+    font-weight: 900;
+    font-style: italic;
+    background: linear-gradient(90deg, rgb(13,85,167) 0%, rgb(65,120,188) 30%, rgb(65,120,188) 60%, rgb(13,85,167) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ══ BADGES ══ the actual Appwrite badge graphics from the reference (they
+   already include their own hexagon/border art), not an invented shape.
+   position:relative lifts it above the topbar's .dlm-gloss overlays — those
+   are position:absolute siblings, and without this the non-positioned <img>
+   paints BEFORE them and ends up looking washed out underneath. */
+.dlm-badge-img {
+    position: relative;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+/* ══ LIST / RANKS ══ scrolls transparently over the fixed .dlm-bg-fixed
+   layer — it never carries its own background image. */
+.dlm-list {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Mirrors the reference's snapToOffsets + decelerationRate:"fast" — the
+       list snaps to and stops on one level (or rank header) at a time. */
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 72px;
+    box-sizing: border-box;
+}
+.dlm-list::-webkit-scrollbar {
+    display: none;
+}
+
+.dlm-placeholder {
+    margin-top: 40px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    font-style: italic;
+    color: rgb(137, 162, 189);
+}
+
+/* ══ FIXED BACKGROUND ══ mirrors the reference exactly: the maze artwork is
+   an absolutely-positioned layer BEHIND the list, not part of any scrolling
+   row — only which tier's image it shows changes (on scroll), the image
+   itself never moves. The list itself is transparent so it floats on top. */
+.dlm-content-wrap {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+}
+.dlm-bg-fixed {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--notif, rgba(205,220,255,1));
+}
+/* Darkens the maze art slightly so white/gold text and icons stay legible
+   on top of it, mirroring the reference's floating-text-over-art look. */
+.dlm-rank-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 35, 70, 0.35);
+    pointer-events: none;
+}
+
+.dlm-tier-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dlm-rank {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding-top: 10px;
+    /* Reference's containerItem has paddingBottom:250 — a whole screen's
+       worth of dead space between one rank's levels and the next rank's
+       header, so only one rank is ever visible at a time without scrolling. */
+    padding-bottom: 160px;
+}
+
+/* Full-width bar (not a small pill) — mirrors the reference's containerRank,
+   which spans the whole card width, rounded with the same glass-gloss
+   treatment as the top/bottom bars. */
+.dlm-rank-header {
+    position: relative;
+    z-index: 1;
+    scroll-snap-align: start;
+    width: 100%;
+    height: 52px;
+    overflow: hidden;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin-top: -14px;
+    margin-bottom: 6px;
+    background: var(--bg, #fff);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.dlm-rank-name {
+    display: inline-block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 18px;
+    padding-right: 5px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, rgb(13,85,167) 0%, rgb(65,120,188) 30%, rgb(65,120,188) 60%, rgb(13,85,167) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dlm-level {
+    position: relative;
+    z-index: 1;
+    scroll-snap-align: start;
+    width: 100%;
+    /* Reference's layersHorizontal has minHeight:320 — each level fills most
+       of the visible screen on its own, instead of several stacking tightly
+       into view at once. */
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 105px 0 16px;
+}
+
+/* ══ CURRENT LEVEL: floating diamond avatar + bouncing scan/viewfinder ══ */
+.dlm-level-pill {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 8px;
+    background: var(--bg, #fff);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    color: rgb(65, 120, 188);
+}
+.dlm-level-pill-roman {
+    background: var(--rainbow-bright, linear-gradient(135deg, rgb(255,0,150), rgb(0,80,255)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* The whole current-level assembly (LEVEL pill + diamond + scan) bounces
+   together as one floating unit — mirrors the reference's single
+   Animated.View wrapping both the avatar/scan AND the "LEVEL X" comment. */
+@keyframes dlm-float-bounce {
+    0%, 100% { transform: translateY(-6px); }
+    50%      { transform: translateY(6px); }
+}
+/* Grid-stack so the static diamond and the floating group occupy the same
+   cell (one on top of the other) without the diamond inheriting the
+   floating group's bounce animation. */
+.dlm-current-level {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-items: start;
+}
+.dlm-current-level > * {
+    grid-area: 1 / 1;
+}
+
+.dlm-current-float {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: dlm-float-bounce 1.5s ease-in-out infinite;
+}
+
+.dlm-diamond-wrap {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.dlm-scan {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    /* Aligns the viewfinder's corner brackets with the diamond's own
+       45°-rotated edges instead of framing it as an axis-aligned square. */
+    transform: rotate(45deg);
+    pointer-events: none;
+    opacity: 0.95;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
+/* Same proven 4-layer diamond as .apc-rc-banner-avatar (outer 78 -> frame
+   inset:5 -> gold inset:0 -> inner inset:2), giving a ~2px visible gold ring. */
+.dlm-diamond {
+    position: relative;
+    width: 66px;
+    height: 66px;
+    transform: rotate(45deg);
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--bg, #fff);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.dlm-diamond-frame {
+    position: absolute;
+    inset: 2px;
+    overflow: hidden;
+    border-radius: 1px;
+}
+.dlm-diamond-gold {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgb(246,207,129), rgb(201,151,44), rgb(246,207,129));
+    transform: rotate(90deg) scale(1.1);
+}
+.dlm-diamond-inner {
+    /* Thicker gold ring — the gap between the gold layer and this inset is
+       what's visible as the border (was only 2px, too thin to read). */
+    position: absolute;
+    inset: 4px;
+    overflow: hidden;
+    border-radius: 1px;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dlm-diamond-img {
+    position: absolute;
+    width: 78px;
+    height: 78px;
+    max-width: none;
+    object-fit: cover;
+    transform: rotate(-45deg);
+}
+
+/* Mirrors the reference's Entypo "layers" icon (textShadowColor treatment) —
+   BsLayersFill is the closest bundled equivalent to Entypo's 3-tier diamond
+   stack glyph. */
+.dlm-layers-icon {
+    filter: drop-shadow(0 0.6px 0.6px rgba(65,173,249,0.6));
+}
+/* Sits centered behind the current-level's avatar diamond + scan overlay —
+   the reference always renders this icon first, underneath whatever else
+   marks that level (avatar, or the completed badge). */
+.dlm-layers-behind {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    transform: translateY(95px);
+}
+
+/* ══ COMPLETED / LOCKED LEVELS — plain text over the maze art ══ */
+.dlm-level-tag {
+    display: inline-block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+.dlm-level-tag-complete {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.3;
+    padding: 5px 14px;
+    border-radius: 6px;
+    color: var(--bg, #fff);
+    text-shadow: none;
+    background: linear-gradient(135deg, rgb(246,207,129), rgb(201,151,44), rgb(246,207,129));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Completed level's badge — the layers diamond stays (per reference, it's
+   always rendered), with a light halo glow + gold disc + map-pin-check seal
+   OVERLAID on top of it (reference pulls this badge up over the icon with
+   marginTop:-150, not in place of it). */
+.dlm-complete-badge {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dlm-complete-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dlm-complete-halo {
+    position: absolute;
+    width: 95px;
+    height: 95px;
+    background-color: var(--bg, #fff);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    pointer-events: none;
+}
+.dlm-complete-disc {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgb(195, 148, 43);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+.dlm-complete-check {
+    position: relative;
+    color: rgb(246, 207, 129);
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+}
+
+/* ══ BOTTOM BAR ══ */
+.dlm-bottom-bar {
+    position: absolute;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 58px;
+    overflow: hidden;
+    background: var(--bg, #fff);
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding: 0 12px;
+}
+
+.dlm-bottom-text {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.dlm-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.dlm-bottom-label {
+    position: relative;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 18px;
+    padding-right: 5px;
+    font-weight: 900;
+    font-style: italic;
+    background: linear-gradient(90deg, rgb(13,85,167) 0%, rgb(65,120,188) 30%, rgb(65,120,188) 60%, rgb(13,85,167) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.dlm-bottom-label-solo {
+    font-size: 15px;
+    line-height: 18px;
+}
+
+.dlm-bottom-num {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 18px;
+    padding-right: 2px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgb(201, 151, 44);
+}
