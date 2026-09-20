@@ -90,7 +90,11 @@
       "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Users\\\\Bruno\\\\Downloads' -Filter 'good*' -ErrorAction SilentlyContinue | Select-Object Name, LastWriteTime\")",
       "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match '\\\\''vite'\\\\'' } | Select-Object ProcessId, CommandLine')",
       "Bash(npm install *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(taskkill //PID 400 //F)",
+      "Bash(xargs grep -ln \"isNull\")",
+      "Bash(xargs grep -ln \"subscribe\")"
     ]
   }
 }

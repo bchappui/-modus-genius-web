@@ -7,9 +7,11 @@ import ShareModal from '../modals/ShareModal.jsx'
 import Spinner from '../shared/Spinner.jsx'
 import AgentReadCard from './AgentReadCard.jsx'
 import GlobalLevelModal from './GlobalLevelModal.jsx'
+import ReadCardRequiredModal from '../modals/ReadCardRequiredModal.jsx'
 import { captureNode, downloadDataUrl } from '../../lib/domCapture.js'
 import { databases, DATABASE_ID, AGENTS_COLLECTION_ID } from '../../lib/appwrite.js'
-import { getDisplayedBadges, getFileViewUrl } from '../../lib/agents.js'
+import { getDisplayedBadges } from '../../lib/agents.js'
+import BadgeCard from '../shared/BadgeCard.jsx'
 import { getUserProgress } from '../../lib/levels.js'
 import { getStarsStatsForAgent } from '../../lib/stars.js'
 import { countLikesForAgent } from '../../lib/likes.js'
@@ -78,27 +80,16 @@ const SvgDefs = () => (
     </svg>
 );
 
-/* Mirrors modus_genius/components/BadgeCard.tsx's non-HOF branch (the only
-   one populated by this app's awardDiscoverBadges-style flow): a square
-   image with a rank/category caption baked on as an overlay. */
-const AgentBadge = ({ badge, size = 70 }) => (
-    <div className="apc-badge" style={{ width: size, height: size }}>
-        {badge.fileId && <img src={getFileViewUrl(badge.fileId)} alt="" className="apc-badge-img" />}
-        <div className="apc-badge-overlay">
-            {badge.category && <span className="apc-badge-text">{badge.category.toUpperCase()}</span>}
-            {badge.rank != null && <span className="apc-badge-text">{`TOP ${badge.rank}`}</span>}
-            {badge.year != null && <span className="apc-badge-text">{badge.year}</span>}
-        </div>
-    </div>
-);
-
 // Agent's own "trading card" — opened by clicking an agent's diamond avatar
 // anywhere in the app. Reuses CardHome.css's card-chrome classes (same gold
 // borders, deco rings, shimmer, certified strip) with the agent's own photo
 // as the background instead of a property's, plus a level-rank diamond,
 // likes/stars totals, and up to 3 displayed badges. No connect/messaging —
 // that depends on a friend system this app doesn't have yet.
-const AgentProfileCard = ({ agentId, onClose }) => {
+const READ_CARD_TIERS = new Set(['extra', 'premium']);
+
+const AgentProfileCard = ({ agentId, onClose, viewerAgentId, viewerMembershipTier, onShowSubscribe }) => {
+    const isOwnProfile = !!viewerAgentId && viewerAgentId === agentId;
     const [agent, setAgent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [likesCount, setLikesCount] = useState(0);
@@ -109,6 +100,7 @@ const AgentProfileCard = ({ agentId, onClose }) => {
     const [downloading, setDownloading] = useState(false);
     const [readCardOpen, setReadCardOpen] = useState(false);
     const [levelPathOpen, setLevelPathOpen] = useState(false);
+    const [upgradeRequiredOpen, setUpgradeRequiredOpen] = useState(false);
     const cardRef = useRef(null);
 
     useEffect(() => {
@@ -140,14 +132,14 @@ const AgentProfileCard = ({ agentId, onClose }) => {
     }, [agentId]);
 
     useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape' && !shareOpen && !readCardOpen && !levelPathOpen) onClose(); };
+        const onKey = (e) => { if (e.key === 'Escape' && !shareOpen && !readCardOpen && !levelPathOpen && !upgradeRequiredOpen) onClose(); };
         document.addEventListener('keydown', onKey);
         document.body.style.overflow = 'hidden';
         return () => {
             document.removeEventListener('keydown', onKey);
             document.body.style.overflow = '';
         };
-    }, [onClose, shareOpen, readCardOpen, levelPathOpen]);
+    }, [onClose, shareOpen, readCardOpen, levelPathOpen, upgradeRequiredOpen]);
 
     const handleDownload = async () => {
         if (downloading || !cardRef.current) return;
@@ -302,7 +294,17 @@ const AgentProfileCard = ({ agentId, onClose }) => {
                                 {displayedBadges.length > 0 && (
                                     <div className="apc-badges-row">
                                         {displayedBadges.map(badge => (
-                                            <AgentBadge key={badge.$id} badge={badge} />
+                                            <BadgeCard
+                                                key={badge.$id}
+                                                fileId={badge.fileId}
+                                                tab={badge.tab}
+                                                category={badge.category}
+                                                rank={badge.rank}
+                                                name={badge.name}
+                                                surname={badge.surname}
+                                                year={badge.year}
+                                                size={56}
+                                            />
                                         ))}
                                     </div>
                                 )}
@@ -315,7 +317,11 @@ const AgentProfileCard = ({ agentId, onClose }) => {
 
                                 {/* Actions panel — Read Card only (no connect/messaging) */}
                                 <div className="pm-actions">
-                                    <div className="pm-read-card-btn" onClick={() => setReadCardOpen(true)} style={{ cursor: 'pointer' }}>
+                                    <div
+                                        className="pm-read-card-btn"
+                                        onClick={() => (isOwnProfile || READ_CARD_TIERS.has(viewerMembershipTier) ? setReadCardOpen(true) : setUpgradeRequiredOpen(true))}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <div className="pm-ripple" />
                                         <span className="pm-read-label">READ<br />CARD</span>
                                         <div className="pm-read-circle">
@@ -345,6 +351,17 @@ const AgentProfileCard = ({ agentId, onClose }) => {
 
         {readCardOpen && (
             <AgentReadCard agent={agent} onClose={() => setReadCardOpen(false)} />
+        )}
+
+        {upgradeRequiredOpen && (
+            <ReadCardRequiredModal
+                onClose={() => setUpgradeRequiredOpen(false)}
+                onUpgrade={() => {
+                    setUpgradeRequiredOpen(false);
+                    onClose();
+                    onShowSubscribe?.();
+                }}
+            />
         )}
 
         {levelPathOpen && (

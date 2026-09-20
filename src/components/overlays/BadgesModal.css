@@ -1,0 +1,164 @@
+/* Mirrors modus_genius/app/(root)/profile/badges.tsx. Same header-bar/
+   gradient-text pattern as EditProfileModal.css; colors are colors.light.*
+   from modus_genius/constants/colors.js. */
+
+.bdm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+}
+
+.bdm-panel {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    background: rgb(231, 236, 255);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.bdm-scroll {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 16px 20px 32px;
+}
+.bdm-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+.bdm-header-bar {
+    position: relative;
+    width: 100%;
+    height: 46px;
+    border-radius: 10px;
+    background: rgb(241, 244, 255);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px 0 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.bdm-header-bar::before,
+.bdm-header-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+}
+.bdm-header-bar::before {
+    background: linear-gradient(to top right, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.bdm-header-bar::after {
+    background: linear-gradient(to bottom left, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.bdm-close-btn {
+    position: relative;
+    z-index: 1;
+    background: none;
+    border: none;
+    padding: 6px;
+    display: flex;
+    cursor: pointer;
+}
+.bdm-header-title {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 6px;
+}
+.bdm-header-title svg { flex-shrink: 0; }
+.bdm-header-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 0;
+    filter: drop-shadow(0.4px 0.4px 0px rgba(103, 193, 245, 0.6));
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167) 0%, rgb(65, 120, 188) 30%, rgb(65, 120, 188) 60%, rgb(13, 85, 167) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.bdm-loading,
+.bdm-empty {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    color: rgb(137, 162, 189);
+    text-align: center;
+    font-style: italic;
+    padding: 40px 10px;
+}
+
+.bdm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.bdm-item {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.bdm-card {
+    position: relative;
+    width: 140px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgb(241, 244, 255);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bdm-card::before,
+.bdm-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.bdm-card::before {
+    background: linear-gradient(to top right, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.bdm-card::after {
+    background: linear-gradient(to bottom left, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+
+.bdm-toggle-btn {
+    position: absolute;
+    top: -8px;
+    right: calc(50% - 70px - 8px);
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: rgb(65, 120, 188);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+.bdm-toggle-btn:disabled { background: #aaa; cursor: default; }
+.bdm-toggle-btn--remove { background: rgb(220, 50, 50); }
+
+@media (max-width: 420px) {
+    .bdm-grid { grid-template-columns: 1fr; }
+    .bdm-toggle-btn { right: calc(50% - 70px - 8px); }
+}

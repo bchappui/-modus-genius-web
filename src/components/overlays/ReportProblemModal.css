@@ -1,0 +1,167 @@
+/* Same header-bar/input pattern as BadgesModal.css/AdminAwardModal.css;
+   colors are colors.light.* from modus_genius/constants/colors.js. */
+
+.rpm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+}
+
+.rpm-panel {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    max-height: 90vh;
+    background: rgb(231, 236, 255);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.rpm-scroll {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 16px 20px 32px;
+}
+.rpm-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+.rpm-header-bar {
+    position: relative;
+    width: 100%;
+    height: 46px;
+    border-radius: 10px;
+    background: rgb(241, 244, 255);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px 0 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.rpm-header-bar::before,
+.rpm-header-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+}
+.rpm-header-bar::before {
+    background: linear-gradient(to top right, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.rpm-header-bar::after {
+    background: linear-gradient(to bottom left, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.rpm-close-btn {
+    position: relative;
+    z-index: 1;
+    background: none;
+    border: none;
+    padding: 6px;
+    display: flex;
+    cursor: pointer;
+}
+.rpm-header-title {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 6px;
+}
+.rpm-header-title svg { flex-shrink: 0; }
+.rpm-header-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14.5px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 0;
+    filter: drop-shadow(0.4px 0.4px 0px rgba(103, 193, 245, 0.6));
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167) 0%, rgb(65, 120, 188) 30%, rgb(65, 120, 188) 60%, rgb(13, 85, 167) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.rpm-label {
+    display: block;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+    color: rgb(65, 120, 188);
+}
+
+.rpm-input-wrap {
+    box-sizing: border-box;
+    border-radius: 12px;
+    border: 1px solid rgb(178, 189, 237);
+    background: rgb(241, 244, 255);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.rpm-input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    background: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    outline: none;
+}
+.rpm-input::placeholder { color: rgb(137, 162, 189); }
+.rpm-multiline {
+    min-height: 140px;
+    padding-top: 10px;
+    resize: vertical;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+}
+
+.rpm-error {
+    display: block;
+    margin-top: 10px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgb(200, 60, 60);
+}
+
+.rpm-send-btn {
+    width: 100%;
+    margin-top: 18px;
+    height: 46px;
+    border: none;
+    border-radius: 10px;
+    background: rgb(65, 120, 188);
+    color: #fff;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.rpm-sent {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    color: rgb(65, 120, 188);
+    line-height: 1.5;
+    text-align: center;
+    padding: 20px 4px 4px;
+}

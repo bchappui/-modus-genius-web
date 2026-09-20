@@ -67,37 +67,6 @@
     gap: 4px;
     z-index: 5;
 }
-.apc-badge {
-    position: relative;
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
-.apc-badge-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.apc-badge-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0;
-    padding-bottom: 3px;
-    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%);
-}
-.apc-badge-text {
-    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    font-size: 7px;
-    font-weight: 900;
-    font-style: italic;
-    line-height: 1.2;
-    color: rgb(246, 207, 129);
-    text-align: center;
-}
 
 /* Smaller "modus genius" wordmark for the profile card's own face — the shared
    .pm-logo-img (95px tall) is sized for the property card; here it's too big. */

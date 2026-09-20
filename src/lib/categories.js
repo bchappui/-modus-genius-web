@@ -29,3 +29,5 @@ export function getCategoryImageUrl(fileId) {
 
 export const CATEGORY_IMAGE_ID = Object.fromEntries(SKILL_CATEGORIES.map(c => [c.key, c.imageFileId]));
 export const CATEGORY_SHORT_ROLE = Object.fromEntries(SKILL_CATEGORIES.map(c => [c.key, c.shortRoleName]));
+// role title (e.g. "The Agilist") -> category key (e.g. "Agile")
+export const ROLE_TO_CATEGORY = Object.fromEntries(SKILL_CATEGORIES.map(c => [c.roleTitle, c.key]));

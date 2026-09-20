@@ -1,5 +1,6 @@
 import { ID } from 'appwrite';
 import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID, LIKES_COLLECTION_ID, Query } from './appwrite.js';
+import { incrementHearts, decrementHearts } from './levels.js';
 
 async function atomicIncrementLikeCount(propertyId, delta, maxRetries = 3) {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -76,6 +77,7 @@ export async function toggleLike(userId, propertyId, propertyType, agentId) {
     if (existing.documents.length > 0) {
         await databases.deleteDocument(DATABASE_ID, LIKES_COLLECTION_ID, existing.documents[0].$id);
         const likeCount = await atomicIncrementLikeCount(propertyId, -1);
+        await decrementHearts(agentId);
         return { status: 'removed', likeCount };
     }
 
@@ -83,5 +85,6 @@ export async function toggleLike(userId, propertyId, propertyType, agentId) {
         userId, propertyId, propertyType, agentId,
     });
     const likeCount = await atomicIncrementLikeCount(propertyId, 1);
+    await incrementHearts(agentId);
     return { status: 'added', likeCount };
 }

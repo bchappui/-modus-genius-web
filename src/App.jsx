@@ -19,6 +19,8 @@ import NewsletterExitModal from "./components/modals/NewsletterExitModal.jsx";
 import WhereToStartModal from "./components/modals/WhereToStartModal.jsx";
 import AuthRequiredModal from "./components/modals/AuthRequiredModal.jsx";
 import EditProfileModal from "./components/modals/EditProfileModal.jsx";
+import AccountMenuModal from "./components/overlays/AccountMenuModal.jsx";
+import CelebrationManager from "./components/overlays/celebration/CelebrationManager.jsx";
 import OutOfFreeCardsModal from "./components/modals/OutOfFreeCardsModal.jsx";
 import OutOfEssentialsCardsModal from "./components/modals/OutOfEssentialsCardsModal.jsx";
 import SeasonPassRequiredModal from "./components/modals/SeasonPassRequiredModal.jsx";
@@ -31,6 +33,7 @@ import { updateAgent, getCurrentMonthKey } from './lib/agents.js';
 import { redeemGiftCode, getGiftUnlockedPropertyIds } from './lib/giftcodes.js';
 import { getPropertyAccessDecision, getTier } from './lib/membership.js';
 import { getCurrentSeasonKey } from './lib/seasons.js';
+import { getPropertiesByIds } from './lib/properties.js';
 
 const App = () => {
     const [authUser, setAuthUser] = useState(null);
@@ -63,6 +66,9 @@ const App = () => {
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const [profileModalOpen, setProfileModalOpen] = useState(false);
+    const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+    const [subscribeTierPreset, setSubscribeTierPreset] = useState(null);
+    const [geniusInitialTab, setGeniusInitialTab] = useState(null);
     const [limitModalOpen, setLimitModalOpen] = useState(false);
     const [limitedProperty, setLimitedProperty] = useState(null);
     const [limitReason, setLimitReason] = useState('monthly-limit');
@@ -162,8 +168,9 @@ const App = () => {
     // calls (post-payment-success callbacks) once that's wired up.
     const handleSelectMembershipTier = (tierKey) => {
         if (!agentId) return;
-        setAgentProfile(prev => prev ? { ...prev, membershipTier: tierKey } : prev);
-        updateAgent(agentId, { membershipTier: tierKey })
+        const membershipTierSince = new Date().toISOString();
+        setAgentProfile(prev => prev ? { ...prev, membershipTier: tierKey, membershipTierSince } : prev);
+        updateAgent(agentId, { membershipTier: tierKey, membershipTierSince })
             .catch(e => console.error('Error updating membership tier', e));
     };
 
@@ -216,6 +223,7 @@ const App = () => {
                     freeCardPropertyId: doc?.freeCardPropertyId || '',
                     unlockedPropertyIds,
                     membershipTier: doc?.membershipTier || 'free',
+                    membershipTierSince: doc?.membershipTierSince || '',
                     seasonPassSeasonKey: doc?.seasonPassSeasonKey || '',
                     essentialsCardMonth: doc?.essentialsCardMonth || '',
                     essentialsCardPropertyIds: doc?.essentialsCardPropertyIds || [],
@@ -376,19 +384,31 @@ const App = () => {
             .catch(e => console.error('Error fetching properties count', e));
     }, []);
 
+    // Once per browser tab: sessionStorage is cleared when the tab closes,
+    // so a fresh tab (or a hard reload after closing it) can show these
+    // interstitials again, but repeat visits to the same page within one
+    // tab's lifetime won't keep re-triggering them.
+    const hasShownThisSession = (key) => {
+        try { return sessionStorage.getItem(key) === '1'; } catch (e) { return false; }
+    };
+    const markShownThisSession = (key) => {
+        try { sessionStorage.setItem(key, '1'); } catch (e) {}
+    };
+
     // Exit-intent: pops a "before you go" modal once the cursor leaves the
     // page toward the browser chrome (tab bar / close button) at the top of
     // the viewport — the classic desktop exit-intent trick. Fires once per
-    // page context (Subscribe / Favorites / everything else), only once the
-    // user is logged into the app. Re-arms on navigation between those
-    // contexts so each context's own modal gets its own shot, instead of one
-    // global "used up" flag blocking the others for the rest of the tab.
+    // page context (Subscribe / everything else) per tab, only once the
+    // user is logged into the app.
     useEffect(() => {
         if (!authUser) return;
+        const sessionKey = showSubscribe ? 'exitIntentShown_subscribe' : 'exitIntentShown_general';
+        if (hasShownThisSession(sessionKey)) return;
         let shown = false;
         const onMouseOut = (e) => {
             if (shown || e.clientY > 10 || e.relatedTarget) return;
             shown = true;
+            markShownThisSession(sessionKey);
             setExitIntentOpen(true);
         };
         document.addEventListener('mouseout', onMouseOut);
@@ -396,26 +416,23 @@ const App = () => {
     }, [authUser, showSubscribe, isFavoritesPage]);
 
     // WhereToStartModal (personality-test pitch): shown on Explore via the
-    // same exit-intent trick, OR on Home once the visitor scrolls past the
-    // hero — two different "about to disengage" signals for two different
-    // page shapes (Explore has no scroll depth to speak of on entry; Home's
-    // hero is the first thing you'd scroll past).
+    // exit-intent trick, OR on Home after a 10s dwell — two different "about
+    // to disengage / already engaged" signals for two different page shapes.
+    // Once per tab (see hasShownThisSession above), not once per Home visit.
     useEffect(() => {
         if (!authUser || !(isExplorePage || showHome)) return;
+        if (hasShownThisSession('wtsShown')) return;
         let shown = false;
-        const trigger = () => { if (!shown) { shown = true; setWtsOpen(true); } };
+        const trigger = () => { if (!shown) { shown = true; markShownThisSession('wtsShown'); setWtsOpen(true); } };
         const onMouseOut = (e) => {
             if (!isExplorePage || e.clientY > 10 || e.relatedTarget) return;
             trigger();
         };
-        const onScroll = () => {
-            if (showHome && window.scrollY > 600) trigger();
-        };
         document.addEventListener('mouseout', onMouseOut);
-        window.addEventListener('scroll', onScroll);
+        const timer = showHome ? setTimeout(trigger, 10000) : null;
         return () => {
             document.removeEventListener('mouseout', onMouseOut);
-            window.removeEventListener('scroll', onScroll);
+            if (timer) clearTimeout(timer);
         };
     }, [authUser, isExplorePage, showHome]);
 
@@ -562,7 +579,6 @@ const App = () => {
                     onGoHome={() => { setShowLogin(false); navigateTo({ showHome: true }); }}
                     onGoToExplore={() => { setShowLogin(false); goToExplore(); }}
                     onShowGenius={() => { setShowLogin(false); navigateTo({ showGenius: true }); }}
-                    onShowQuotes={() => { setShowLogin(false); navigateTo({ showQuotes: true }); }}
                     onShowNewsletter={() => { setShowLogin(false); navigateTo({ showNewsletter: true }); }}
                     onShowCreate={() => { setShowLogin(false); navigateTo({ showCreate: true }); }}
                     searchTerm={searchTerm}
@@ -592,7 +608,7 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             ) : showAbout ? (
                 <AboutPage
@@ -613,7 +629,7 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             ) : showThanksArchive ? (
                 <ThanksArchive
@@ -634,7 +650,7 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             ) : showSubscribe ? (
                 <SubscribePage
@@ -643,6 +659,8 @@ const App = () => {
                     isLoggedIn={!!authUser}
                     onAccountCreated={() => account.get().then(setAuthUser)}
                     onSelectTier={handleSelectMembershipTier}
+                    initialTier={subscribeTierPreset}
+                    onClearTierPreset={() => setSubscribeTierPreset(null)}
                     onGoHome={() => navigateTo({ showHome: true, showSubscribe: false })}
                     onGoToExplore={() => { goToExplore(); }}
                     onShowGenius={() => navigateTo({ showGenius: true, showSubscribe: false })}
@@ -652,7 +670,7 @@ const App = () => {
                     onShowFavorites={requireAuth(() => navigateTo({ showFavorites: true, showSubscribe: false }))}
                     onLogout={handleAuthAction}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                     searchTerm={searchTerm}
                     onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
                     movieList={movieList}
@@ -678,7 +696,10 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
+                    agentName={agentProfile?.name}
+                    agentSurname={agentProfile?.surname}
+                    agentEmail={authUser?.email}
                 />
             ) : showNewsletter ? (
                 <NewsletterPage
@@ -698,7 +719,7 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             ) : showGenius ? (
                 <GeniusPage
@@ -718,7 +739,8 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
+                    initialTab={geniusInitialTab}
                 />
             ) : showQuotes ? (
                 <QuotesPage
@@ -738,7 +760,7 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             ) : !showFavorites ? (
                 <ExplorePage
@@ -762,7 +784,7 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             ) : (
                 <FavoritesPage
@@ -783,7 +805,7 @@ const App = () => {
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
-                    onOpenProfile={() => setProfileModalOpen(true)}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             )}
             <CardHome
@@ -798,6 +820,13 @@ const App = () => {
                 onCommentCountChange={handleCommentCountChange}
                 hasCommented={hasCommented}
                 onOwnCommentChange={setHasCommented}
+                viewerAgentId={agentId}
+                viewerMembershipTier={getTier(agentProfile?.membershipTier).key}
+                onShowSubscribe={() => navigateTo({
+                    showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
+                    showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                    showQuotes: false, showThanksArchive: false,
+                })}
             />
             <QuoteHome
                 quote={selectedQuote}
@@ -823,7 +852,11 @@ const App = () => {
                     onClose={() => setExitIntentOpen(false)}
                     onGetStarted={() => {
                         setExitIntentOpen(false);
-                        navigateTo({ showSubscribe: true });
+                        navigateTo({
+                            showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showQuotes: false, showThanksArchive: false,
+                        });
                     }}
                 />
             )}
@@ -837,7 +870,84 @@ const App = () => {
                 <EditProfileModal
                     agentId={agentId}
                     onClose={() => setProfileModalOpen(false)}
+                    onBack={() => { setProfileModalOpen(false); setAccountMenuOpen(true); }}
                     onSaved={handleProfileSaved}
+                />
+            )}
+            {accountMenuOpen && agentId && (
+                <AccountMenuModal
+                    agentId={agentId}
+                    authEmail={authUser?.email}
+                    onClose={() => setAccountMenuOpen(false)}
+                    onEditProfile={() => { setAccountMenuOpen(false); setProfileModalOpen(true); }}
+                    onShowFavorites={() => {
+                        setAccountMenuOpen(false);
+                        navigateTo({
+                            showFavorites: true, showHome: false, showAbout: false, showSubscribe: false,
+                            showCreate: false, showNewsletter: false, showGenius: false, showQuotes: false,
+                            showThanksArchive: false,
+                        });
+                    }}
+                    onShowQuotes={() => {
+                        setAccountMenuOpen(false);
+                        navigateTo({
+                            showQuotes: true, showHome: false, showAbout: false, showSubscribe: false,
+                            showCreate: false, showNewsletter: false, showGenius: false, showFavorites: false,
+                            showThanksArchive: false,
+                        });
+                    }}
+                    onShowSubscribe={() => {
+                        setAccountMenuOpen(false);
+                        navigateTo({
+                            showSubscribe: true, showHome: false, showAbout: false, showFavorites: false,
+                            showCreate: false, showNewsletter: false, showGenius: false, showQuotes: false,
+                            showThanksArchive: false,
+                        });
+                    }}
+                    onGetNextTier={(tierKey) => {
+                        setAccountMenuOpen(false);
+                        setSubscribeTierPreset(tierKey);
+                        navigateTo({
+                            showSubscribe: true, showHome: false, showAbout: false, showFavorites: false,
+                            showCreate: false, showNewsletter: false, showGenius: false, showQuotes: false,
+                            showThanksArchive: false,
+                        });
+                    }}
+                    onLogout={() => { setAccountMenuOpen(false); handleAuthAction(); }}
+                />
+            )}
+            {agentId && (
+                <CelebrationManager
+                    agentId={agentId}
+                    onOpenQuote={(quoteId) => {
+                        getQuoteById(quoteId).then(quote => {
+                            if (!quote) return;
+                            navigateTo({
+                                selectedQuote: quote, showHome: false, showAbout: false, showSubscribe: false,
+                                showCreate: false, showNewsletter: false, showGenius: false, showFavorites: false,
+                                showQuotes: false, showThanksArchive: false,
+                            });
+                        });
+                    }}
+                    onOpenProperty={(propertyId) => {
+                        getPropertiesByIds([propertyId]).then(properties => {
+                            const property = properties[0];
+                            if (!property) return;
+                            navigateTo({
+                                selectedProperty: property, showHome: false, showAbout: false, showSubscribe: false,
+                                showCreate: false, showNewsletter: false, showGenius: false, showFavorites: false,
+                                showQuotes: false, showThanksArchive: false,
+                            });
+                        });
+                    }}
+                    onOpenRanks={(tab) => {
+                        setGeniusInitialTab(tab || null);
+                        navigateTo({
+                            showGenius: true, showHome: false, showAbout: false, showSubscribe: false,
+                            showCreate: false, showNewsletter: false, showFavorites: false,
+                            showQuotes: false, showThanksArchive: false,
+                        });
+                    }}
                 />
             )}
             {limitModalOpen && agentId && limitReason === 'season-pass-required' && (
@@ -846,7 +956,11 @@ const App = () => {
                     onGetSeasonPass={() => {
                         setLimitModalOpen(false);
                         setLimitedProperty(null);
-                        navigateTo({ showSubscribe: true });
+                        navigateTo({
+                            showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showQuotes: false, showThanksArchive: false,
+                        });
                     }}
                 />
             )}
@@ -856,7 +970,11 @@ const App = () => {
                     onContinue={() => {
                         setLimitModalOpen(false);
                         setLimitedProperty(null);
-                        navigateTo({ showSubscribe: true });
+                        navigateTo({
+                            showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showQuotes: false, showThanksArchive: false,
+                        });
                     }}
                 />
             )}
@@ -866,7 +984,11 @@ const App = () => {
                     onContinue={() => {
                         setLimitModalOpen(false);
                         setLimitedProperty(null);
-                        navigateTo({ showSubscribe: true });
+                        navigateTo({
+                            showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showQuotes: false, showThanksArchive: false,
+                        });
                     }}
                 />
             )}

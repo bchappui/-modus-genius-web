@@ -106,7 +106,7 @@ const SvgDefs = () => (
 const CardHome = ({
     property, onClose, isFavorite, onToggleFavorite, isLiked, onToggleLike,
     currentUserName, currentUserAvatar, onCommentCountChange,
-    hasCommented, onOwnCommentChange,
+    hasCommented, onOwnCommentChange, viewerAgentId, viewerMembershipTier, onShowSubscribe,
 }) => {
     const [cardReaderOpen, setCardReaderOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(false);
@@ -442,7 +442,13 @@ const CardHome = ({
         )}
 
         {agentProfileOpen && agent?.$id && (
-            <AgentProfileCard agentId={agent.$id} onClose={() => setAgentProfileOpen(false)} />
+            <AgentProfileCard
+                agentId={agent.$id}
+                onClose={() => setAgentProfileOpen(false)}
+                viewerAgentId={viewerAgentId}
+                viewerMembershipTier={viewerMembershipTier}
+                onShowSubscribe={onShowSubscribe}
+            />
         )}
 
         {downloading && (

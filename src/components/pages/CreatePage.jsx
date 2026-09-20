@@ -24,7 +24,7 @@ const AVATAR_URLS = [
 const CreatePage = ({
     searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowGenius, onShowQuotes, onShowNewsletter, onShowSubscribe,
     onShowFavorites, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
-    agentAvatar, onOpenProfile,
+    agentAvatar, onOpenProfile, agentName, agentSurname, agentEmail,
 }) => {
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -55,7 +55,13 @@ const CreatePage = ({
             )}
 
             {createModalOpen && (
-                <CreateModal onClose={() => setCreateModalOpen(false)} />
+                <CreateModal
+                    onClose={() => setCreateModalOpen(false)}
+                    isLoggedIn={isLoggedIn}
+                    agentName={agentName}
+                    agentSurname={agentSurname}
+                    agentEmail={agentEmail}
+                />
             )}
 
             {/* ── HERO — same medallion technique as ExplorePage ── */}

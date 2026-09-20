@@ -15,13 +15,20 @@ const SubscribePage = ({
     onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter,
     onShowCreate, onShowFavorites, onLogout, agentAvatar, onOpenProfile,
     searchTerm, onSearchChange, movieList, isLoading, errorMessage, onSelectProperty,
+    initialTier, onClearTierPreset,
 }) => {
     const [step, setStep] = useState(isLoggedIn ? 2 : 1);
-    const [pendingTier, setPendingTier] = useState('extra');
+    const [pendingTier, setPendingTier] = useState(initialTier || 'extra');
 
     useEffect(() => {
         if (isLoggedIn && step === 1) setStep(2);
     }, [isLoggedIn]);
+
+    // Preselecting a specific tier (e.g. from the account menu's "Get X"
+    // upsell) is a one-shot instruction for this visit to the wizard — clear
+    // it on the way out so a later, unrelated "Membership" click doesn't
+    // inherit a stale preselection.
+    useEffect(() => () => onClearTierPreset?.(), []);
 
     if (step === 1) {
         return (
@@ -43,6 +50,7 @@ const SubscribePage = ({
                 onBack={onBack}
                 onLoginClick={onLoginClick}
                 isLoggedIn={isLoggedIn}
+                initialSelected={initialTier}
                 onContinue={(tierKey) => { setPendingTier(tierKey); setStep(3); }}
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
                 onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCreate={onShowCreate}

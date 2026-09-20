@@ -133,6 +133,21 @@ export async function getClassicsProperties() {
     }
 }
 
+// Up to `limit` properties tagged with the given skill category — same
+// Query.equal('type', ...) already used for Explore's category filter and
+// App.jsx's category search, just capped for a Home carousel row.
+export async function getPropertiesByCategory(categoryKey, limit = 15) {
+    try {
+        const result = await databases.listDocuments(DATABASE_ID, PROPERTIES_COLLECTION_ID, [
+            Query.equal('type', categoryKey), Query.limit(limit),
+        ]);
+        return enrichWithAgents(result.documents);
+    } catch (e) {
+        console.error('getPropertiesByCategory error', e);
+        return [];
+    }
+}
+
 // Newest properties ("New In").
 export async function getNewProperties() {
     try {

@@ -42,9 +42,10 @@ const MembershipStep2 = ({
     onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter,
     onShowCreate, onShowFavorites, onLogout, agentAvatar, onOpenProfile,
     searchTerm, onSearchChange, movieList, isLoading: searchLoading, errorMessage, onSelectProperty,
+    initialSelected,
 }) => {
     const [billing, setBilling] = useState('monthly');
-    const [selected, setSelected] = useState('extra');
+    const [selected, setSelected] = useState(initialSelected || 'extra');
     const [countdown, setCountdown] = useState('');
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     const [seasonPassModalOpen, setSeasonPassModalOpen] = useState(false);

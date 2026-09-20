@@ -1,0 +1,209 @@
+/* Account Menu — mirrors modus_genius/app/(root)/profile/index.tsx, the
+   intermediate screen reached by tapping the header avatar. Colors below are
+   colors.light.* from modus_genius/constants/colors.js, carried over 1:1. */
+
+.amm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.amm-panel {
+    width: 390px;
+    max-height: 88vh;
+    background: rgb(231, 236, 255);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+.amm-close-row {
+    display: flex;
+    padding: 14px 0 0 14px;
+}
+
+.amm-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background: rgb(241, 244, 255);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.amm-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 24px;
+}
+.amm-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ══ GET PRO — mirrors ButtonGetPro.tsx, but unlike the reference (which
+   passes no onPress and leaves it inert) this one opens the Membership page
+   with the next tier up preselected, so it needs a real pointer cursor. */
+.amm-get-pro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: calc(100% - 40px);
+    height: 45px;
+    margin: 20px auto 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: linear-gradient(135deg,
+        rgb(201, 151, 44) 0%, rgb(246, 207, 129) 40%, rgb(246, 207, 129) 60%, rgb(201, 151, 44) 100%
+    );
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    /* rgb(231,236,255) = colors.light.card — the reference's own inline
+       {color: card} override wins over its stylesheet's muted-red default. */
+    color: rgb(231, 236, 255);
+}
+.amm-get-pro svg {
+    fill: rgb(231, 236, 255);
+    filter: drop-shadow(0.4px 0.4px 0.4px rgba(137, 162, 189, 0.6));
+}
+.amm-get-pro span {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-style: italic;
+}
+
+/* ══ VIEW PROFILE / EDIT PROFILE — mirrors ButtonReadMyProfile.tsx /
+   ButtonEditMyProfile.tsx: bg background, double-diagonal gloss overlay,
+   rounded 10px, blue italic label. */
+.amm-buttons-row {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px;
+    margin-top: 0;
+}
+.amm-action-btn {
+    position: relative;
+    flex: 1;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgb(241, 244, 255);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.amm-action-btn::before,
+.amm-action-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+}
+.amm-action-btn::before {
+    background: linear-gradient(to top right, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.amm-action-btn::after {
+    background: linear-gradient(to bottom left, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.amm-action-btn svg,
+.amm-action-btn span {
+    position: relative;
+    z-index: 1;
+}
+.amm-action-btn span {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgb(65, 120, 188);
+}
+
+/* ══ Sections / settings rows — mirrors the reference's SectionTitle /
+   SettingsItem + StyleSheet values. */
+.amm-section {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    padding: 0 28px;
+}
+.amm-section-border {
+    border-top: 1px solid rgba(205, 220, 255, 1);
+    padding-top: 20px;
+}
+.amm-section-title {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    color: rgb(137, 162, 189);
+}
+.amm-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    width: 100%;
+}
+.amm-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+.amm-item-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    color: rgb(65, 120, 188);
+}
+
+/* ══ Switch — mirrors the RN Switch (trackColor false:#D1D5DB / true:gold,
+   white thumb), scaled to ~0.75 in the reference. */
+.amm-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: #D1D5DB;
+    transition: background 0.15s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+.amm-switch-on {
+    background: rgb(237, 185, 95);
+}
+.amm-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease;
+}
+.amm-switch-on .amm-switch-thumb {
+    transform: translateX(16px);
+}

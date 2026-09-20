@@ -42,21 +42,24 @@ const TopNav = ({
                 {renderLink('home', 'Home', onGoHome)}
                 {renderLink('explore', 'Explore', onGoToExplore)}
                 {renderLink('genius', 'Genius', onShowGenius)}
-                {renderLink('quotes', 'Quotes', onShowQuotes)}
                 {renderLink('newsletter', 'Newsletter', onShowNewsletter)}
             </nav>
             <div className="ep-nav-right">
                 {activeRightItem === 'create' ? (
-                    <span className="ep-nav-create">+ Create</span>
+                    <span className="ep-nav-create ep-nav-create--active">+ Create</span>
                 ) : (
                     <button className="ep-nav-create" onClick={onShowCreate}>+ Create</button>
                 )}
-                {activeRightItem === 'favorites' ? (
-                    <span className="ep-nav-login ep-nav-login--active">Favorites</span>
-                ) : (
-                    <button className="ep-nav-login" onClick={onShowFavorites}>Favorites</button>
+                {isLoggedIn && (
+                    activeRightItem === 'favorites' ? (
+                        <span className="ep-nav-login ep-nav-login--active">Favorites</span>
+                    ) : (
+                        <button className="ep-nav-login" onClick={onShowFavorites}>Favorites</button>
+                    )
                 )}
-                <button className="ep-nav-login" onClick={onLogout}>{isLoggedIn ? 'Log out' : 'Log in'}</button>
+                {!isLoggedIn && (
+                    <button className="ep-nav-login" onClick={onLogout}>Log in</button>
+                )}
                 <button className="ep-nav-membership" onClick={onShowSubscribe}>Membership</button>
                 <button className="ep-nav-search-btn" onClick={onOpenSearch} aria-label="Search">
                     <FiSearch size={18} className="ep-nav-search-icon" />

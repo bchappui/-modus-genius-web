@@ -1,0 +1,421 @@
+/* Shared chrome for the 7 celebration popups — mirrors modus_genius's
+   components/celebration/*.tsx StyleSheets, which all reuse the same
+   overlay/card/gloss/logo-circle/button/gold-gradient-text/tag/portrait
+   pattern with only sizes and content differing per popup. Relies on the
+   :root custom properties (--bg, --notif, --rainbow) defined in
+   ../CardHome.css, imported alongside this file by every modal. */
+
+@keyframes cel-pop-in {
+    0%   { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+}
+@keyframes cel-badge-pop {
+    0%   { transform: scale(0); }
+    60%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+@keyframes cel-twinkle {
+    0%, 100% { opacity: 0.1; transform: scale(0.4); }
+    50%      { opacity: 1;   transform: scale(1); }
+}
+@keyframes cel-halo-pulse {
+    0%, 100% { opacity: 0.06; }
+    50%      { opacity: 0.22; }
+}
+@keyframes cel-ring-pulse {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 1; }
+}
+@keyframes cel-ring-outer-pulse {
+    0%, 100% { opacity: 0.15; }
+    50%      { opacity: 0.6; }
+}
+@keyframes cel-bar-fill {
+    from { width: 0%; }
+    to   { width: var(--cel-bar-target, 100%); }
+}
+
+.cel-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.cel-card-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: cel-pop-in 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Logo/category circle — half above the card, zIndex above it */
+.cel-logo-box {
+    position: relative;
+    width: 78px;
+    height: 78px;
+    border-radius: 39px;
+    border: 1.5px solid var(--notif);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    margin-bottom: -39px;
+    z-index: 2;
+}
+.cel-logo-box-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cel-logo-box-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.05);
+}
+.cel-logo-box-img {
+    position: relative;
+    z-index: 1;
+    object-fit: contain;
+}
+
+/* Card */
+.cel-card {
+    position: relative;
+    width: 300px;
+    border-radius: 16px;
+    border: 2px solid var(--notif);
+    padding: 50px 24px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    background: var(--bg);
+}
+.cel-card-flat {
+    padding: 28px 24px;
+}
+.cel-card-gloss-1,
+.cel-card-gloss-2 {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.cel-card-gloss-1 { background: linear-gradient(to top right, transparent 0%, transparent 70%, var(--notif) 100%); }
+.cel-card-gloss-2 { background: linear-gradient(to bottom left, transparent 0%, transparent 70%, var(--notif) 100%); }
+
+.cel-title {
+    position: relative;
+    z-index: 1;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-align: center;
+    background: linear-gradient(115deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.cel-subtitle {
+    position: relative;
+    z-index: 1;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-align: center;
+    line-height: 1.5;
+    background: linear-gradient(115deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.cel-card-title {
+    position: relative;
+    z-index: 1;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+    text-align: center;
+    line-height: 24px;
+    background: linear-gradient(115deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Halo/rings/sparkles icon area — size set per-usage via inline style vars */
+.cel-icon-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.cel-halo {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    border-radius: 50%;
+    background: var(--notif);
+    animation: cel-halo-pulse 1000ms ease-in-out 400ms infinite;
+}
+.cel-ring-outer {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    border-radius: 50%;
+    border: 2px solid var(--notif);
+    animation: cel-ring-outer-pulse 900ms ease-in-out 750ms infinite;
+}
+.cel-ring-inner {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    border-radius: 50%;
+    border: 5px solid var(--notif);
+    animation: cel-ring-pulse 700ms ease-in-out 350ms infinite;
+}
+.cel-star {
+    position: absolute;
+    color: rgb(246, 207, 129);
+    animation: cel-twinkle 1000ms ease-in-out infinite;
+}
+
+/* Central badge circle */
+.cel-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--notif);
+    background: var(--bg);
+    overflow: hidden;
+    animation: cel-badge-pop 420ms cubic-bezier(0.34, 1.75, 0.64, 1) 350ms both;
+}
+
+/* Progress bar */
+.cel-bar-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.cel-bar-track {
+    position: relative;
+    flex: 1;
+    height: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--notif);
+    overflow: hidden;
+    background: var(--bg);
+}
+.cel-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 10px;
+    background: rgb(201, 151, 44);
+    width: 0%;
+    animation: cel-bar-fill 1000ms ease 400ms forwards;
+}
+.cel-bar-label {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    font-style: italic;
+    min-width: 22px;
+    text-align: center;
+    background: linear-gradient(115deg, rgb(246,207,129) 0%, rgb(201,151,44) 50%, rgb(246,207,129) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Gold diagonal-gradient tag rectangle (rank name / role name / category / tab) */
+.cel-tag-shadow {
+    position: relative;
+    z-index: 1;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.cel-tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    padding: 5px 14px;
+    background: linear-gradient(135deg, rgb(246,207,129) 10%, rgb(201,151,44) 50%, rgb(246,207,129) 90%);
+}
+.cel-tag-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--bg);
+    white-space: nowrap;
+}
+
+/* Portrait card (avatar in a small gold-framed card, RoleTitle + Leaderboard) */
+.cel-portrait-wrap {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+.cel-portrait-gradient {
+    border-radius: 8px;
+    padding: 3px;
+    background: linear-gradient(135deg, rgb(246,207,129), rgb(201,151,44), rgb(246,207,129));
+}
+.cel-portrait-inner {
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+}
+.cel-portrait-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Bottom button */
+.cel-btn {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 45px;
+    border-radius: 10px;
+    border: none;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.cel-btn-gloss-1,
+.cel-btn-gloss-2 {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.cel-btn-gloss-1 { background: linear-gradient(to top right, transparent 0%, transparent 70%, var(--notif) 100%); }
+.cel-btn-gloss-2 { background: linear-gradient(to bottom left, transparent 0%, transparent 70%, var(--notif) 100%); }
+.cel-btn-text {
+    position: relative;
+    z-index: 1;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgb(13, 85, 167);
+}
+
+/* LevelupModal's roman-numeral level number, over a faint "LEVEL" watermark */
+.clm-level-badge {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: cel-badge-pop 420ms cubic-bezier(0.34, 1.75, 0.64, 1) 350ms both;
+}
+.clm-level-bg {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 38px;
+    color: rgba(150, 150, 150, 0.18);
+    margin-bottom: -45px;
+}
+.clm-level-roman {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 54px;
+    font-weight: 900;
+    text-align: center;
+    line-height: 54px;
+    white-space: pre-line;
+    background: var(--rainbow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* LeaderboardModal's decorative Caesar silhouette behind the portrait card —
+   mirrors the reference's <Image tintColor="rgba(246,207,129,0.5)">, using
+   the same mask-image + background-color trick established elsewhere in
+   this app for recoloring an image to a flat silhouette. */
+.lbm-caesar {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    background-color: rgba(246, 207, 129, 0.5);
+}
+
+/* Badge card wrapper (used by BadgeModal + DiscoverModal around BadgeCard) */
+.cel-badge-section {
+    position: relative;
+    z-index: 1;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+.cel-badge-card {
+    position: relative;
+    width: 140px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    animation: cel-badge-pop 420ms cubic-bezier(0.34, 1.75, 0.64, 1) 350ms both;
+}
+.cel-badge-card-inner {
+    position: relative;
+    z-index: 1;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

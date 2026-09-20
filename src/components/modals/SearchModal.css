@@ -1,73 +1,161 @@
+/* Mirrors CreateModal.css's palette/header-bar pattern so this modal matches
+   the rest of the app: bg=rgb(241,244,255) (inputs/header), card=rgb(231,236,255)
+   (panel bg), border=rgb(178,189,237), notification=rgba(205,220,255,1) (gloss),
+   primary=rgb(65,120,188). */
+
 .sem-overlay {
     position: fixed;
     inset: 0;
     z-index: 4000;
-    background: rgba(5, 10, 20, 0.55);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding: 90px 20px;
-    backdrop-filter: blur(2px);
 }
 
 .sem-panel {
+    position: relative;
     width: 100%;
     max-width: 720px;
     max-height: 78vh;
-    background: #ffffff;
+    background: rgb(231, 236, 255);
     border-radius: 16px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
 }
 
-.sem-search-row {
+.sem-scroll {
+    max-height: 78vh;
+    overflow-y: auto;
+    padding: 16px 20px 28px;
+    display: flex;
+    flex-direction: column;
+}
+.sem-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ══ Header bar — mirrors CreateModal's styles.backRow gloss pill. */
+.sem-header-bar {
+    position: relative;
+    width: 100%;
+    height: 46px;
+    border-radius: 10px;
+    background: rgb(241, 244, 255);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px 0 2px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.sem-header-bar::before,
+.sem-header-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+}
+.sem-header-bar::before {
+    background: linear-gradient(to top right, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.sem-header-bar::after {
+    background: linear-gradient(to bottom left, transparent 0%, transparent 70%, rgba(205, 220, 255, 1) 100%);
+}
+.sem-close-btn {
+    position: relative;
+    z-index: 1;
+    background: none;
+    border: none;
+    padding: 6px;
+    display: flex;
+    cursor: pointer;
+}
+.sem-header-title {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-right: 6px;
+}
+.sem-header-title svg { flex-shrink: 0; }
+.sem-header-text {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 0;
+    filter: drop-shadow(0.4px 0.4px 0px rgba(103, 193, 245, 0.6));
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167) 0%, rgb(65, 120, 188) 30%, rgb(65, 120, 188) 60%, rgb(13, 85, 167) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ══ Search input — mirrors CreateModal's .cm-input-wrap/.cm-input. */
+.sem-input-wrap {
+    width: 100%;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 18px 20px;
-    border-bottom: 1px solid rgba(15, 30, 55, 0.12);
+    border-radius: 12px;
+    border: 1px solid rgb(178, 189, 237);
+    background: rgb(241, 244, 255);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 0 14px;
     flex-shrink: 0;
 }
-.sem-search-icon { color: rgba(15, 30, 55, 0.45); flex-shrink: 0; }
+.sem-search-icon { color: rgb(137, 162, 189); flex-shrink: 0; }
 .sem-search-input {
     flex: 1;
     min-width: 0;
     border: none;
     outline: none;
-    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    font-size: 15px;
-    color: rgba(15, 30, 55, 0.55);
     background: none;
+    padding: 10px 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
 }
-.sem-search-input::placeholder { color: rgba(15, 30, 55, 0.4); }
+.sem-search-input::placeholder { color: rgb(137, 162, 189); }
 
 .sem-results {
     overflow-y: auto;
-    padding: 16px 20px 22px;
+    padding-top: 18px;
 }
 
-.sem-section-title {
-    margin: 4px 0 12px;
+.sem-label {
+    display: block;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    color: rgba(15, 30, 55, 0.55);
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
     text-transform: uppercase;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg,
+        rgb(13, 85, 167) 0%, rgb(65, 120, 188) 30%, rgb(65, 120, 188) 60%, rgb(13, 85, 167) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .sem-hint {
     margin: 10px 0 0;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
     font-size: 14px;
-    color: rgba(15, 30, 55, 0.45);
+    font-weight: 600;
+    color: rgb(137, 162, 189);
     text-align: center;
 }
 
-.sem-error { color: rgb(200, 60, 60); font-size: 14px; }
-.sem-empty { color: rgba(15, 30, 55, 0.5); font-size: 14px; }
+.sem-error { color: rgb(200, 60, 60); font-size: 14px; font-family: 'Roboto', system-ui, -apple-system, sans-serif; }
+.sem-empty { color: rgb(137, 162, 189); font-size: 14px; font-family: 'Roboto', system-ui, -apple-system, sans-serif; }
 
 .sem-cards-grid {
     display: grid;

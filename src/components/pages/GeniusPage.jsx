@@ -21,10 +21,10 @@ const CIRCLE_TEXT = 'YOUR EXPERTISE  •  OUR COLLECTION  •  ';
 // Tab keys match modus_genius's ranks.tsx "tab" values exactly (Query.equal
 // against agent_rankings/agent_rankings_hof is case-sensitive: "Year", not "YEAR").
 const TABS = [
-    { key: 'HOF', label: 'HOF', icon: ICON_HOF_URL },
-    { key: 'Year', label: 'Year', icon: ICON_YEAR_URL },
-    { key: 'Season', label: 'Season', icon: ICON_SEASON_URL },
     { key: 'Radar', label: 'Radar', icon: ICON_RADAR_URL },
+    { key: 'Season', label: 'Season', icon: ICON_SEASON_URL },
+    { key: 'Year', label: 'Year', icon: ICON_YEAR_URL },
+    { key: 'HOF', label: 'HOF', icon: ICON_HOF_URL },
 ];
 
 // Mirrors modus_genius's ranks.tsx categoryTitles.
@@ -88,10 +88,10 @@ const getFlagImageUrl = (isoCode) => (
 const GeniusPage = ({
     searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowNewsletter, onShowQuotes, onShowCreate, onShowSubscribe,
     onShowFavorites, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
-    agentAvatar, onOpenProfile,
+    agentAvatar, onOpenProfile, initialTab,
 }) => {
     const [searchModalOpen, setSearchModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('HOF');
+    const [activeTab, setActiveTab] = useState(initialTab || 'Radar');
     const [hofYear, setHofYear] = useState(HOF_YEARS[0]);
     const [hofWinners, setHofWinners] = useState({});
     const [hofLoading, setHofLoading] = useState(true);

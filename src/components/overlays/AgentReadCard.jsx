@@ -16,6 +16,7 @@ import { getFavoriteIds } from '../../lib/favorites.js'
 import { getPropertiesByIds, getPropertiesByAgent } from '../../lib/properties.js'
 import { CATEGORY_IMAGE_ID, CATEGORY_SHORT_ROLE } from '../../lib/categories.js'
 import { getFileViewUrl } from '../../lib/agents.js'
+import { getTier } from '../../lib/membership.js'
 
 /* MCIcons "share" — curved right-arrow, same glyph reused across this app's overlays.
    Color matches CardReader's .cr-heart/.cr-comment default (inactive) state,
@@ -77,7 +78,7 @@ const TABS = [
 // gold level-diamond touching its bottom tip, hearts/stars pill counters
 // flanking that small diamond, the agent's name + a gold rosette badge, and
 // a "member since" caption — sits above the field sections in the Infos tab.
-const ProfileBanner = ({ agent }) => {
+export const ProfileBanner = ({ agent }) => {
     const [stats, setStats] = useState(null);
 
     useEffect(() => {
@@ -101,7 +102,13 @@ const ProfileBanner = ({ agent }) => {
         return () => { cancelled = true; };
     }, [agent?.$id]);
 
-    const memberSinceYear = agent?.$createdAt ? new Date(agent.$createdAt).getFullYear() : '2023';
+    // membershipTierSince is stamped whenever the tier actually changes (see
+    // handleSelectMembershipTier in App.jsx) — falls back to account-creation
+    // date for agents who were already on their current tier before that
+    // field existed.
+    const memberSinceDate = agent?.membershipTierSince || agent?.$createdAt;
+    const memberSinceYear = memberSinceDate ? new Date(memberSinceDate).getFullYear() : '2023';
+    const memberTierLabel = getTier(agent?.membershipTier).label;
 
     return (
         <div className="apc-rc-banner">
@@ -157,7 +164,7 @@ const ProfileBanner = ({ agent }) => {
                 <span className="apc-rc-banner-name">{agent?.name} {agent?.surname}</span>
                 <FaCertificate size={18} style={{ fill: 'url(#apc-rc-g-gold) rgb(201,151,44)' }} />
             </div>
-            <span className="apc-rc-banner-member">GOLD MEMBER SINCE {memberSinceYear}</span>
+            <span className="apc-rc-banner-member">{memberTierLabel.toUpperCase()} MEMBER SINCE {memberSinceYear}</span>
         </div>
     );
 };

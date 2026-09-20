@@ -64,6 +64,7 @@
     flex: 1;
 }
 .ep-nav-link {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -78,7 +79,6 @@
 .ep-nav-link-btn {
     background: none;
     border: none;
-    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
     cursor: pointer;
 }
 .ep-nav-link-btn.ep-nav-link--active {
@@ -108,7 +108,8 @@
 .ep-nav-create { cursor: pointer; }
 .ep-nav-login:hover,
 .ep-nav-create:hover { color: #fff; }
-.ep-nav-login--active {
+.ep-nav-login--active,
+.ep-nav-create--active {
     color: #fff;
     margin-top: 5px;
     padding-bottom: 3px;

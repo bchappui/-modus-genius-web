@@ -3,7 +3,9 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import {
     getTop10Properties, getMissedProperties, getMostWantedProperties,
     getClassicsProperties, getNewProperties, getMGSelectsProperties,
+    getPropertiesByCategory,
 } from '../../lib/discover.js'
+import { SKILL_CATEGORIES } from '../../lib/categories.js'
 import { useUserTopHashtags } from '../../lib/useUserTopHashtags.js'
 import SearchModal from '../modals/SearchModal.jsx'
 import CreateModal from '../modals/CreateModal.jsx'
@@ -117,6 +119,9 @@ const HomePage = ({
     const [mostWanted, setMostWanted] = useState({ data: [], loading: true });
     const [classics, setClassics] = useState({ data: [], loading: true });
     const [mgSelects, setMgSelects] = useState({ data: [], loading: true });
+    const [categoryRows, setCategoryRows] = useState(() =>
+        Object.fromEntries(SKILL_CATEGORIES.map(c => [c.key, { data: [], loading: true }]))
+    );
 
     useEffect(() => {
         getTop10Properties().then(data => setTop10({ data, loading: false }));
@@ -125,6 +130,11 @@ const HomePage = ({
         getMostWantedProperties().then(data => setMostWanted({ data, loading: false }));
         getClassicsProperties().then(data => setClassics({ data, loading: false }));
         getMGSelectsProperties().then(data => setMgSelects({ data, loading: false }));
+        SKILL_CATEGORIES.forEach(cat => {
+            getPropertiesByCategory(cat.key).then(data => {
+                setCategoryRows(prev => ({ ...prev, [cat.key]: { data, loading: false } }));
+            });
+        });
     }, []);
 
     return (
@@ -287,6 +297,16 @@ const HomePage = ({
                     {/* 12-15. #Hashtag 6-9 */}
                     {hashtagSections.slice(5, 9).map(section => (
                         <CarouselSection key={section.hashtagId} title={`#${section.hashtagName}`} items={section.properties} loading={section.loading} onSelectProperty={onSelectProperty} />
+                    ))}
+                    {/* 16+. One row per skill category */}
+                    {SKILL_CATEGORIES.map(cat => (
+                        <CarouselSection
+                            key={cat.key}
+                            title={cat.key}
+                            items={categoryRows[cat.key].data}
+                            loading={categoryRows[cat.key].loading}
+                            onSelectProperty={onSelectProperty}
+                        />
                     ))}
                 </div>
             </div>
