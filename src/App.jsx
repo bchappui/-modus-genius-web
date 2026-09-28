@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Spinner from "./components/shared/Spinner.jsx";
-import { databases, account, DATABASE_ID, PROPERTIES_COLLECTION_ID, AGENTS_COLLECTION_ID, Query } from './lib/appwrite.js';
+import { databases, account, DATABASE_ID, PROPERTIES_COLLECTION_ID, Query } from './lib/appwrite.js';
 import CardHome from "./components/overlays/CardHome.jsx";
 import QuoteHome from "./components/overlays/QuoteHome.jsx";
 import QuotesPage from "./components/pages/QuotesPage.jsx";
@@ -11,6 +11,7 @@ import SubscribePage from "./components/pages/SubscribePage.jsx";
 import HomePage from "./components/pages/HomePage.jsx";
 import GeniusPage from "./components/pages/GeniusPage.jsx";
 import NewsletterPage from "./components/pages/NewsletterPage.jsx";
+import CommunityPage from "./components/pages/CommunityPage.jsx";
 import CreatePage from "./components/pages/CreatePage.jsx";
 import AboutPage from "./components/pages/AboutPage.jsx";
 import ThanksArchive from "./components/pages/ThanksArchive.jsx";
@@ -24,12 +25,16 @@ import CelebrationManager from "./components/overlays/celebration/CelebrationMan
 import OutOfFreeCardsModal from "./components/modals/OutOfFreeCardsModal.jsx";
 import OutOfEssentialsCardsModal from "./components/modals/OutOfEssentialsCardsModal.jsx";
 import SeasonPassRequiredModal from "./components/modals/SeasonPassRequiredModal.jsx";
+import UpgradeToExtraModal from "./components/modals/UpgradeToExtraModal.jsx";
+import HouseNotifications from "./components/overlays/HouseNotifications.jsx";
+import { HouseContext } from './lib/houseContext.js';
+import { getHouseOfAgent } from './lib/houses.js';
 import { enrichWithAgents } from './lib/properties.js';
 import { getFavoriteIds, toggleFavorite } from './lib/favorites.js';
 import { getLikeIds, toggleLike } from './lib/likes.js';
 import { hasUserCommented } from './lib/comments.js';
 import { getQuoteById, hasUserCommentedQuote } from './lib/quotes.js';
-import { updateAgent, getCurrentMonthKey } from './lib/agents.js';
+import { updateAgent, getCurrentMonthKey, getOrCreateAgentForAccount } from './lib/agents.js';
 import { redeemGiftCode, getGiftUnlockedPropertyIds } from './lib/giftcodes.js';
 import { getPropertyAccessDecision, getTier } from './lib/membership.js';
 import { getCurrentSeasonKey } from './lib/seasons.js';
@@ -51,6 +56,7 @@ const App = () => {
     const [showGenius, setShowGenius] = useState(false);
     const [showQuotes, setShowQuotes] = useState(false);
     const [showNewsletter, setShowNewsletter] = useState(false);
+    const [showCommunity, setShowCommunity] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
     const [showThanksArchive, setShowThanksArchive] = useState(false);
@@ -72,16 +78,20 @@ const App = () => {
     const [limitModalOpen, setLimitModalOpen] = useState(false);
     const [limitedProperty, setLimitedProperty] = useState(null);
     const [limitReason, setLimitReason] = useState('monthly-limit');
+    const [upgradeExtraOpen, setUpgradeExtraOpen] = useState(false);
+    const [myHouse, setMyHouse] = useState(null);
+    // Bumped on realtime request changes so the request boxes re-fetch.
+    const [houseRequestsKey, setHouseRequestsKey] = useState(0);
 
     // Mirrors the render ternary below: Favorites only actually renders once
     // every other page flag is false and showFavorites is true.
     const isFavoritesPage = !showLogin && !showHome && !showAbout && !showSubscribe
-        && !showCreate && !showNewsletter && !showGenius && !showQuotes && !showThanksArchive && showFavorites;
+        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && showFavorites;
 
     // Same mirroring, for the other end of that ternary — Explore is what
     // renders when every other page flag (including Favorites) is false.
     const isExplorePage = !showLogin && !showHome && !showAbout && !showSubscribe
-        && !showCreate && !showNewsletter && !showGenius && !showQuotes && !showThanksArchive && !showFavorites;
+        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showFavorites;
 
     // Browsing the site never requires an account — only opening a card
     // (and, consistently, viewing Favorites) does. Wrap any handler that
@@ -208,16 +218,15 @@ const App = () => {
         if (!authUser) { setAgentId(null); setAgentProfile(null); return; }
         const resolveAgentId = async () => {
             try {
-                const result = await databases.listDocuments(DATABASE_ID, AGENTS_COLLECTION_ID, [
-                    Query.equal('accountId', authUser.$id),
-                    Query.limit(1),
-                ]);
-                const doc = result.documents[0];
+                // Creates the agents doc if this account has none yet (accounts
+                // made on this site never got one — see getOrCreateAgentForAccount).
+                const doc = await getOrCreateAgentForAccount(authUser);
                 const resolvedAgentId = doc?.$id || authUser.$id;
                 const unlockedPropertyIds = await getGiftUnlockedPropertyIds(resolvedAgentId).catch(() => []);
                 setAgentId(resolvedAgentId);
                 setAgentProfile({
                     name: doc?.name || authUser.name || 'Anonymous',
+                    email: doc?.email || authUser.email || '',
                     avatar: doc?.avatar || '',
                     freeCardMonth: doc?.freeCardMonth || '',
                     freeCardPropertyId: doc?.freeCardPropertyId || '',
@@ -244,6 +253,16 @@ const App = () => {
         if (!agentId) { setFavoriteIds([]); return; }
         getFavoriteIds(agentId).then(setFavoriteIds).catch(e => console.error('Error fetching favorites', e));
     }, [agentId]);
+
+    // Houses (Community, Extra/Premium only): the viewer's own house drives
+    // TopNav's round house button and the notification modals.
+    const housesEnabled = !!agentId && ['extra', 'premium'].includes(getTier(agentProfile?.membershipTier).key);
+    const refreshMyHouse = useCallback(() => {
+        if (!agentId || !housesEnabled) { setMyHouse(null); return; }
+        getHouseOfAgent(agentId).then(setMyHouse).catch(e => console.error('Error loading house', e));
+    }, [agentId, housesEnabled]);
+    useEffect(() => { refreshMyHouse(); }, [refreshMyHouse]);
+    const onHouseRequestsChanged = useCallback(() => { setHouseRequestsKey(k => k + 1); refreshMyHouse(); }, [refreshMyHouse]);
 
     const handleToggleFavorite = async (propertyId) => {
         if (!agentId) return;
@@ -378,6 +397,20 @@ const App = () => {
         window.history.replaceState(null, '', url);
     }, []);
 
+    // Community's "Speak With Our Experts" sends logged-out visitors to the
+    // login page; this flag (sessionStorage, so it survives Google OAuth's
+    // full-page redirect back to "/") brings them to Community once logged in.
+    useEffect(() => {
+        if (!authUser) return;
+        let pending = false;
+        try { pending = sessionStorage.getItem('postLoginCommunity') === '1'; sessionStorage.removeItem('postLoginCommunity'); } catch (e) {}
+        if (!pending) return;
+        navigateTo({
+            showCommunity: true, selectedType: null, showFavorites: false, showSubscribe: false, showHome: false,
+            showGenius: false, showQuotes: false, showNewsletter: false, showCreate: false, showAbout: false, showThanksArchive: false,
+        });
+    }, [authUser]);
+
     useEffect(() => {
         databases.listDocuments(DATABASE_ID, PROPERTIES_COLLECTION_ID, [Query.limit(1)])
             .then(result => setPropertiesCount(result.total))
@@ -450,6 +483,7 @@ const App = () => {
             showGenius: patch.showGenius !== undefined ? patch.showGenius : showGenius,
             showQuotes: patch.showQuotes !== undefined ? patch.showQuotes : showQuotes,
             showNewsletter: patch.showNewsletter !== undefined ? patch.showNewsletter : showNewsletter,
+            showCommunity: patch.showCommunity !== undefined ? patch.showCommunity : showCommunity,
             showCreate: patch.showCreate !== undefined ? patch.showCreate : showCreate,
             showAbout: patch.showAbout !== undefined ? patch.showAbout : showAbout,
             showThanksArchive: patch.showThanksArchive !== undefined ? patch.showThanksArchive : showThanksArchive,
@@ -464,6 +498,7 @@ const App = () => {
             showGenius: next.showGenius,
             showQuotes: next.showQuotes,
             showNewsletter: next.showNewsletter,
+            showCommunity: next.showCommunity,
             showCreate: next.showCreate,
             showAbout: next.showAbout,
             showThanksArchive: next.showThanksArchive,
@@ -477,6 +512,7 @@ const App = () => {
         setShowGenius(next.showGenius);
         setShowQuotes(next.showQuotes);
         setShowNewsletter(next.showNewsletter);
+        setShowCommunity(next.showCommunity);
         setShowCreate(next.showCreate);
         setShowAbout(next.showAbout);
         setShowThanksArchive(next.showThanksArchive);
@@ -497,6 +533,7 @@ const App = () => {
         setShowGenius(!!state?.showGenius);
         setShowQuotes(!!state?.showQuotes);
         setShowNewsletter(!!state?.showNewsletter);
+        setShowCommunity(!!state?.showCommunity);
         setShowCreate(!!state?.showCreate);
         setShowAbout(!!state?.showAbout);
         setShowThanksArchive(!!state?.showThanksArchive);
@@ -568,18 +605,30 @@ const App = () => {
         </div>
     );
 
-    const goToExplore = () => { setSearchTerm(''); navigateTo({ selectedType: null, showFavorites: false, showSubscribe: false, showHome: false, showGenius: false, showQuotes: false, showNewsletter: false, showCreate: false, showAbout: false }); };
+    const goToExplore = () => { setSearchTerm(''); navigateTo({ selectedType: null, showFavorites: false, showSubscribe: false, showHome: false, showGenius: false, showQuotes: false, showNewsletter: false, showCommunity: false, showCreate: false, showAbout: false }); };
+    const goToCommunity = () => navigateTo({ showCommunity: true, selectedType: null, showFavorites: false, showSubscribe: false, showHome: false, showGenius: false, showQuotes: false, showNewsletter: false, showCreate: false, showAbout: false, showThanksArchive: false });
+    // Opens a Community sub-view (see CommunityPage's readView) from anywhere.
+    // CommunityPage reads history.state on mount, and listens to popstate when
+    // it's already open — hence the synthetic popstate.
+    const openCommunityView = (view) => {
+        goToCommunity();
+        window.history.replaceState({ ...(window.history.state || {}), communityView: view, communityAskId: null }, '', '');
+        window.dispatchEvent(new PopStateEvent('popstate', { state: window.history.state }));
+        window.scrollTo(0, 0);
+    };
 
     return (
+        <HouseContext.Provider value={{ myHouse, housesEnabled, refreshMyHouse, openCommunityView }}>
         <main>
             {showLogin ? (
                 <LoginPage
                     onLoginSuccess={() => { account.get().then(setAuthUser); setShowLogin(false); }}
-                    onBack={() => setShowLogin(false)}
+                    onBack={() => { try { sessionStorage.removeItem('postLoginCommunity'); } catch (e) {} setShowLogin(false); }}
                     onGoHome={() => { setShowLogin(false); navigateTo({ showHome: true }); }}
                     onGoToExplore={() => { setShowLogin(false); goToExplore(); }}
                     onShowGenius={() => { setShowLogin(false); navigateTo({ showGenius: true }); }}
                     onShowNewsletter={() => { setShowLogin(false); navigateTo({ showNewsletter: true }); }}
+                    onShowCommunity={() => { setShowLogin(false); goToCommunity(); }}
                     onShowCreate={() => { setShowLogin(false); navigateTo({ showCreate: true }); }}
                     searchTerm={searchTerm}
                     onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
@@ -595,6 +644,7 @@ const App = () => {
                     onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
                     onGoToExplore={goToExplore}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showHome: false })}
+                    onShowCommunity={goToCommunity}
                     onShowGenius={() => navigateTo({ showGenius: true, showHome: false })}
                     onShowQuotes={() => navigateTo({ showQuotes: true, showHome: false })}
                     onShowCreate={() => navigateTo({ showCreate: true, showHome: false })}
@@ -619,6 +669,7 @@ const App = () => {
                     onShowGenius={() => navigateTo({ showGenius: true, showAbout: false })}
                     onShowQuotes={() => navigateTo({ showQuotes: true, showAbout: false })}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showAbout: false })}
+                    onShowCommunity={goToCommunity}
                     onShowCreate={() => navigateTo({ showCreate: true, showAbout: false })}
                     onShowSubscribe={() => navigateTo({ showSubscribe: true, showAbout: false })}
                     movieList={movieList}
@@ -640,6 +691,7 @@ const App = () => {
                     onShowGenius={() => navigateTo({ showGenius: true, showThanksArchive: false })}
                     onShowQuotes={() => navigateTo({ showQuotes: true, showThanksArchive: false })}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showThanksArchive: false })}
+                    onShowCommunity={goToCommunity}
                     onShowCreate={() => navigateTo({ showCreate: true, showThanksArchive: false })}
                     onShowSubscribe={() => navigateTo({ showSubscribe: true, showThanksArchive: false })}
                     movieList={movieList}
@@ -666,6 +718,7 @@ const App = () => {
                     onShowGenius={() => navigateTo({ showGenius: true, showSubscribe: false })}
                     onShowQuotes={() => navigateTo({ showQuotes: true, showSubscribe: false })}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showSubscribe: false })}
+                    onShowCommunity={goToCommunity}
                     onShowCreate={() => navigateTo({ showCreate: true, showSubscribe: false })}
                     onShowFavorites={requireAuth(() => navigateTo({ showFavorites: true, showSubscribe: false }))}
                     onLogout={handleAuthAction}
@@ -687,6 +740,7 @@ const App = () => {
                     onShowGenius={() => navigateTo({ showGenius: true, showCreate: false })}
                     onShowQuotes={() => navigateTo({ showQuotes: true, showCreate: false })}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showCreate: false })}
+                    onShowCommunity={goToCommunity}
                     onShowSubscribe={() => navigateTo({ showSubscribe: true, showCreate: false })}
                     movieList={movieList}
                     isLoading={isLoading}
@@ -706,20 +760,60 @@ const App = () => {
                     searchTerm={searchTerm}
                     onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
                     onGoToExplore={goToExplore}
-                    onGoHome={() => navigateTo({ showHome: true, showNewsletter: false })}
-                    onShowGenius={() => navigateTo({ showGenius: true, showNewsletter: false })}
-                    onShowQuotes={() => navigateTo({ showQuotes: true, showNewsletter: false })}
-                    onShowSubscribe={() => navigateTo({ showSubscribe: true, showNewsletter: false })}
-                    onShowCreate={() => navigateTo({ showCreate: true, showNewsletter: false })}
+                    onGoHome={() => navigateTo({ showHome: true, showNewsletter: false, showCommunity: false })}
+                    onShowGenius={() => navigateTo({ showGenius: true, showNewsletter: false, showCommunity: false })}
+                    onShowQuotes={() => navigateTo({ showQuotes: true, showNewsletter: false, showCommunity: false })}
+                    onShowSubscribe={() => navigateTo({ showSubscribe: true, showNewsletter: false, showCommunity: false })}
+                    onShowCreate={() => navigateTo({ showCreate: true, showNewsletter: false, showCommunity: false })}
+                    onShowCommunity={goToCommunity}
                     movieList={movieList}
                     isLoading={isLoading}
                     errorMessage={errorMessage}
                     onSelectProperty={requireAuthForProperty}
-                    onShowFavorites={requireAuth(() => navigateTo({ showFavorites: true, showNewsletter: false }))}
+                    onShowFavorites={requireAuth(() => navigateTo({ showFavorites: true, showNewsletter: false, showCommunity: false }))}
                     onLogout={handleAuthAction}
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
                     onOpenProfile={() => setAccountMenuOpen(true)}
+                />
+            ) : showCommunity ? (
+                <CommunityPage
+                    searchTerm={searchTerm}
+                    onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
+                    onGoToExplore={goToExplore}
+                    onGoHome={() => navigateTo({ showHome: true, showCommunity: false })}
+                    onShowGenius={() => navigateTo({ showGenius: true, showCommunity: false })}
+                    onShowQuotes={() => navigateTo({ showQuotes: true, showCommunity: false })}
+                    onShowNewsletter={() => navigateTo({ showNewsletter: true, showCommunity: false })}
+                    onShowSubscribe={() => navigateTo({ showSubscribe: true, showCommunity: false })}
+                    onShowCreate={() => navigateTo({ showCreate: true, showCommunity: false })}
+                    movieList={movieList}
+                    isLoading={isLoading}
+                    errorMessage={errorMessage}
+                    onSelectProperty={requireAuthForProperty}
+                    onShowFavorites={requireAuth(() => navigateTo({ showFavorites: true, showCommunity: false }))}
+                    onLogout={handleAuthAction}
+                    isLoggedIn={!!authUser}
+                    agentAvatar={agentProfile?.avatar}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
+                    agentId={authUser ? agentId : null}
+                    agentName={agentProfile?.name}
+                    myEmail={agentProfile?.email}
+                    viewerMembershipTier={getTier(agentProfile?.membershipTier).key}
+                    requestsKey={houseRequestsKey}
+                    onRequireAuth={() => setAuthModalOpen(true)}
+                    hasAccess={['extra', 'premium'].includes(getTier(agentProfile?.membershipTier).key)}
+                    accessLoading={!!authUser && !agentProfile}
+                    onSpeakWithExperts={() => {
+                        if (!authUser) {
+                            try { sessionStorage.setItem('postLoginCommunity', '1'); } catch (e) {}
+                            setShowLogin(true);
+                            return;
+                        }
+                        setUpgradeExtraOpen(true);
+                    }}
+                    favoriteIds={favoriteIds}
+                    onToggleFavorite={handleToggleFavorite}
                 />
             ) : showGenius ? (
                 <GeniusPage
@@ -729,6 +823,7 @@ const App = () => {
                     onGoHome={() => navigateTo({ showHome: true, showGenius: false })}
                     onShowQuotes={() => navigateTo({ showQuotes: true, showGenius: false })}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showGenius: false })}
+                    onShowCommunity={goToCommunity}
                     onShowCreate={() => navigateTo({ showCreate: true, showGenius: false })}
                     onShowSubscribe={() => navigateTo({ showSubscribe: true, showGenius: false })}
                     movieList={movieList}
@@ -750,6 +845,7 @@ const App = () => {
                     onGoHome={() => navigateTo({ showHome: true, showQuotes: false })}
                     onShowGenius={() => navigateTo({ showGenius: true, showQuotes: false })}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showQuotes: false })}
+                    onShowCommunity={goToCommunity}
                     onShowCreate={() => navigateTo({ showCreate: true, showQuotes: false })}
                     onShowSubscribe={() => navigateTo({ showSubscribe: true, showQuotes: false })}
                     movieList={movieList}
@@ -770,6 +866,7 @@ const App = () => {
                     selectedType={selectedType}
                     onGoToExplore={goToExplore}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true })}
+                    onShowCommunity={goToCommunity}
                     onGoHome={() => navigateTo({ showHome: true })}
                     onShowGenius={() => navigateTo({ showGenius: true })}
                     onShowQuotes={() => navigateTo({ showQuotes: true })}
@@ -789,6 +886,8 @@ const App = () => {
             ) : (
                 <FavoritesPage
                     favoriteIds={favoriteIds}
+                    onToggleFavorite={handleToggleFavorite}
+                    onOpenAsk={(askId) => openCommunityView({ kind: 'ask', askId })}
                     onSelect={(property) => navigateTo({ selectedProperty: property })}
                     searchTerm={searchTerm}
                     onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
@@ -797,6 +896,7 @@ const App = () => {
                     onShowGenius={() => navigateTo({ showGenius: true, showFavorites: false })}
                     onShowQuotes={() => navigateTo({ showQuotes: true, showFavorites: false })}
                     onShowNewsletter={() => navigateTo({ showNewsletter: true, showFavorites: false })}
+                    onShowCommunity={goToCommunity}
                     onShowCreate={() => navigateTo({ showCreate: true, showFavorites: false })}
                     onShowSubscribe={() => navigateTo({ showSubscribe: true, showFavorites: false })}
                     movieList={movieList}
@@ -824,7 +924,7 @@ const App = () => {
                 viewerMembershipTier={getTier(agentProfile?.membershipTier).key}
                 onShowSubscribe={() => navigateTo({
                     showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
-                    showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                    showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,
                     showQuotes: false, showThanksArchive: false,
                 })}
             />
@@ -854,7 +954,7 @@ const App = () => {
                         setExitIntentOpen(false);
                         navigateTo({
                             showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
-                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,
                             showQuotes: false, showThanksArchive: false,
                         });
                     }}
@@ -884,7 +984,7 @@ const App = () => {
                         setAccountMenuOpen(false);
                         navigateTo({
                             showFavorites: true, showHome: false, showAbout: false, showSubscribe: false,
-                            showCreate: false, showNewsletter: false, showGenius: false, showQuotes: false,
+                            showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false, showQuotes: false,
                             showThanksArchive: false,
                         });
                     }}
@@ -892,7 +992,7 @@ const App = () => {
                         setAccountMenuOpen(false);
                         navigateTo({
                             showQuotes: true, showHome: false, showAbout: false, showSubscribe: false,
-                            showCreate: false, showNewsletter: false, showGenius: false, showFavorites: false,
+                            showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false, showFavorites: false,
                             showThanksArchive: false,
                         });
                     }}
@@ -900,7 +1000,7 @@ const App = () => {
                         setAccountMenuOpen(false);
                         navigateTo({
                             showSubscribe: true, showHome: false, showAbout: false, showFavorites: false,
-                            showCreate: false, showNewsletter: false, showGenius: false, showQuotes: false,
+                            showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false, showQuotes: false,
                             showThanksArchive: false,
                         });
                     }}
@@ -909,7 +1009,7 @@ const App = () => {
                         setSubscribeTierPreset(tierKey);
                         navigateTo({
                             showSubscribe: true, showHome: false, showAbout: false, showFavorites: false,
-                            showCreate: false, showNewsletter: false, showGenius: false, showQuotes: false,
+                            showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false, showQuotes: false,
                             showThanksArchive: false,
                         });
                     }}
@@ -924,7 +1024,7 @@ const App = () => {
                             if (!quote) return;
                             navigateTo({
                                 selectedQuote: quote, showHome: false, showAbout: false, showSubscribe: false,
-                                showCreate: false, showNewsletter: false, showGenius: false, showFavorites: false,
+                                showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false, showFavorites: false,
                                 showQuotes: false, showThanksArchive: false,
                             });
                         });
@@ -935,7 +1035,7 @@ const App = () => {
                             if (!property) return;
                             navigateTo({
                                 selectedProperty: property, showHome: false, showAbout: false, showSubscribe: false,
-                                showCreate: false, showNewsletter: false, showGenius: false, showFavorites: false,
+                                showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false, showFavorites: false,
                                 showQuotes: false, showThanksArchive: false,
                             });
                         });
@@ -944,7 +1044,30 @@ const App = () => {
                         setGeniusInitialTab(tab || null);
                         navigateTo({
                             showGenius: true, showHome: false, showAbout: false, showSubscribe: false,
-                            showCreate: false, showNewsletter: false, showFavorites: false,
+                            showCreate: false, showNewsletter: false, showCommunity: false, showFavorites: false,
+                            showQuotes: false, showThanksArchive: false,
+                        });
+                    }}
+                />
+            )}
+            {housesEnabled && (
+                <HouseNotifications
+                    agentId={agentId}
+                    myHouse={myHouse}
+                    myEmail={agentProfile?.email}
+                    onOpenView={openCommunityView}
+                    onChanged={onHouseRequestsChanged}
+                />
+            )}
+            {upgradeExtraOpen && (
+                <UpgradeToExtraModal
+                    onClose={() => setUpgradeExtraOpen(false)}
+                    onUpgrade={() => {
+                        setUpgradeExtraOpen(false);
+                        setSubscribeTierPreset('extra');
+                        navigateTo({
+                            showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,
                             showQuotes: false, showThanksArchive: false,
                         });
                     }}
@@ -958,7 +1081,7 @@ const App = () => {
                         setLimitedProperty(null);
                         navigateTo({
                             showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
-                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,
                             showQuotes: false, showThanksArchive: false,
                         });
                     }}
@@ -972,7 +1095,7 @@ const App = () => {
                         setLimitedProperty(null);
                         navigateTo({
                             showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
-                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,
                             showQuotes: false, showThanksArchive: false,
                         });
                     }}
@@ -986,13 +1109,14 @@ const App = () => {
                         setLimitedProperty(null);
                         navigateTo({
                             showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
-                            showFavorites: false, showCreate: false, showNewsletter: false, showGenius: false,
+                            showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,
                             showQuotes: false, showThanksArchive: false,
                         });
                     }}
                 />
             )}
         </main>
+        </HouseContext.Provider>
     )
 }
 

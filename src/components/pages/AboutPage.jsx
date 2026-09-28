@@ -55,7 +55,7 @@ const PILLARS = [
 ];
 
 const AboutPage = ({
-    searchTerm, onSearchChange, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowSubscribe,
+    searchTerm, onSearchChange, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity, onShowSubscribe,
     onShowCreate, onShowFavorites, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
     agentAvatar, onOpenProfile,
 }) => {
@@ -73,7 +73,7 @@ const AboutPage = ({
             <TopNav
                 activeLink="home"
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

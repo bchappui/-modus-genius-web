@@ -33,7 +33,7 @@ const ISSUES = [
 ];
 
 const NewsletterPage = ({
-    searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowGenius, onShowQuotes, onShowSubscribe, onShowCreate,
+    searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowGenius, onShowQuotes, onShowCommunity, onShowSubscribe, onShowCreate,
     onShowFavorites, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
     agentAvatar, onOpenProfile,
 }) => {
@@ -45,7 +45,7 @@ const NewsletterPage = ({
 
             <TopNav
                 activeLink="newsletter" disableActiveLink
-                onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius} onShowQuotes={onShowQuotes}
+                onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius} onShowQuotes={onShowQuotes} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

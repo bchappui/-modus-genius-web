@@ -48,7 +48,7 @@ const ISSUES = [
 // subscribe" setting needs to point at that URL for this to show up
 // automatically after a real signup).
 const ThanksArchive = ({
-    searchTerm, onSearchChange, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter,
+    searchTerm, onSearchChange, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity,
     onShowCreate, onShowFavorites, onShowSubscribe, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
     agentAvatar, onOpenProfile,
 }) => {
@@ -81,7 +81,7 @@ const ThanksArchive = ({
 
             <TopNav
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius} onShowQuotes={onShowQuotes}
-                onShowNewsletter={onShowNewsletter} onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
+                onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity} onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}
                 onOpenSearch={() => setSearchModalOpen(true)}

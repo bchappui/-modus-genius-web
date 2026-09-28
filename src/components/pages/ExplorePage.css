@@ -405,3 +405,6 @@
     .ep-hero-medallion { opacity: 0.35; width: 320px; height: 320px; right: -100px; }
     .ep-headline { font-size: 28px; }
 }
+
+/* Round house button (private house forum), left of the avatar. */
+.ep-nav-house { margin-right: 12px; box-shadow: 0 0 0 2px rgb(201, 151, 44); }

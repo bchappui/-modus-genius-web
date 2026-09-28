@@ -15,7 +15,7 @@ const CIRCLE_TEXT = 'YOUR EXPERTISE  •  OUR COLLECTION  •  ';
 // options, unlike the general LoginPage) since intent here is already clear:
 // start a membership. Successful signup hands off to Step 2 via onAccountCreated.
 const MembershipStep1 = ({
-    onAccountCreated, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter,
+    onAccountCreated, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity,
     onShowCreate, onShowFavorites, onLogout, agentAvatar, onOpenProfile,
     searchTerm, onSearchChange, movieList, isLoading: searchLoading, errorMessage, onSelectProperty,
 }) => {
@@ -45,7 +45,7 @@ const MembershipStep1 = ({
         <div className="ep-page">
             <TopNav
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={() => {}}
                 onLogout={onLogout} isLoggedIn={false}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

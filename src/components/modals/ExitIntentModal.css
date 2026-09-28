@@ -314,3 +314,6 @@
     cursor: pointer;
 }
 .wts-cta-btn:hover { filter: brightness(1.05); }
+
+/* UpgradeToExtraModal — no image slot, so drop spm-perks-row's reserved gap. */
+.spm-perks-row.uem-perks-row { margin-top: 8px; }

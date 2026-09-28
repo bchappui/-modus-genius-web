@@ -87,14 +87,16 @@ export function calculateProgression(totalHearts, totalStars, heartQuotas, starQ
 // liking/unliking a card here keeps the agent's cached totalHearts in sync
 // with the live likeCount sum shown elsewhere (AgentProfileCard), instead of
 // leaving totalHearts frozen at whatever the mobile app last set it to.
-async function atomicAdjustHearts(agentId, delta, maxRetries = 3) {
+// Same for totalStars (field = 'totalStars'), when a reply gets starred on
+// the Community page.
+async function atomicAdjustHearts(agentId, delta, maxRetries = 3, field = 'totalHearts') {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             if (attempt > 0) await new Promise(r => setTimeout(r, 50 * 2 ** attempt));
             const agent = await databases.getDocument(DATABASE_ID, AGENTS_COLLECTION_ID, agentId);
-            const current = typeof agent.totalHearts === 'number' ? agent.totalHearts : 0;
+            const current = typeof agent[field] === 'number' ? agent[field] : 0;
             const next = Math.max(0, current + delta);
-            await databases.updateDocument(DATABASE_ID, AGENTS_COLLECTION_ID, agentId, { totalHearts: next });
+            await databases.updateDocument(DATABASE_ID, AGENTS_COLLECTION_ID, agentId, { [field]: next });
             return next;
         } catch (error) {
             if (attempt === maxRetries - 1) throw error;
@@ -117,6 +119,24 @@ export async function decrementHearts(agentId) {
         await atomicAdjustHearts(agentId, -1);
     } catch (error) {
         console.error('decrementHearts error:', error);
+    }
+}
+
+export async function incrementStars(agentId) {
+    if (!agentId) return;
+    try {
+        await atomicAdjustHearts(agentId, 1, 3, 'totalStars');
+    } catch (error) {
+        console.error('incrementStars error:', error);
+    }
+}
+
+export async function decrementStars(agentId) {
+    if (!agentId) return;
+    try {
+        await atomicAdjustHearts(agentId, -1, 3, 'totalStars');
+    } catch (error) {
+        console.error('decrementStars error:', error);
     }
 }
 

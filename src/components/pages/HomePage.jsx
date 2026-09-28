@@ -97,7 +97,7 @@ const CarouselSection = ({ title, items, loading, showNumbers, onSelectProperty 
 
 const HomePage = ({
     agentId, searchTerm, onSearchChange, onShowFavorites, onLogout, isLoggedIn,
-    onGoToExplore, onShowNewsletter, onShowGenius, onShowQuotes, onShowCreate, onShowSubscribe, onLearnMore, movieList, isLoading, errorMessage, onSelectProperty,
+    onGoToExplore, onShowNewsletter, onShowCommunity, onShowGenius, onShowQuotes, onShowCreate, onShowSubscribe, onLearnMore, movieList, isLoading, errorMessage, onSelectProperty,
     agentAvatar, onOpenProfile,
 }) => {
     const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -143,7 +143,7 @@ const HomePage = ({
             <TopNav
                 activeLink="home" disableActiveLink
                 onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID, Query } from '../../lib/appwrite.js'
 import { enrichWithAgents } from '../../lib/properties.js'
+import { getAsksByIds } from '../../lib/asks.js'
+import { AskCard } from './CommunityPage.jsx'
 import Spinner from '../shared/Spinner.jsx'
 import SearchModal from '../modals/SearchModal.jsx'
 import TopNav from '../shared/TopNav.jsx'
 import './ExplorePage.css'
 import './HomePage.css'
+import './CommunityPage.css'
 
 const MEDALLION_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a465c42001e90b9a93c/view?project=693e8acd001582e2562a';
 
@@ -13,13 +16,29 @@ const CIRCLE_TEXT = 'YOUR EXPERTISE  •  OUR COLLECTION  •  ';
 
 const FavoritesPage = ({
     favoriteIds, onSelect, searchTerm, onSearchChange, onGoHome, onGoToExplore, onShowGenius, onShowQuotes,
-    onShowNewsletter, onShowCreate, onShowSubscribe, onLogout, isLoggedIn, movieList, isLoading: searchLoading, errorMessage: searchError,
-    agentAvatar, onOpenProfile,
+    onShowNewsletter, onShowCommunity, onShowCreate, onShowSubscribe, onLogout, isLoggedIn, movieList, isLoading: searchLoading, errorMessage: searchError,
+    agentAvatar, onOpenProfile, onToggleFavorite, onOpenAsk,
 }) => {
     const [properties, setProperties] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
     const [searchModalOpen, setSearchModalOpen] = useState(false);
+    const [savedAsks, setSavedAsks] = useState([])
+    const [asksLoading, setAsksLoading] = useState(true)
+
+    // Bookmarked Community questions live in the same favorites collection
+    // (propertyId = ask $id). Un-bookmarking here drops the card right away
+    // since favoriteIds changes.
+    useEffect(() => {
+        let cancelled = false
+        setAsksLoading(true)
+        getAsksByIds(favoriteIds).then(asks => {
+            if (cancelled) return
+            setSavedAsks(asks)
+            setAsksLoading(false)
+        })
+        return () => { cancelled = true }
+    }, [favoriteIds])
 
     useEffect(() => {
         if (favoriteIds.length === 0) {
@@ -54,7 +73,7 @@ const FavoritesPage = ({
             <TopNav
                 activeRightItem="favorites"
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius} onShowQuotes={onShowQuotes}
-                onShowNewsletter={onShowNewsletter}
+                onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}
@@ -90,16 +109,7 @@ const FavoritesPage = ({
                 </svg>
 
                 <div className="ep-hero-content">
-                    <div className="ep-hero-intro">
-                        <h1 className="ep-headline">
-                            The cards you've saved for later
-                        </h1>
-                        <p className="ep-subtext">
-                            Everything you've favorited, in one place.
-                        </p>
-                    </div>
-
-                    <h2 className="ep-categories-title">My Favorites</h2>
+                    <h2 className="ep-categories-title">Saved Cards</h2>
                     {isLoading ? (
                         <Spinner />
                     ) : errorMessage ? (
@@ -118,6 +128,35 @@ const FavoritesPage = ({
                                     <div className="hp-hashtag-overlay" />
                                     <span className="hp-hashtag-name">{property.name}</span>
                                 </button>
+                            ))}
+                        </div>
+                    )}
+
+                    <h2 className="ep-categories-title">Saved Questions</h2>
+                    {asksLoading ? (
+                        <Spinner />
+                    ) : savedAsks.length === 0 ? (
+                        <p className="ep-results-empty">You haven't saved any questions yet.</p>
+                    ) : (
+                        <div className="cmty-saved-grid">
+                            {savedAsks.map(ask => (
+                                <div
+                                    key={ask.$id}
+                                    className="cmty-panel cmty-saved-item"
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => onOpenAsk?.(ask.$id)}
+                                    onKeyDown={e => { if (e.key === 'Enter') onOpenAsk?.(ask.$id); }}
+                                >
+                                    <AskCard
+                                        ask={ask}
+                                        isBookmarked
+                                        // Un-bookmark without also opening the question.
+                                        onBookmark={e => { e.stopPropagation(); onToggleFavorite?.(ask.$id); }}
+                                        onOpenComments={e => { e.stopPropagation(); onOpenAsk?.(ask.$id); }}
+                                        hideReply
+                                    />
+                                </div>
                             ))}
                         </div>
                     )}

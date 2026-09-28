@@ -22,7 +22,7 @@ const AVATAR_URLS = [
 ];
 
 const CreatePage = ({
-    searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowGenius, onShowQuotes, onShowNewsletter, onShowSubscribe,
+    searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity, onShowSubscribe,
     onShowFavorites, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
     agentAvatar, onOpenProfile, agentName, agentSurname, agentEmail,
 }) => {
@@ -35,7 +35,7 @@ const CreatePage = ({
             <TopNav
                 activeRightItem="create"
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

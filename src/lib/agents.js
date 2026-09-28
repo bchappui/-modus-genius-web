@@ -9,6 +9,39 @@ const BADGES_COLLECTION_ID = 'badges';
 export const updateAgent = (agentId, data) =>
     databases.updateDocument(DATABASE_ID, AGENTS_COLLECTION_ID, agentId, data);
 
+// Mirrors the app's createUser / getCurrentUser (lib/appwrite/auth.ts): every
+// account needs an `agents` document. This site never created one, so
+// accounts made here (email signup, Google) had none. Called right after
+// login — returns the existing doc, or creates it with the same fields the
+// app uses. The doc id is the account id: that's the id this site already
+// fell back to for doc-less accounts, so everything they wrote before
+// (favorites, likes, house requests…) stays attached to them.
+const pendingAgentCreations = new Map();
+export async function getOrCreateAgentForAccount(user) {
+    const found = await databases.listDocuments(DATABASE_ID, AGENTS_COLLECTION_ID, [
+        Query.equal('accountId', user.$id), Query.limit(1),
+    ]);
+    if (found.documents[0]) return found.documents[0];
+
+    // React StrictMode runs effects twice in dev — share one creation.
+    if (!pendingAgentCreations.has(user.$id)) {
+        const name = user.name || 'No Name';
+        const avatarUrl = `${ENDPOINT}/avatars/initials?name=${encodeURIComponent(name)}&project=${PROJECT_ID}`;
+        pendingAgentCreations.set(user.$id, databases.createDocument(DATABASE_ID, AGENTS_COLLECTION_ID, user.$id, {
+            accountId: user.$id,
+            email: user.email,
+            name,
+            avatar: avatarUrl,
+            totalHearts: 0, totalStars: 0, currentLevel: 1, currentTier: 'Bronze', currentRank: 'Bronze I',
+        }).catch(async (error) => {
+            // Already created (e.g. another tab) — read it back instead.
+            if (error?.code === 409) return databases.getDocument(DATABASE_ID, AGENTS_COLLECTION_ID, user.$id);
+            throw error;
+        }).finally(() => pendingAgentCreations.delete(user.$id)));
+    }
+    return pendingAgentCreations.get(user.$id);
+}
+
 // Mirrors app/(root)/admin/index.tsx's handleSearch — full-text search on
 // `name` (falls back to a prefix range query if no search index exists on
 // that attribute), used by the admin award tool to find any agent by name.

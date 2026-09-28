@@ -12,7 +12,7 @@ import { getTier } from '../../lib/membership.js'
 // plan in test mode).
 const SubscribePage = ({
     onBack, onLoginClick, isLoggedIn, onAccountCreated, onSelectTier,
-    onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter,
+    onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity,
     onShowCreate, onShowFavorites, onLogout, agentAvatar, onOpenProfile,
     searchTerm, onSearchChange, movieList, isLoading, errorMessage, onSelectProperty,
     initialTier, onClearTierPreset,
@@ -35,7 +35,7 @@ const SubscribePage = ({
             <MembershipStep1
                 onAccountCreated={() => { onAccountCreated(); setStep(2); }}
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCreate={onShowCreate}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity} onShowCreate={onShowCreate}
                 onShowFavorites={onShowFavorites} onLogout={onLogout} agentAvatar={agentAvatar}
                 onOpenProfile={onOpenProfile}
                 searchTerm={searchTerm} onSearchChange={onSearchChange} movieList={movieList}
@@ -53,7 +53,7 @@ const SubscribePage = ({
                 initialSelected={initialTier}
                 onContinue={(tierKey) => { setPendingTier(tierKey); setStep(3); }}
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCreate={onShowCreate}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity} onShowCreate={onShowCreate}
                 onShowFavorites={onShowFavorites} onLogout={onLogout} agentAvatar={agentAvatar}
                 onOpenProfile={onOpenProfile}
                 searchTerm={searchTerm} onSearchChange={onSearchChange} movieList={movieList}

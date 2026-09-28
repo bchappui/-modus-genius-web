@@ -1,0 +1,24 @@
+/* Extras on top of CreateModal.css for the house request modals. */
+.hm-large { min-height: 170px; }
+.hm-static {
+    margin: 0 0 4px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: rgb(137, 162, 189);
+}
+.hm-count {
+    align-self: flex-end;
+    margin-top: -4px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    color: rgb(137, 162, 189);
+}
+.hm-disclaimer {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 1.45;
+    color: rgb(137, 162, 189);
+}

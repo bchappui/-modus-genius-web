@@ -86,7 +86,7 @@ const getFlagImageUrl = (isoCode) => (
 );
 
 const GeniusPage = ({
-    searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowNewsletter, onShowQuotes, onShowCreate, onShowSubscribe,
+    searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowNewsletter, onShowCommunity, onShowQuotes, onShowCreate, onShowSubscribe,
     onShowFavorites, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
     agentAvatar, onOpenProfile, initialTab,
 }) => {
@@ -158,7 +158,7 @@ const GeniusPage = ({
             <TopNav
                 activeLink="genius" disableActiveLink
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

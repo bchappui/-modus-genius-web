@@ -1,6 +1,7 @@
 import React from 'react'
 import { FiSearch, FiUser } from 'react-icons/fi'
 import '../pages/ExplorePage.css'
+import { useHouse } from '../../lib/houseContext.js'
 
 const LOGO_TEXT_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
 const NAV_BG_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a465c800035bdea516f/view?project=693e8acd001582e2562a';
@@ -13,10 +14,11 @@ const NAV_BG_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f
 // buttons (CreatePage / FavoritesPage viewing themselves).
 const TopNav = ({
     activeLink, disableActiveLink = false, activeRightItem,
-    onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter,
+    onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity,
     onShowCreate, onShowFavorites, onShowSubscribe, onLogout, isLoggedIn,
     agentAvatar, onOpenProfile, onOpenSearch,
 }) => {
+    const { myHouse, housesEnabled, openCommunityView } = useHouse();
     const renderLink = (key, label, onClick) => {
         const active = activeLink === key;
         if (active && disableActiveLink) {
@@ -43,6 +45,7 @@ const TopNav = ({
                 {renderLink('explore', 'Explore', onGoToExplore)}
                 {renderLink('genius', 'Genius', onShowGenius)}
                 {renderLink('newsletter', 'Newsletter', onShowNewsletter)}
+                {renderLink('community', 'Community', onShowCommunity)}
             </nav>
             <div className="ep-nav-right">
                 {activeRightItem === 'create' ? (
@@ -66,6 +69,17 @@ const TopNav = ({
                 </button>
                 {isLoggedIn && (
                     <div className="ep-nav-avatar-wrap">
+                        {/* Private house forum — members only (Extra). */}
+                        {housesEnabled && myHouse && (
+                            <button
+                                className="ep-nav-avatar ep-nav-house"
+                                onClick={() => openCommunityView({ kind: 'houseForum', houseId: myHouse.$id })}
+                                aria-label={`Open ${myHouse.name}`}
+                                title={myHouse.name}
+                            >
+                                <img src={myHouse.image} alt="" className="ep-nav-avatar-img" />
+                            </button>
+                        )}
                         <button className="ep-nav-avatar" onClick={onOpenProfile} aria-label="Edit profile">
                             {agentAvatar ? <img src={agentAvatar} alt="" className="ep-nav-avatar-img" /> : <FiUser size={18} className="ep-nav-avatar-icon" />}
                         </button>

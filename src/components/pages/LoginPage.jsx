@@ -21,7 +21,7 @@ const googleOAuth = () => {
 }
 
 const LoginPage = ({
-    onLoginSuccess, onBack, onGoHome, onGoToExplore, onShowGenius, onShowNewsletter, onShowCreate,
+    onLoginSuccess, onBack, onGoHome, onGoToExplore, onShowGenius, onShowNewsletter, onShowCommunity, onShowCreate,
     searchTerm, onSearchChange, movieList, isLoading: searchLoading, errorMessage, onSelectProperty,
 }) => {
     // views: 'email' | 'password' | 'signup' | 'signup-password'
@@ -99,6 +99,7 @@ const LoginPage = ({
                     <button className="ep-nav-link ep-nav-link-btn" onClick={onGoToExplore}>Explore</button>
                     <button className="ep-nav-link ep-nav-link-btn" onClick={onShowGenius}>Genius</button>
                     <button className="ep-nav-link ep-nav-link-btn" onClick={onShowNewsletter}>Newsletter</button>
+                    <button className="ep-nav-link ep-nav-link-btn" onClick={onShowCommunity}>Community</button>
                 </nav>
                 <div className="ep-nav-right">
                     <button className="ep-nav-create" onClick={onShowCreate}>+ Create</button>

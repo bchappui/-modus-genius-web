@@ -39,7 +39,7 @@ function formatCountdown(ms) {
 // Step 3 without charging anything yet.
 const MembershipStep2 = ({
     isLoggedIn, onContinue,
-    onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter,
+    onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity,
     onShowCreate, onShowFavorites, onLogout, agentAvatar, onOpenProfile,
     searchTerm, onSearchChange, movieList, isLoading: searchLoading, errorMessage, onSelectProperty,
     initialSelected,
@@ -87,7 +87,7 @@ const MembershipStep2 = ({
         <div className="sp-page">
             <TopNav
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={() => {}}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

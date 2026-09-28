@@ -1,0 +1,618 @@
+/* ── COMMUNITY (forum) ──
+   Same Appwrite asks/replies as the app's Advisor tab, laid out as a
+   3-column forum: categories | questions | houses. */
+
+.cmty-hero {
+    padding: 14px 16px 40px;
+    /* clip (not hidden) so .cmty-side's position: sticky still works. */
+    overflow: clip;
+}
+/* Wreath sits behind the center/right columns like in the mockup. */
+.cmty-medallion {
+    top: 40px;
+    right: -380px;
+    opacity: 0.55;
+}
+
+.cmty-layout {
+    /* Single light grey for all text — no white. */
+    --cmty-text: rgb(146, 155, 180);
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 290px minmax(0, 1fr) 340px;
+    gap: 28px;
+    align-items: start;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    color: var(--cmty-text);
+}
+
+.cmty-panel {
+    border-radius: 20px;
+    background: linear-gradient(165deg, #0d2c5c 0%, #071733 45%, #030b1c 100%);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+}
+.cmty-side {
+    position: sticky;
+    top: 14px;
+    min-height: 660px;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+}
+.cmty-panel-title {
+    margin: 0 0 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cmty-text);
+}
+
+/* ── Pills (categories, sort, category tag) ── */
+.cmty-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px 5px 7px;
+    border-radius: 999px;
+    border: 1px solid rgba(170, 190, 225, 0.22);
+    background: rgb(4, 29, 53);
+    /* Flat fill + soft light halo around the pill, as in the mockup. */
+    box-shadow: 0 0 6px 1px rgba(190, 210, 245, 0.22);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cmty-text);
+    white-space: nowrap;
+}
+.cmty-pill-btn {
+    cursor: pointer;
+    font-family: inherit;
+}
+.cmty-pill-btn:hover,
+.cmty-pill--active {
+    border-color: rgba(201, 151, 44, 0.8);
+    color: var(--cmty-text);
+}
+.cmty-pill-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.cmty-pill-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Left: categories ── */
+.cmty-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    max-height: calc(100vh - 170px);
+    margin-right: -8px;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(120, 150, 200, 0.35) transparent;
+}
+.cmty-category-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+}
+.cmty-category-row .cmty-pill { min-width: 0; }
+.cmty-category-row:hover .cmty-pill,
+.cmty-category-row--active .cmty-pill {
+    border-color: rgba(201, 151, 44, 0.8);
+    color: var(--cmty-text);
+}
+.cmty-category-count {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--cmty-text);
+}
+
+/* ── Center ── */
+.cmty-center {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.cmty-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.cmty-avatar {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--cmty-text);
+}
+.cmty-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cmty-author-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cmty-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cmty-date {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--cmty-text);
+}
+
+.cmty-gold-check {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+/* Composer ("ask a question") + comment box share the input look. */
+.cmty-composer,
+.cmty-comment-box {
+    padding: 16px 20px 14px;
+}
+.cmty-composer-head,
+.cmty-ask-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.cmty-input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    background: transparent;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    color: var(--cmty-text);
+}
+.cmty-input::placeholder { color: var(--cmty-text); opacity: 0.7; }
+.cmty-title-input {
+    margin-top: 18px;
+    font-size: 18px;
+    font-weight: 700;
+}
+.cmty-desc-input {
+    margin-top: 6px;
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 600;
+}
+.cmty-comment-input {
+    min-height: 44px;
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 600;
+}
+.cmty-composer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+.cmty-image-pick {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.cmty-image-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--cmty-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cmty-icon-btn,
+.cmty-send-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--cmty-text);
+}
+.cmty-send-btn:disabled { opacity: 0.45; cursor: default; }
+.cmty-error {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: rgb(255, 140, 140);
+}
+
+.cmty-dropdown { position: relative; }
+.cmty-dropdown-chevron { transition: transform 0.15s; }
+.cmty-dropdown-chevron--open { transform: rotate(180deg); }
+
+/* Same flat navy + light halo as the pills, so the menu reads as part of
+   the same family instead of a generic popup. */
+.cmty-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    z-index: 5;
+    width: 290px;
+    padding: 12px 8px 8px;
+    border-radius: 16px;
+    border: 1px solid rgba(170, 190, 225, 0.22);
+    background: rgb(4, 29, 53);
+    box-shadow: 0 0 10px 1px rgba(190, 210, 245, 0.18), 0 14px 30px rgba(0, 0, 0, 0.55);
+    animation: cmty-dropdown-in 0.12s ease-out;
+}
+/* Little notch pointing at the toggle. */
+.cmty-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 22px;
+    width: 10px;
+    height: 10px;
+    background: rgb(4, 29, 53);
+    border-left: 1px solid rgba(170, 190, 225, 0.22);
+    border-top: 1px solid rgba(170, 190, 225, 0.22);
+    transform: rotate(45deg);
+}
+@keyframes cmty-dropdown-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.cmty-dropdown-heading {
+    display: block;
+    padding: 0 10px 8px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(170, 190, 225, 0.12);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--cmty-text);
+    opacity: 0.75;
+}
+.cmty-dropdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(146, 155, 180, 0.35) transparent;
+}
+.cmty-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cmty-text);
+    text-align: left;
+    transition: background 0.12s, border-color 0.12s;
+}
+.cmty-dropdown-item:hover { background: rgba(146, 155, 180, 0.08); }
+.cmty-dropdown-item--active {
+    background: rgba(201, 151, 44, 0.08);
+    border-color: rgba(201, 151, 44, 0.45);
+}
+.cmty-dropdown-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.cmty-dropdown-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cmty-dropdown-check {
+    flex-shrink: 0;
+    color: rgb(230, 175, 60);
+}
+
+.cmty-sort-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+.cmty-sort-row .cmty-pill { min-width: 104px; justify-content: center; }
+
+/* ── Question card ── */
+.cmty-ask {
+    padding: 14px 16px 16px;
+    border-bottom: 1px solid rgba(80, 90, 220, 0.55);
+}
+.cmty-ask-title {
+    margin: 18px 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cmty-text);
+    overflow-wrap: anywhere;
+}
+.cmty-ask-desc {
+    margin: 0;
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--cmty-text);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.cmty-ask-image {
+    display: block;
+    max-width: 100%;
+    max-height: 420px;
+    margin-top: 14px;
+    border-radius: 12px;
+    object-fit: contain;
+}
+.cmty-ask-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+.cmty-ask-stats {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.cmty-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cmty-text);
+}
+.cmty-stat-btn {
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+.cmty-stat--on { color: rgb(230, 180, 70); }
+.cmty-stat--on:hover { color: rgb(245, 200, 95); }
+
+.cmty-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cmty-text);
+}
+.cmty-link-btn:disabled { opacity: 0.6; cursor: default; }
+.cmty-more-row { display: flex; justify-content: center; padding: 8px 0; }
+.cmty-back-btn { align-self: flex-start; }
+
+.cmty-empty {
+    display: flex;
+    justify-content: center;
+    padding: 30px 0;
+    margin: 0;
+    font-size: 14px;
+    color: var(--cmty-text);
+}
+
+/* ── Comments page ── */
+.cmty-replies-title {
+    margin: 6px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cmty-text);
+}
+.cmty-reply {
+    padding: 12px 16px 14px;
+    border-bottom: 1px solid rgba(80, 90, 220, 0.35);
+}
+.cmty-reply-text {
+    margin: 10px 0 0 44px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--cmty-text);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.cmty-vote { font-size: 15px; flex-shrink: 0; }
+
+/* ── Right: houses (interface only) ── */
+.cmty-house-btn {
+    width: 100%;
+    padding: 16px 12px;
+    border: none;
+    border-radius: 6px;
+    background: rgb(212, 157, 78);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1204;
+    cursor: pointer;
+}
+.cmty-house-btn:hover { filter: brightness(1.06); }
+.cmty-houses-header {
+    /* Same columns as .cmty-house-row: trophy over the ranks, "Houses" over
+       the names, check over the counts. */
+    display: grid;
+    grid-template-columns: 48px 56px 1fr 52px;
+    align-items: center;
+    gap: 10px;
+    margin: 26px 0 10px;
+}
+.cmty-houses-trophy { width: 46px; height: 46px; object-fit: contain; }
+/* Bigger than the check next to the top answer. */
+.cmty-houses-header .cmty-gold-check { width: 52px; height: 52px; }
+.cmty-houses-title { grid-column: 3; margin: 0; text-align: left; }
+.cmty-house-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+}
+.cmty-house-row {
+    display: grid;
+    /* Last column = the header check's width, so counts center under it. */
+    grid-template-columns: 48px 56px 1fr 52px;
+    align-items: center;
+    gap: 10px;
+}
+.cmty-house-rank {
+    font-size: 18px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgb(230, 175, 60);
+}
+.cmty-house-diamond {
+    width: 40px;
+    height: 40px;
+    margin: 8px;
+    transform: rotate(45deg);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #d9dde4;
+    box-shadow: 0 0 0 2px #fff, 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+.cmty-house-diamond > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-45deg);
+    color: #5a6475;
+}
+.cmty-house-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cmty-text);
+}
+.cmty-house-count {
+    text-align: center;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--cmty-text);
+}
+.cmty-houses-more {
+    align-self: flex-start;
+    font-style: italic;
+}
+
+@media (max-width: 1100px) {
+    .cmty-layout { grid-template-columns: 240px minmax(0, 1fr); }
+    .cmty-houses { display: none; }
+}
+@media (max-width: 760px) {
+    .cmty-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .cmty-side { position: static; min-height: 0; }
+    .cmty-category-list { flex-direction: row; flex-wrap: wrap; max-height: none; }
+    .cmty-category-count { display: none; }
+}
+
+/* Reply to a reply (parentReply) — indented under its parent. */
+.cmty-reply--nested {
+    margin-left: 44px;
+    padding-top: 8px;
+    border-bottom-color: rgba(80, 90, 220, 0.2);
+}
+.cmty-reply--nested .cmty-reply-text { margin-left: 38px; }
+
+/* Delete — only on the viewer's own comments. */
+.cmty-reply-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 6px;
+}
+.cmty-delete-btn { gap: 4px; }
+.cmty-delete-btn--confirm { color: rgb(255, 140, 140); }
+
+/* ── "Saved Questions" on the Favorites page (reuses AskCard) ── */
+.cmty-saved-grid {
+    --cmty-text: rgb(146, 155, 180);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    max-width: 1100px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    color: var(--cmty-text);
+}
+.cmty-saved-item .cmty-ask { border-bottom: none; }
+.cmty-saved-item {
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.cmty-saved-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px 1px rgba(190, 210, 245, 0.18), 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Locked view (no Extra) — reuses HomePage's hero carousel ── */
+.cmty-locked-slide { padding: 0 70px; }
+.cmty-locked-headline {
+    font-size: 36px;
+    line-height: 1.2;
+}
+.cmty-locked-btn {
+    display: block;
+    width: min(430px, 100%);
+    margin: 40px auto 0;
+    font-size: 16px;
+}
+
+/* Single-column Community sub-pages (public house page, all houses). */
+.cmty-layout--wide { grid-template-columns: minmax(0, 1fr); }
+.cmty-wide-center {
+    width: 100%;
+    max-width: 820px;
+    margin-left: 4vw;
+}
+
+/* Rank number centered under the header's rank (trophy) image — same 44px column. */
+.cmty-house-row .cmty-house-rank { text-align: center; padding-right: 14px; }

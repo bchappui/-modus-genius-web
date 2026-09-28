@@ -16,7 +16,7 @@ const RARITIES = ['All', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'exo
 
 const QuotesPage = ({
     onSelectQuote, searchTerm, onSearchChange, onGoHome, onGoToExplore, onShowGenius,
-    onShowNewsletter, onShowCreate, onShowFavorites, onShowSubscribe, onLogout, isLoggedIn, movieList, isLoading: searchLoading, errorMessage: searchError,
+    onShowNewsletter, onShowCommunity, onShowCreate, onShowFavorites, onShowSubscribe, onLogout, isLoggedIn, movieList, isLoading: searchLoading, errorMessage: searchError,
     agentAvatar, onOpenProfile,
 }) => {
     const [quotes, setQuotes] = useState([]);
@@ -42,7 +42,7 @@ const QuotesPage = ({
             <TopNav
                 activeLink="quotes" disableActiveLink
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowNewsletter={onShowNewsletter}
+                onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}

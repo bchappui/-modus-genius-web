@@ -13,7 +13,7 @@ const CIRCLE_TEXT = 'YOUR EXPERTISE  •  OUR COLLECTION  •  ';
 
 const ExplorePage = ({
     searchTerm, onSearchChange, onSelectCategory, propertiesCount, onShowFavorites, onLogout, isLoggedIn,
-    selectedType, onGoToExplore, onShowNewsletter, onGoHome, onShowGenius, onShowQuotes, onShowCreate, onShowSubscribe, movieList, isLoading, errorMessage, onSelectProperty,
+    selectedType, onGoToExplore, onShowNewsletter, onShowCommunity, onGoHome, onShowGenius, onShowQuotes, onShowCreate, onShowSubscribe, movieList, isLoading, errorMessage, onSelectProperty,
     agentAvatar, onOpenProfile,
 }) => {
     const showResults = !!searchTerm || !!selectedType;
@@ -24,7 +24,7 @@ const ExplorePage = ({
             <TopNav
                 activeLink="explore"
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius}
-                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter}
+                onShowQuotes={onShowQuotes} onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity}
                 onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}
