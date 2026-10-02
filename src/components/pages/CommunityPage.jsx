@@ -9,6 +9,7 @@ import {
 } from './CommunityShared.jsx'
 import { HousesPanel, YourRequestsBox, HousePublicView, HousesListView, HouseForumView } from './HousePages.jsx'
 import CreateHouseModal from '../modals/CreateHouseModal.jsx'
+import WorldMap from './WorldMap.jsx'
 import Spinner from '../shared/Spinner.jsx'
 import SearchModal from '../modals/SearchModal.jsx'
 import TopNav from '../shared/TopNav.jsx'
@@ -174,6 +175,15 @@ const CommunityForum = ({
                 myEmail={myEmail}
                 onOpenHouse={(houseId) => openView({ kind: 'house', houseId })}
                 refreshKey={myRequestsKey + requestsKey}
+            />
+
+            {/* Gold badges come from the same pass as the house ranking. */}
+            <WorldMap
+                badges={rankLoading ? null : badges}
+                agentId={agentId}
+                viewerMembershipTier={viewerMembershipTier}
+                onShowSubscribe={onShowSubscribe}
+                onOpenAsk={openAsk}
             />
 
             <AskComposer
