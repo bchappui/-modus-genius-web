@@ -255,3 +255,12 @@
 }
 .wm-pane { flex-shrink: 0; }
 @media (prefers-reduced-motion: reduce) { .wm-track { transition: none; } }
+
+/* Read-only preview (locked Community page): zoom/drag the map, but the
+   markers don't react to clicks. */
+.wm-frame--static .wm-marker { pointer-events: none; }
+.wm--bare { padding: 0; }
+
+/* Clicking the preview opens the same flow as "Speak With Our Experts". */
+.wm-frame--static .wm-svg { cursor: pointer; }
+.wm-frame--static .wm-svg:active { cursor: grabbing; }

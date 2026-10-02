@@ -616,3 +616,11 @@
 
 /* Rank number centered under the header's rank (trophy) image — same 44px column. */
 .cmty-house-row .cmty-house-rank { text-align: center; padding-right: 14px; }
+
+/* Locked page: map slides need more height than the text slide. */
+.cmty-locked-intro .hp-slide-viewport { height: auto; min-height: 360px; }
+.cmty-locked-slide--map { padding: 0 56px; text-align: left; }
+.cmty-locked-slide--map .wm { width: 100%; --cmty-text: rgb(146, 155, 180); font-family: 'Roboto', system-ui, -apple-system, sans-serif; }
+/* Track follows its tallest slide (the map), so the dots sit below it. */
+.cmty-locked-intro .hp-slide-track { height: auto; align-items: center; }
+.cmty-locked-intro .hp-dots { margin-top: 18px; }

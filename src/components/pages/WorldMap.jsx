@@ -58,12 +58,17 @@ const truncate = (s, n) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 const Overlay = ({ children }) => createPortal(children, document.body);
 
-const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOpenAsk }) => {
+// `readOnly` (locked Community page, no Extra): a preview you can zoom and
+// drag but not click — no profiles / questions / country lists, no menu,
+// arrows, filters or auto-rotation. `onPreviewClick` runs on a click on it. `only` limits it
+// to one map ('members' | 'questions').
+const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOpenAsk, readOnly = false, only = null, onPreviewClick }) => {
+    const maps = only ? MAPS.filter(m => m.key === only) : MAPS;
     const svgRef = useRef(null);
     const zoomRef = useRef(null);
     const [land, setLand] = useState(null);
     const [mapIndex, setMapIndex] = useState(0);
-    const mode = MAPS[mapIndex].key;
+    const mode = maps[mapIndex].key;
     const [menuOpen, setMenuOpen] = useState(false);
     const [hovered, setHovered] = useState(false);
     const menuRef = useRef(null);
@@ -217,7 +222,7 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
         : 'No questions here yet for this filter.';
 
     const switchMap = (delta) => {
-        setMapIndex(i => (i + delta + MAPS.length) % MAPS.length);
+        setMapIndex(i => (i + delta + maps.length) % maps.length);
         setCountryOpen(null);
     };
     const pickMap = (i) => { setMapIndex(i); setCountryOpen(null); setMenuOpen(false); };
@@ -225,22 +230,26 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
     // The two maps alternate every 5s — paused while the pointer is on the
     // map (zooming / dragging) or a list, profile or the menu is open.
     // Changing map (arrows / menu) restarts the 5s.
-    const paused = hovered || menuOpen || !!countryOpen || !!profileId;
+    const paused = readOnly || maps.length < 2 || hovered || menuOpen || !!countryOpen || !!profileId;
     useEffect(() => {
         if (paused) return;
-        const id = setTimeout(() => setMapIndex(i => (i + 1) % MAPS.length), ROTATE_MS);
+        const id = setTimeout(() => setMapIndex(i => (i + 1) % maps.length), ROTATE_MS);
         return () => clearTimeout(id);
-    }, [paused, mapIndex]);
+    }, [paused, mapIndex, maps.length]);
 
     const openList = countryOpen ? (groups.get(countryOpen) || []) : [];
 
     return (
-        <div className="cmty-panel wm" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-            <div className="wm-head">
+        <div className={readOnly ? 'wm wm--bare' : 'cmty-panel wm'} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+            {/* Read-only preview shows the map alone — no panel, title or subtitle. */}
+            {!readOnly && <div className="wm-head">
                 <div className="wm-head-main">
+                    {readOnly || maps.length < 2 ? (
+                        <h2 className="cmty-panel-title wm-title">{maps[mapIndex].title}</h2>
+                    ) : (
                     <div className="wm-menu" ref={menuRef}>
                         <button className="wm-menu-toggle" onClick={() => setMenuOpen(o => !o)} aria-haspopup="listbox" aria-expanded={menuOpen}>
-                            <h2 className="cmty-panel-title wm-title">{MAPS[mapIndex].title}</h2>
+                            <h2 className="cmty-panel-title wm-title">{maps[mapIndex].title}</h2>
                             <FiChevronDown size={18} className={`cmty-dropdown-chevron${menuOpen ? ' cmty-dropdown-chevron--open' : ''}`} />
                         </button>
                         {menuOpen && (
@@ -260,10 +269,11 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
                             </div>
                         )}
                     </div>
+                    )}
                     <p className="wm-sub">{subtitle}</p>
                 </div>
-                <div className="wm-controls">
-                    {import.meta.env.DEV && mode === 'members' && (
+                {!readOnly && <div className="wm-controls">
+                    {import.meta.env.DEV && mode === 'members' && !readOnly && (
                         <button className={`wm-ctrl wm-demo${demo ? ' wm-demo--on' : ''}`} onClick={() => setDemo(d => !d)}
                             title="Development only: preview the map with ~300 sample members">
                             Demo
@@ -272,10 +282,10 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
                     <button className="wm-ctrl" onClick={() => zoomBy(1.6)} aria-label="Zoom in"><FiPlus size={16} /></button>
                     <button className="wm-ctrl" onClick={() => zoomBy(1 / 1.6)} aria-label="Zoom out"><FiMinus size={16} /></button>
                     <button className="wm-ctrl" onClick={resetZoom} aria-label="Reset view"><FiMaximize size={15} /></button>
-                </div>
-            </div>
+                </div>}
+            </div>}
 
-            {mode === 'questions' && (
+            {mode === 'questions' && !readOnly && (
                 <div className="cmty-sort-row wm-filters">
                     {SORTS.map(s => (
                         <button
@@ -294,20 +304,24 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
 
             <div className="wm-stage">
                 {/* Same arrows as the Home carousel — switch between the maps. */}
+                {!readOnly && maps.length > 1 && <>
                 <button className="hp-row-arrow wm-arrow wm-arrow--left" onClick={() => switchMap(-1)} aria-label="Previous map">
                     <FiChevronLeft size={22} />
                 </button>
                 <button className="hp-row-arrow wm-arrow wm-arrow--right" onClick={() => switchMap(1)} aria-label="Next map">
                     <FiChevronRight size={22} />
                 </button>
+                </>}
 
-                <div className="wm-frame">
+                {/* Read-only: a click anywhere on the map (not a drag — d3-zoom
+                    swallows the click that ends a drag) runs onPreviewClick. */}
+                <div className={`wm-frame${readOnly ? ' wm-frame--static' : ''}`} onClick={readOnly ? onPreviewClick : undefined}>
                     {/* Both maps sit side by side and slide, like the Home carousel. */}
-                    <div className="wm-track" style={{ transform: `translateX(-${mapIndex * (100 / MAPS.length)}%)`, width: `${MAPS.length * 100}%` }}>
-                        {MAPS.map((pane, paneIndex) => {
+                    <div className="wm-track" style={{ transform: `translateX(-${mapIndex * (100 / maps.length)}%)`, width: `${maps.length * 100}%` }}>
+                        {maps.map((pane, paneIndex) => {
                             const paneMode = pane.key;
                             return (
-                                <div key={paneMode} className="wm-pane" style={{ width: `${100 / MAPS.length}%` }} aria-hidden={paneIndex !== mapIndex}>
+                                <div key={paneMode} className="wm-pane" style={{ width: `${100 / maps.length}%` }} aria-hidden={paneIndex !== mapIndex}>
                                     <svg ref={paneIndex === mapIndex ? svgRef : null} className="wm-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={pane.title}>
                                         <defs>
                                             <clipPath id={`wm-diamond-${paneMode}`}><polygon points={`0,${-R} ${R},0 0,${R} ${-R},0`} /></clipPath>
@@ -373,10 +387,10 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
                     {land && !loading && itemCount === 0 && <p className="wm-empty">{emptyText}</p>}
                 </div>
             </div>
-            <p className="wm-hint">
+            {!readOnly && <p className="wm-hint">
                 Scroll or use + / − to zoom, drag to move. More {mode === 'members' ? 'members' : 'questions'} appear as you zoom in.
                 The two maps alternate every 5 seconds (paused while your pointer is on the map) — or pick one in the menu or with the arrows.
-            </p>
+            </p>}
 
             {countryOpen && (
                 <Overlay>

@@ -360,7 +360,11 @@ const CommunityForum = ({
 // dots (same as HomePage's hero carousel) start rotating through them.
 const LOCKED_SLIDES = [
     { headline: 'Join a growing community where thousands of members experiment, learn, and grow together' },
+    // Read-only previews of the two Community world maps (nothing clickable).
+    { map: 'members' },
+    { map: 'questions' },
 ];
+const LOCKED_ROTATE_MS = 5000;
 
 const CIRCLE_TEXT = 'YOUR EXPERTISE  •  OUR COLLECTION  •  ';
 
@@ -372,14 +376,18 @@ const CommunityLocked = (props) => {
     } = props;
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     const [slideIndex, setSlideIndex] = useState(0);
+    const [hovered, setHovered] = useState(false);
     const count = LOCKED_SLIDES.length;
 
-    // Same 4s auto-rotation as HomePage (no-op while there's a single slide).
+    // Auto-rotation, same 5s rhythm as the Community maps; restarts after a
+    // manual change (arrows / dots).
+    // Paused while the pointer is over a map slide, so it can be zoomed.
+    const onMap = hovered && !!LOCKED_SLIDES[slideIndex]?.map;
     useEffect(() => {
-        if (count <= 1) return;
-        const id = setInterval(() => setSlideIndex(prev => (prev + 1) % count), 4000);
-        return () => clearInterval(id);
-    }, [count]);
+        if (count <= 1 || onMap) return;
+        const id = setTimeout(() => setSlideIndex(prev => (prev + 1) % count), LOCKED_ROTATE_MS);
+        return () => clearTimeout(id);
+    }, [count, slideIndex, onMap]);
 
     return (
         <div className="ep-page">
@@ -436,7 +444,7 @@ const CommunityLocked = (props) => {
                         >
                             <FiChevronRight size={22} />
                         </button>
-                        <div className="hp-slide-viewport">
+                        <div className="hp-slide-viewport" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
                             <div
                                 className="hp-slide-track"
                                 style={{
@@ -445,8 +453,10 @@ const CommunityLocked = (props) => {
                                 }}
                             >
                                 {LOCKED_SLIDES.map((slide, i) => (
-                                    <div key={i} className="hp-slide-content cmty-locked-slide" style={{ width: `${100 / count}%` }}>
-                                        <h1 className="hp-headline cmty-locked-headline">{slide.headline}</h1>
+                                    <div key={i} className={`hp-slide-content cmty-locked-slide${slide.map ? ' cmty-locked-slide--map' : ''}`} style={{ width: `${100 / count}%` }}>
+                                        {slide.map
+                                            ? <WorldMap readOnly only={slide.map} badges={[]} onPreviewClick={onSpeakWithExperts} />
+                                            : <h1 className="hp-headline cmty-locked-headline">{slide.headline}</h1>}
                                     </div>
                                 ))}
                             </div>
