@@ -317,3 +317,86 @@
 
 /* UpgradeToExtraModal — no image slot, so drop spm-perks-row's reserved gap. */
 .spm-perks-row.uem-perks-row { margin-top: 8px; }
+
+/* ── SelfAssessmentRatingModal ── */
+.sar-panel { max-width: 460px; }
+.sar-stars {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 10px 0 0;
+}
+.sar-star {
+    width: 68px;
+    height: 68px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+.sar-star:hover { transform: scale(1.08); }
+.sar-star svg { width: 100%; height: 100%; }
+.sar-star path {
+    fill: rgb(238, 243, 255);
+    stroke: rgb(20, 35, 70);
+    stroke-width: 3;
+    stroke-linejoin: round;
+    transition: fill 0.15s ease;
+}
+.sar-star--lit path { fill: rgb(246, 207, 129); stroke: rgb(201, 151, 44); }
+
+/* "Click here!" + curved arrow pointing at the 5th star. */
+.sar-hint {
+    position: relative;
+    width: 100%;
+    height: 56px;
+    margin-top: 4px;
+}
+.sar-hint-text {
+    position: absolute;
+    left: 6px;
+    bottom: 2px;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: rgb(63, 120, 210);
+}
+.sar-hint-arrow {
+    position: absolute;
+    left: 130px;
+    right: 34px;
+    top: 0;
+    width: calc(100% - 164px);
+    height: 100%;
+    overflow: visible;
+}
+.sar-hint-arrow path { fill: none; stroke: rgb(63, 120, 210); stroke-width: 2; }
+.sar-hint-arrow marker path { fill: rgb(63, 120, 210); stroke: none; }
+
+.sar-later {
+    margin-top: 44px;
+    padding: 6px 10px;
+    border: none;
+    background: none;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: rgba(220, 230, 245, 0.6);
+    cursor: pointer;
+}
+.sar-later:hover { color: rgba(220, 230, 245, 0.9); }
+.sar-thanks { margin-top: 10px; }
+
+@media (max-width: 480px) {
+    .sar-star { width: 50px; height: 50px; }
+    .sar-hint-text { font-size: 12px; }
+    .sar-hint-arrow { left: 100px; width: calc(100% - 128px); right: 24px; }
+}
+
+/* ── UnlockAllCardsModal ── the destructive choice stays discreet, under the
+   gold "Keep my Learning Plan" (same look as .sar-later, a bit closer). */
+.sar-later.uac-unlock { margin-top: 16px; }

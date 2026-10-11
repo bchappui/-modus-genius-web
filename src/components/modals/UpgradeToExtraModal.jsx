@@ -19,9 +19,23 @@ const PERKS = [
     { icon: ICON_TROPHY_URL, lines: ['Leaderboard', 'rankings'] },
 ];
 
-// Shown when a logged-in account without Extra (or Premium) hits the
-// Community page's "Speak With Our Experts" button.
-const UpgradeToExtraModal = ({ onClose, onUpgrade }) => {
+// Wording per Extra-only feature the modal can be opened for.
+const FEATURES = {
+    community: {
+        headline: 'The Community is an Extra feature',
+        text: 'Upgrade to Extra to ask your questions, get answers from our experts and access a private community with 1200+ members.',
+    },
+    deck: {
+        headline: 'Learning Plan decks are an Extra feature',
+        text: 'Upgrade to Extra to redeem your personalized decks and unlock a new card every day on your Learning Track.',
+    },
+};
+
+// Shown when a logged-in account without Extra (or Premium) hits an
+// Extra-only feature: Community's "Speak With Our Experts" button, or a
+// Learning Plan deck's "Redeem your deck" (feature="deck").
+const UpgradeToExtraModal = ({ onClose, onUpgrade, feature = 'community' }) => {
+    const { headline, text } = FEATURES[feature] || FEATURES.community;
     return (
         <div className="eim-overlay" onClick={onClose}>
             <div className="eim-panel" onClick={e => e.stopPropagation()}>
@@ -33,11 +47,8 @@ const UpgradeToExtraModal = ({ onClose, onUpgrade }) => {
                 <img src={LOGO_TEXT_URL} alt="Modus Genius" className="eim-logo" />
                 <p className="eim-tagline">Your Expertise&nbsp;&nbsp;|&nbsp;&nbsp;Our Collection</p>
 
-                <h3 className="eim-headline">The Community is an Extra feature</h3>
-                <p className="eim-subtext">
-                    Upgrade to Extra to ask your questions, get answers from our experts
-                    and access a private community with 1200+ members.
-                </p>
+                <h3 className="eim-headline">{headline}</h3>
+                <p className="eim-subtext">{text}</p>
 
                 <div className="spm-perks-row uem-perks-row">
                     {PERKS.map(perk => (

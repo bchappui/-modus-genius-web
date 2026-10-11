@@ -16,3 +16,41 @@ export function fireCelebrationConfetti() {
         zIndex: 5001,
     });
 }
+
+// Full-page variant (SelfAssessmentPage's congratulations step): bigger,
+// multicolour pieces raining across the whole width for about a second,
+// instead of a single gold/blue burst from the top centre.
+const RAINBOW_COLORS = ['#e8412c', '#f5941f', '#f7d038', '#6fbf4a', '#29c3c8', '#3f8ce8', '#9b6fe0', '#e15fc0', '#ffffff'];
+
+let fullPageRaf = null;
+
+export function fireFullPageConfetti() {
+    const end = Date.now() + 1200;
+    const frame = () => {
+        confetti({
+            particleCount: 3,
+            angle: 270,
+            startVelocity: 35,
+            spread: 90,
+            gravity: 1.4,
+            drift: Math.random() - 0.5,
+            ticks: 220,
+            scalar: 1.8,
+            origin: { x: Math.random(), y: -0.1 },
+            // canvas-confetti assigns colours in list order, so with only a few
+            // pieces per burst we'd only ever get the first few — shuffle each time.
+            colors: [...RAINBOW_COLORS].sort(() => Math.random() - 0.5),
+            zIndex: 5001,
+        });
+        fullPageRaf = Date.now() < end ? requestAnimationFrame(frame) : null;
+    };
+    frame();
+}
+
+// Stops the rain and clears every piece still on screen (e.g. when leaving
+// the step that fired it).
+export function stopConfetti() {
+    if (fullPageRaf) cancelAnimationFrame(fullPageRaf);
+    fullPageRaf = null;
+    confetti.reset();
+}

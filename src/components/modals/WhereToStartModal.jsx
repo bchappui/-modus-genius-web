@@ -14,9 +14,8 @@ const PACK_CARDS = [
 ];
 
 // Exit-intent shown specifically on Explore (see isExplorePage in App.jsx) —
-// pitches a personality-test-style recommendation flow. "Get Started" just
-// closes for now since that quiz doesn't exist yet (same placeholder pattern
-// ExitIntentModal's own "Redeem your pack" button already uses).
+// pitches a personality-test-style recommendation flow. "Get Started" opens
+// the SelfAssessmentPage landing (see onGetStarted in App.jsx).
 const WhereToStartModal = ({ onClose, onGetStarted }) => {
     return (
         <div className="eim-overlay" onClick={onClose}>

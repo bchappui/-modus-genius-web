@@ -17,6 +17,7 @@ import AboutPage from "./components/pages/AboutPage.jsx";
 import ThanksArchive from "./components/pages/ThanksArchive.jsx";
 import ExitIntentModal from "./components/modals/ExitIntentModal.jsx";
 import NewsletterExitModal from "./components/modals/NewsletterExitModal.jsx";
+import SelfAssessmentPage from "./components/pages/SelfAssessmentPage.jsx";
 import WhereToStartModal from "./components/modals/WhereToStartModal.jsx";
 import AuthRequiredModal from "./components/modals/AuthRequiredModal.jsx";
 import EditProfileModal from "./components/modals/EditProfileModal.jsx";
@@ -60,6 +61,7 @@ const App = () => {
     const [showCreate, setShowCreate] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
     const [showThanksArchive, setShowThanksArchive] = useState(false);
+    const [showSelfAssessment, setShowSelfAssessment] = useState(false);
     const [agentId, setAgentId] = useState(null);
     const [agentProfile, setAgentProfile] = useState(null);
     const [favoriteIds, setFavoriteIds] = useState([]);
@@ -79,6 +81,7 @@ const App = () => {
     const [limitedProperty, setLimitedProperty] = useState(null);
     const [limitReason, setLimitReason] = useState('monthly-limit');
     const [upgradeExtraOpen, setUpgradeExtraOpen] = useState(false);
+    const [upgradeExtraFeature, setUpgradeExtraFeature] = useState('community');
     const [myHouse, setMyHouse] = useState(null);
     // Bumped on realtime request changes so the request boxes re-fetch.
     const [houseRequestsKey, setHouseRequestsKey] = useState(0);
@@ -86,12 +89,12 @@ const App = () => {
     // Mirrors the render ternary below: Favorites only actually renders once
     // every other page flag is false and showFavorites is true.
     const isFavoritesPage = !showLogin && !showHome && !showAbout && !showSubscribe
-        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && showFavorites;
+        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showSelfAssessment && showFavorites;
 
     // Same mirroring, for the other end of that ternary — Explore is what
     // renders when every other page flag (including Favorites) is false.
     const isExplorePage = !showLogin && !showHome && !showAbout && !showSubscribe
-        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showFavorites;
+        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showSelfAssessment && !showFavorites;
 
     // Browsing the site never requires an account — only opening a card
     // (and, consistently, viewing Favorites) does. Wrap any handler that
@@ -109,16 +112,18 @@ const App = () => {
     // Free (non-gift, non-member) accounts get one distinct card per calendar
     // month — reopening that same card again doesn't cost anything, only
     // trying a *different* card once the month's slot is already spent does.
+    // Returns whether the card actually opened (callers like the Learning
+    // Track only count it as read when it did).
     const requireAuthForProperty = (property) => {
         if (!authUser) {
             const url = new URL(window.location.href);
             url.searchParams.set('property', property.$id);
             window.history.replaceState(null, '', url);
             setAuthModalOpen(true);
-            return;
+            return false;
         }
 
-        if (agentProfile?.unlockedPropertyIds?.includes(property.$id)) { navigateTo({ selectedProperty: property }); return; }
+        if (agentProfile?.unlockedPropertyIds?.includes(property.$id)) { navigateTo({ selectedProperty: property }); return true; }
 
         const month = getCurrentMonthKey();
         const decision = getPropertyAccessDecision(agentProfile, property, month);
@@ -127,7 +132,7 @@ const App = () => {
             setLimitedProperty(property);
             setLimitReason(decision.reason);
             setLimitModalOpen(true);
-            return;
+            return false;
         }
 
         // Record quota usage for tiers with a numeric monthly cap (free: one
@@ -152,6 +157,7 @@ const App = () => {
         }
 
         navigateTo({ selectedProperty: property });
+        return true;
     };
 
     const requireAuthForQuote = (quote) => {
@@ -397,6 +403,14 @@ const App = () => {
         window.history.replaceState(null, '', url);
     }, []);
 
+    // Dev-only: ?saPreview=INTJ opens the self-assessment results for that
+    // profile directly (see SelfAssessmentPage), without retaking the survey.
+    useEffect(() => {
+        if (!import.meta.env.DEV) return;
+        if (!new URLSearchParams(window.location.search).get('saPreview')) return;
+        navigateTo({ showSelfAssessment: true });
+    }, []);
+
     // Community's "Speak With Our Experts" sends logged-out visitors to the
     // login page; this flag (sessionStorage, so it survives Google OAuth's
     // full-page redirect back to "/") brings them to Community once logged in.
@@ -474,6 +488,10 @@ const App = () => {
     // within the app instead of leaving it entirely (e.g. to the Google OAuth
     // redirect page). `patch` only needs to name what's changing — everything
     // else carries over from the current view.
+    // Patch keys that switch to another page (vs. only opening a pop-up).
+    const PAGE_PATCH_KEYS = ['selectedType', 'showFavorites', 'showSubscribe', 'showHome', 'showGenius',
+        'showQuotes', 'showNewsletter', 'showCommunity', 'showCreate', 'showAbout', 'showThanksArchive'];
+
     const navigateTo = (patch) => {
         const next = {
             selectedType: patch.selectedType !== undefined ? patch.selectedType : selectedType,
@@ -487,6 +505,12 @@ const App = () => {
             showCreate: patch.showCreate !== undefined ? patch.showCreate : showCreate,
             showAbout: patch.showAbout !== undefined ? patch.showAbout : showAbout,
             showThanksArchive: patch.showThanksArchive !== undefined ? patch.showThanksArchive : showThanksArchive,
+            // Left by any navigation to another page (a page flag or a
+            // category in the patch); kept when only a card/quote pop-up
+            // opens or closes on top of it (e.g. its Learning Track cards).
+            showSelfAssessment: patch.showSelfAssessment !== undefined
+                ? patch.showSelfAssessment
+                : (PAGE_PATCH_KEYS.some(k => patch[k] !== undefined) ? false : showSelfAssessment),
             selectedProperty: patch.selectedProperty !== undefined ? patch.selectedProperty : selectedProperty,
             selectedQuote: patch.selectedQuote !== undefined ? patch.selectedQuote : selectedQuote,
         };
@@ -502,6 +526,7 @@ const App = () => {
             showCreate: next.showCreate,
             showAbout: next.showAbout,
             showThanksArchive: next.showThanksArchive,
+            showSelfAssessment: next.showSelfAssessment,
             selectedPropertyId: next.selectedProperty?.$id || null,
             selectedQuoteId: next.selectedQuote?.$id || null,
         }, '', '');
@@ -516,6 +541,7 @@ const App = () => {
         setShowCreate(next.showCreate);
         setShowAbout(next.showAbout);
         setShowThanksArchive(next.showThanksArchive);
+        setShowSelfAssessment(next.showSelfAssessment);
         setSelectedProperty(next.selectedProperty);
         setSelectedQuote(next.selectedQuote);
     };
@@ -537,6 +563,7 @@ const App = () => {
         setShowCreate(!!state?.showCreate);
         setShowAbout(!!state?.showAbout);
         setShowThanksArchive(!!state?.showThanksArchive);
+        setShowSelfAssessment(!!state?.showSelfAssessment);
 
         const propId = state?.selectedPropertyId || null;
         if (!propId) { setSelectedProperty(null); }
@@ -636,6 +663,38 @@ const App = () => {
                     isLoading={isLoading}
                     errorMessage={errorMessage}
                     onSelectProperty={requireAuthForProperty}
+                />
+            ) : showSelfAssessment ? (
+                <SelfAssessmentPage
+                    onStart={() => {}}
+                    agentEmail={authUser?.email}
+                    agentId={authUser ? agentId : null}
+                    // Learning Plan decks are Extra-only (same rule as Community).
+                    hasDeckAccess={['extra', 'premium'].includes(getTier(agentProfile?.membershipTier).key)}
+                    onRequireDeckAccess={() => {
+                        if (!authUser) { setAuthModalOpen(true); return; }
+                        setUpgradeExtraFeature('deck');
+                        setUpgradeExtraOpen(true);
+                    }}
+                    searchTerm={searchTerm}
+                    onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
+                    onGoHome={() => navigateTo({ showHome: true })}
+                    onGoToExplore={goToExplore}
+                    onShowGenius={() => navigateTo({ showGenius: true })}
+                    onShowQuotes={() => navigateTo({ showQuotes: true })}
+                    onShowNewsletter={() => navigateTo({ showNewsletter: true })}
+                    onShowCommunity={goToCommunity}
+                    onShowCreate={() => navigateTo({ showCreate: true })}
+                    onShowSubscribe={() => navigateTo({ showSubscribe: true })}
+                    movieList={movieList}
+                    isLoading={isLoading}
+                    errorMessage={errorMessage}
+                    onSelectProperty={requireAuthForProperty}
+                    onShowFavorites={requireAuth(() => navigateTo({ showFavorites: true }))}
+                    onLogout={handleAuthAction}
+                    isLoggedIn={!!authUser}
+                    agentAvatar={agentProfile?.avatar}
+                    onOpenProfile={() => setAccountMenuOpen(true)}
                 />
             ) : showHome ? (
                 <HomePage
@@ -810,6 +869,7 @@ const App = () => {
                             setShowLogin(true);
                             return;
                         }
+                        setUpgradeExtraFeature('community');
                         setUpgradeExtraOpen(true);
                     }}
                     favoriteIds={favoriteIds}
@@ -944,7 +1004,11 @@ const App = () => {
             {wtsOpen && (
                 <WhereToStartModal
                     onClose={() => setWtsOpen(false)}
-                    onGetStarted={() => setWtsOpen(false)}
+                    onGetStarted={() => {
+                        setWtsOpen(false);
+                        navigateTo({ showSelfAssessment: true });
+                        window.scrollTo(0, 0);
+                    }}
                 />
             )}
             {exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && getTier(agentProfile?.membershipTier).key === 'free' && (
@@ -1061,6 +1125,7 @@ const App = () => {
             )}
             {upgradeExtraOpen && (
                 <UpgradeToExtraModal
+                    feature={upgradeExtraFeature}
                     onClose={() => setUpgradeExtraOpen(false)}
                     onUpgrade={() => {
                         setUpgradeExtraOpen(false);
