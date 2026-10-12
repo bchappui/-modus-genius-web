@@ -63,8 +63,14 @@ const REWARD_GIFT = (
     </g>
 );
 
-const MysteryCard = ({ children = QUESTION_MARK, className = '' }) => (
-    <div className={`sa-track-card3d sa-track-mystery ${className}`} aria-hidden="true">
+// With onClick (the unlocked reward), the card is a button.
+const MysteryCard = ({ children = QUESTION_MARK, className = '', onClick, label }) => {
+    const Tag = onClick ? 'button' : 'div';
+    return (
+    <Tag
+        className={`sa-track-card3d sa-track-mystery${onClick ? ' sa-track-mystery--clickable' : ''} ${className}`}
+        {...(onClick ? { onClick, 'aria-label': label } : { 'aria-hidden': true })}
+    >
         <svg className="sa-track-mystery-q" viewBox="0 0 100 130">
             <defs>
                 <linearGradient id="sa-q-gold" gradientUnits="userSpaceOnUse" x1="20" y1="8" x2="62" y2="122">
@@ -90,8 +96,9 @@ const MysteryCard = ({ children = QUESTION_MARK, className = '' }) => (
             <g filter="url(#sa-q-liquid)">{children}</g>
         </svg>
         <span className="sa-track-card3d-sheen" />
-    </div>
-);
+    </Tag>
+    );
+};
 
 // Same-length stand-in for a locked card's name (keeps spaces and case).
 const SCRAMBLE = 'aeiorstnlmdcupgbhvk';
@@ -106,8 +113,9 @@ const SHOW_UNLOCK_AFTER_PX = 200;
 // Card 1 is open from the start; each next card unlocks 24h after the
 // previous one was first read (progress in Appwrite, see deckProgress.js).
 // Unlocked cards open through onOpenCard — the site's usual card opening,
-// with the same membership/quota rules as any other card.
-const SelfAssessmentLearningTrack = ({ deck, agentId, onOpenCard, onGridViewChange }) => {
+// with the same membership/quota rules as any other card. Once unlocked,
+// the final reward opens through onClaimReward.
+const SelfAssessmentLearningTrack = ({ deck, agentId, onOpenCard, onGridViewChange, onClaimReward }) => {
     const [cards, setCards] = useState(null);
     const [readAt, setReadAt] = useState([]);
     const [unlockedAll, setUnlockedAll] = useState(false);
@@ -176,7 +184,12 @@ const SelfAssessmentLearningTrack = ({ deck, agentId, onOpenCard, onGridViewChan
     // same rule as a card (24h after the last card is read). "Unlock All
     // Cards Now" opens every card but forfeits the reward.
     const states = getCardStates(cards.length, readAt, now, unlockedAll);
-    const reward = unlockedAll ? null : getCardStates(cards.length + 1, readAt, now)[cards.length];
+    // Dev-only ?saReward=1: the reward is unlocked right away (to test it).
+    const forceReward = import.meta.env.DEV && new URLSearchParams(window.location.search).get('saReward') === '1';
+    const reward = unlockedAll ? null
+        : forceReward ? { unlocked: true, remainingMs: 0 }
+        : getCardStates(cards.length + 1, readAt, now)[cards.length];
+    const claimReward = reward?.unlocked ? onClaimReward : undefined;
 
     // Counts as read only if the card really opened (onOpenCard returns
     // false when the login/membership check stops it).
@@ -257,7 +270,7 @@ const SelfAssessmentLearningTrack = ({ deck, agentId, onOpenCard, onGridViewChan
                 {/* Final reward: after the last card, on the opposite side — the same
                     card as the locked ones, square, with a gift box instead of the "?". */}
                 <li className={`sa-track-item sa-track-item--reward${cards.length % 2 ? ' sa-track-item--right' : ''}`}>
-                    <MysteryCard className="sa-track-mystery--reward">{REWARD_GIFT}</MysteryCard>
+                    <MysteryCard className="sa-track-mystery--reward" onClick={claimReward} label="Claim your reward">{REWARD_GIFT}</MysteryCard>
                     <div className="sa-track-info">
                         <div className="sa-track-badges">
                             {reward ? (
@@ -274,10 +287,10 @@ const SelfAssessmentLearningTrack = ({ deck, agentId, onOpenCard, onGridViewChan
                                 <span className="sa-track-badge"><FiLock />Forfeited</span>
                             )}
                         </div>
-                        <div className="sa-track-name-btn sa-track-reward-name">
+                        <button className="sa-track-name-btn" onClick={claimReward} disabled={!claimReward}>
                             <Diamond unlocked={!!reward?.unlocked} />
                             <span className={reward?.unlocked ? 'sa-benefit-title sa-track-name' : 'sa-track-name sa-track-name--off'}>Reward</span>
-                        </div>
+                        </button>
                     </div>
                 </li>
             </ol>

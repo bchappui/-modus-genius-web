@@ -1,7 +1,7 @@
 import React from 'react'
 import { FaBookOpen, FaCertificate, FaStar } from 'react-icons/fa'
 import { SA_RESULT_ICONS } from '../../lib/selfAssessmentSurvey.js'
-import { getLearningPlan } from '../../lib/selfAssessmentLearningPlans.js'
+import { getLearningPlan } from '../../lib/learningPlans/index.js'
 import { RCard, RCardIcon } from './SelfAssessmentResults.jsx'
 import deckBanner from '../../assets/images/learning-plan-deck-banner.jpg'
 
@@ -31,7 +31,7 @@ const DeckPanel = ({ deck, elementIcon, onRedeem, mirrored = false }) => (
         <div className="sa-deck" style={{ '--deck-bg': `url(${deckBanner})` }}>
             <h3 className="sa-benefit-title sa-deck-name">{deck.name}</h3>
             <div className="sa-deck-tags">
-                {deck.tags.map((tag, i) => <span key={i} className="sa-deck-tag">{tag}</span>)}
+                {deck.keywords.map((keyword, i) => <span key={i} className="sa-deck-tag">{keyword}</span>)}
             </div>
 
             <div className="sa-deck-pack-area" aria-hidden="true">

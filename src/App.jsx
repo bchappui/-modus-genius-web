@@ -232,6 +232,7 @@ const App = () => {
                 setAgentId(resolvedAgentId);
                 setAgentProfile({
                     name: doc?.name || authUser.name || 'Anonymous',
+                    surname: doc?.surname || '',
                     email: doc?.email || authUser.email || '',
                     avatar: doc?.avatar || '',
                     freeCardMonth: doc?.freeCardMonth || '',
@@ -403,6 +404,17 @@ const App = () => {
         window.history.replaceState(null, '', url);
     }, []);
 
+    // Shared badge links (SelfAssessmentBadge's Share, ?selfassessment=1)
+    // land on the free self-assessment.
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('selfassessment')) return;
+        navigateTo({ showSelfAssessment: true });
+        const url = new URL(window.location.href);
+        url.searchParams.delete('selfassessment');
+        window.history.replaceState(null, '', url);
+    }, []);
+
     // Dev-only: ?saPreview=INTJ opens the self-assessment results for that
     // profile directly (see SelfAssessmentPage), without retaking the survey.
     useEffect(() => {
@@ -466,8 +478,9 @@ const App = () => {
     // exit-intent trick, OR on Home after a 10s dwell — two different "about
     // to disengage / already engaged" signals for two different page shapes.
     // Once per tab (see hasShownThisSession above), not once per Home visit.
+    // Never during the self-assessment (it's what the pop-up pitches).
     useEffect(() => {
-        if (!authUser || !(isExplorePage || showHome)) return;
+        if (!authUser || showSelfAssessment || !(isExplorePage || showHome)) return;
         if (hasShownThisSession('wtsShown')) return;
         let shown = false;
         const trigger = () => { if (!shown) { shown = true; markShownThisSession('wtsShown'); setWtsOpen(true); } };
@@ -481,7 +494,7 @@ const App = () => {
             document.removeEventListener('mouseout', onMouseOut);
             if (timer) clearTimeout(timer);
         };
-    }, [authUser, isExplorePage, showHome]);
+    }, [authUser, isExplorePage, showHome, showSelfAssessment]);
 
     // Every navigational action (category, favorites, subscribe, opening a card)
     // pushes a history entry so the browser's back button always steps back
@@ -669,6 +682,8 @@ const App = () => {
                     onStart={() => {}}
                     agentEmail={authUser?.email}
                     agentId={authUser ? agentId : null}
+                    agentName={agentProfile?.name}
+                    agentSurname={agentProfile?.surname}
                     // Learning Plan decks are Extra-only (same rule as Community).
                     hasDeckAccess={['extra', 'premium'].includes(getTier(agentProfile?.membershipTier).key)}
                     onRequireDeckAccess={() => {
@@ -1001,7 +1016,7 @@ const App = () => {
             {exitIntentOpen && showSubscribe && (
                 <ExitIntentModal onClose={() => setExitIntentOpen(false)} />
             )}
-            {wtsOpen && (
+            {wtsOpen && !showSelfAssessment && (
                 <WhereToStartModal
                     onClose={() => setWtsOpen(false)}
                     onGetStarted={() => {
@@ -1011,7 +1026,7 @@ const App = () => {
                     }}
                 />
             )}
-            {exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && getTier(agentProfile?.membershipTier).key === 'free' && (
+            {exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && !showSelfAssessment && getTier(agentProfile?.membershipTier).key === 'free' && (
                 <NewsletterExitModal
                     onClose={() => setExitIntentOpen(false)}
                     onGetStarted={() => {

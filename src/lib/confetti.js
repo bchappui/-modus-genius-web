@@ -54,3 +54,22 @@ export function stopConfetti() {
     fullPageRaf = null;
     confetti.reset();
 }
+
+// Badge earned (SelfAssessmentBadge): two rainbow bursts out of the badge,
+// up-left and up-right, from `origin` (0-1 viewport coordinates).
+export function fireBadgeConfetti(origin = { x: 0.5, y: 0.5 }) {
+    const burst = (angle) => confetti({
+        particleCount: 90,
+        angle,
+        spread: 70,
+        startVelocity: 55,
+        gravity: 0.9,
+        ticks: 260,
+        scalar: 1.2,
+        origin,
+        colors: RAINBOW_COLORS,
+        zIndex: 5001,
+    });
+    burst(60);
+    burst(120);
+}

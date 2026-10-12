@@ -7,7 +7,8 @@ import SelfAssessmentSurvey, { ReportStep } from './SelfAssessmentSurvey.jsx'
 import SelfAssessmentResults, { ProfileOverview } from './SelfAssessmentResults.jsx'
 import SelfAssessmentLearningPlan from './SelfAssessmentLearningPlan.jsx'
 import SelfAssessmentDeck from './SelfAssessmentDeck.jsx'
-import { getLearningPlan } from '../../lib/selfAssessmentLearningPlans.js'
+import SelfAssessmentBadge from './SelfAssessmentBadge.jsx'
+import { getLearningPlan } from '../../lib/learningPlans/index.js'
 import { scoreSelfAssessment, answersForType, PERSONALITIES } from '../../lib/selfAssessmentScoring.js'
 import { SA_ICONS } from '../../lib/selfAssessmentSurvey.js'
 import './SelfAssessmentPage.css'
@@ -48,28 +49,29 @@ const BENEFITS = [
 // 'fact' ("Did you know?") → 'survey' (SelfAssessmentSurvey) → 'results'
 // (SelfAssessmentResults, scored with scoreSelfAssessment) → 'learningPlan'
 // (via "Get My Learning Plan": loader) → 'learningPlanReady' → 'deck' (via
-// "Redeem your deck"). onStart is also
+// "Redeem your deck") → 'badge' (the unlocked final reward: loader with the
+// badge step checked) → 'badgeEarned' (SelfAssessmentBadge). onStart is also
 // called with the answers once the survey is finished.
 const SelfAssessmentPage = ({
     onStart, searchTerm, onSearchChange, movieList, isLoading, errorMessage, onSelectProperty,
     onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity,
     onShowCreate, onShowFavorites, onShowSubscribe, onLogout, isLoggedIn, agentAvatar, onOpenProfile,
-    agentEmail, agentId, onGetLearningPlan, onRedeemDeck, hasDeckAccess, onRequireDeckAccess,
+    agentEmail, agentId, agentName, agentSurname, onGetLearningPlan, onRedeemDeck, hasDeckAccess, onRequireDeckAccess,
 }) => {
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     // Dev-only ?saPreview=INTJ: jump straight to that profile's results
-    // (add &saStep=plan for its learning plan page).
+    // (add &saStep=plan for its learning plan page, deck or badge for its first deck).
     const previewParams = import.meta.env.DEV ? new URLSearchParams(window.location.search) : null;
     const previewType = previewParams?.get('saPreview')?.toUpperCase();
     const preview = previewType && PERSONALITIES[previewType] ? previewType : null;
-    const previewStep = { plan: 'learningPlanReady', deck: 'deck' }[previewParams?.get('saStep')] || 'results';
+    const previewStep = { plan: 'learningPlanReady', deck: 'deck', badge: 'badgeEarned' }[previewParams?.get('saStep')] || 'results';
 
     const [step, setStep] = useState(preview ? previewStep : 'intro');
     const [result, setResult] = useState(() => preview ? scoreSelfAssessment(answersForType(preview)) : null);
     const [resultEmail, setResultEmail] = useState(preview ? (agentEmail || '') : '');
     // Deck picked with "Redeem your deck" on the learning plan page.
     const [selectedDeck, setSelectedDeck] = useState(() =>
-        preview && previewStep === 'deck' ? getLearningPlan(preview)?.strengths[0] ?? null : null);
+        preview && ['deck', 'badgeEarned'].includes(previewStep) ? getLearningPlan(preview)?.strengths[0] ?? null : null);
 
     // Leaving the page mid-rain shouldn't carry confetti onto the next one.
     useEffect(() => stopConfetti, []);
@@ -145,7 +147,22 @@ const SelfAssessmentPage = ({
                             />
                         </section>
                     ) : step === 'deck' && selectedDeck ? (
-                        <SelfAssessmentDeck deck={selectedDeck} agentId={agentId} onOpenCard={onSelectProperty} />
+                        <SelfAssessmentDeck
+                            deck={selectedDeck}
+                            agentId={agentId}
+                            onOpenCard={onSelectProperty}
+                            onClaimReward={() => goToStep('badge')}
+                        />
+                    ) : step === 'badge' && selectedDeck ? (
+                        <section className="sa-congrats sa-learning-plan">
+                            <ReportStep
+                                title="Creating your digital badge…"
+                                done={['report', 'plan', 'badge']}
+                                onDone={() => goToStep('badgeEarned')}
+                            />
+                        </section>
+                    ) : step === 'badgeEarned' && selectedDeck ? (
+                        <SelfAssessmentBadge deck={selectedDeck} agentName={agentName} agentSurname={agentSurname} />
                     ) : step === 'learningPlanReady' ? (
                         <section className="sa-results sa-plan-ready">
                             <h1 className="ep-headline sa-plan-ready-title">Your Learning plan is ready!</h1>

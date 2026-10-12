@@ -6,7 +6,7 @@ import SelfAssessmentLearningTrack from './SelfAssessmentLearningTrack.jsx'
 // the end), then the Learning Track below the scroll arrow. Right after
 // "Unlock All Cards Now", the same page shows every card in a grid instead
 // (coming back to the deck always opens the path again).
-const SelfAssessmentDeck = ({ deck, agentId, onOpenCard }) => {
+const SelfAssessmentDeck = ({ deck, agentId, onOpenCard, onClaimReward }) => {
     const [gridView, setGridView] = useState(false);
     return (
         <section className={`sa-results sa-deck-page${gridView ? ' sa-deck-page--all' : ''}`}>
@@ -26,6 +26,7 @@ const SelfAssessmentDeck = ({ deck, agentId, onOpenCard }) => {
                 agentId={agentId}
                 onOpenCard={onOpenCard}
                 onGridViewChange={setGridView}
+                onClaimReward={onClaimReward}
             />
         </section>
     );

@@ -914,7 +914,17 @@
 /* Final reward: the locked-card design, square. */
 .sa-track-mystery--reward { aspect-ratio: 1 / 1; }
 .sa-track-mystery--reward .sa-track-mystery-q { width: 74%; }
-.sa-track-reward-name { cursor: default; }
+.sa-track-mystery--clickable { padding: 0; cursor: pointer; }
+
+/* ── BADGE EARNED ── (SelfAssessmentBadge) */
+.sa-badge-page { margin-top: 60px; }
+.sa-badge-title { display: inline-block; margin-bottom: 24px; }
+.sa-badge-text { margin: 0 0 30px; }
+.sa-badge-art-wrap { width: min(440px, 100%); margin: 0 auto 36px; }
+.sa-badge-art { display: block; width: 100%; height: auto; filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.5)); }
+.sa-badge-share { max-width: 370px; }
+.sa-track-mystery--clickable:hover { transform: perspective(700px) rotateY(6deg) rotateX(2deg) scale(1.04); }
+.sa-track-item--right .sa-track-mystery--clickable:hover { transform: perspective(700px) rotateY(-6deg) rotateX(2deg) scale(1.04); }
 
 .sa-track-info { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .sa-track-badges { display: flex; gap: 8px; }
