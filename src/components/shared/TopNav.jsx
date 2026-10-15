@@ -42,7 +42,7 @@ const TopNav = ({
             </div>
             <nav className="ep-nav-links">
                 {renderLink('home', 'Home', onGoHome)}
-                {renderLink('explore', 'Explore', onGoToExplore)}
+                {renderLink('explore', 'Card List', onGoToExplore)}
                 {renderLink('genius', 'Genius', onShowGenius)}
                 {renderLink('newsletter', 'Newsletter', onShowNewsletter)}
                 {renderLink('community', 'Community', onShowCommunity)}

@@ -96,7 +96,7 @@ const LoginPage = ({
                 </button>
                 <nav className="ep-nav-links">
                     <button className="ep-nav-link ep-nav-link-btn" onClick={onGoHome}>Home</button>
-                    <button className="ep-nav-link ep-nav-link-btn" onClick={onGoToExplore}>Explore</button>
+                    <button className="ep-nav-link ep-nav-link-btn" onClick={onGoToExplore}>Card List</button>
                     <button className="ep-nav-link ep-nav-link-btn" onClick={onShowGenius}>Genius</button>
                     <button className="ep-nav-link ep-nav-link-btn" onClick={onShowNewsletter}>Newsletter</button>
                     <button className="ep-nav-link ep-nav-link-btn" onClick={onShowCommunity}>Community</button>

@@ -70,6 +70,10 @@ const App = () => {
     const [hasCommentedQuote, setHasCommentedQuote] = useState(false);
     const [propertiesCount, setPropertiesCount] = useState(null);
     const [exitIntentOpen, setExitIntentOpen] = useState(false);
+    // Dev-only ?nlPreview=1: opens the newsletter exit pop-up right away,
+    // whatever the page, membership or "already shown" flag.
+    const [nlPreviewOpen, setNlPreviewOpen] = useState(() =>
+        import.meta.env.DEV && new URLSearchParams(window.location.search).get('nlPreview') === '1');
     const [wtsOpen, setWtsOpen] = useState(false);
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
@@ -1026,11 +1030,12 @@ const App = () => {
                     }}
                 />
             )}
-            {exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && !showSelfAssessment && getTier(agentProfile?.membershipTier).key === 'free' && (
+            {(nlPreviewOpen || (exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && !showSelfAssessment && getTier(agentProfile?.membershipTier).key === 'free')) && (
                 <NewsletterExitModal
-                    onClose={() => setExitIntentOpen(false)}
+                    onClose={() => { setExitIntentOpen(false); setNlPreviewOpen(false); }}
                     onGetStarted={() => {
                         setExitIntentOpen(false);
+                        setNlPreviewOpen(false);
                         navigateTo({
                             showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
                             showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,

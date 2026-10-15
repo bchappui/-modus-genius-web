@@ -74,16 +74,23 @@
 .cp-start-btn {
     height: 50px;
     padding: 0 34px;
+    /* Orange call-to-action style, shared with the site's main buttons. */
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgb(230,175,90), rgb(201,151,44));
-    color: #1a1200;
+    border-radius: 6px;
+    background: linear-gradient(100deg, #ffd23f 0%, #ffb83a 55%, #ff9235 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 14px rgba(255, 146, 53, 0.22);
+    color: #16181f;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    /* Italic capitals lean right: nudge them back so they look centred. */
+    text-indent: -0.14em;
     font-size: 16px;
-    font-weight: 800;
     cursor: pointer;
 }
-.cp-start-btn:hover { filter: brightness(1.05); }
+.cp-start-btn:hover { filter: brightness(1.06); }
 .cp-start-caption {
     display: flex;
     align-items: center;

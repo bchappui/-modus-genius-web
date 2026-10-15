@@ -39,4 +39,4 @@
     color: rgba(220, 230, 245, 0.8);
     cursor: pointer;
 }
-.hn-secondary:disabled, .eim-redeem-btn:disabled { opacity: 0.55; cursor: default; }
+.hn-secondary:disabled, .eim-redeem-btn:disabled { opacity: 0.55; filter: none; cursor: default; }
