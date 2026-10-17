@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import SearchModal from '../modals/SearchModal.jsx'
 import TopNav from '../shared/TopNav.jsx'
+import AgentProfileCard from '../overlays/AgentProfileCard.jsx'
 import { SKILL_CATEGORIES } from '../../lib/categories.js'
 import { getHofWinner, getRankWinner } from '../../lib/hof.js'
 import { getNextSeasonEnd } from '../../lib/seasons.js'
@@ -88,9 +89,11 @@ const getFlagImageUrl = (isoCode) => (
 const GeniusPage = ({
     searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowNewsletter, onShowCommunity, onShowQuotes, onShowCreate, onShowSubscribe,
     onShowFavorites, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
-    agentAvatar, onOpenProfile, initialTab,
+    agentAvatar, onOpenProfile, initialTab, agentId, viewerMembershipTier,
 }) => {
     const [searchModalOpen, setSearchModalOpen] = useState(false);
+    // Winner whose profile card is open (tapping a card inside a wreath).
+    const [profileId, setProfileId] = useState(null);
     const [activeTab, setActiveTab] = useState(initialTab || 'Radar');
     const [hofYear, setHofYear] = useState(HOF_YEARS[0]);
     const [hofWinners, setHofWinners] = useState({});
@@ -259,13 +262,23 @@ const GeniusPage = ({
                                     <div className="gp-hof-winner">
                                         <div className="gp-hof-wreath-body">
                                             <img src={HOF_WREATH_URL} alt="" className="gp-hof-wreath-img" />
-                                            <div className="gp-hof-card-wrap">
-                                                {winner?.agent?.avatar ? (
-                                                    <img src={winner.agent.avatar} alt="" className="gp-hof-card" />
-                                                ) : (
+                                            {winner?.agent?.$id ? (
+                                                <button
+                                                    className="gp-hof-card-wrap gp-hof-card-wrap--btn"
+                                                    onClick={() => setProfileId(winner.agent.$id)}
+                                                    aria-label={`Open ${winner.agent.name || 'winner'}'s profile`}
+                                                >
+                                                    {winner.agent.avatar ? (
+                                                        <img src={winner.agent.avatar} alt="" className="gp-hof-card" />
+                                                    ) : (
+                                                        <div className="gp-hof-card gp-hof-card--placeholder" />
+                                                    )}
+                                                </button>
+                                            ) : (
+                                                <div className="gp-hof-card-wrap">
                                                     <div className="gp-hof-card gp-hof-card--placeholder" />
-                                                )}
-                                            </div>
+                                                </div>
+                                            )}
                                         </div>
                                         {winnersLoading ? (
                                             <p className="gp-hof-empty">Loading…</p>
@@ -293,6 +306,16 @@ const GeniusPage = ({
                     </div>
                 </div>
             </div>
+
+            {profileId && (
+                <AgentProfileCard
+                    agentId={profileId}
+                    onClose={() => setProfileId(null)}
+                    viewerAgentId={agentId}
+                    viewerMembershipTier={viewerMembershipTier}
+                    onShowSubscribe={onShowSubscribe}
+                />
+            )}
         </div>
     );
 };

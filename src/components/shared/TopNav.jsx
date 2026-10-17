@@ -1,5 +1,8 @@
 import React from 'react'
 import { FiSearch, FiUser } from 'react-icons/fi'
+import { GoHomeFill } from 'react-icons/go'
+import { IoAlbums, IoChatbubbles, IoNewspaper, IoSearch } from 'react-icons/io5'
+import { FaPlus, FaRankingStar } from 'react-icons/fa6'
 import '../pages/ExplorePage.css'
 import { useHouse } from '../../lib/houseContext.js'
 
@@ -19,6 +22,24 @@ const TopNav = ({
     agentAvatar, onOpenProfile, onOpenSearch,
 }) => {
     const { myHouse, housesEnabled, openCommunityView } = useHouse();
+    // Phone-only bottom tab bar (replaces the top links below 640px) — a copy
+    // of the modus_genius app's tab bar: gold when active, grey-blue otherwise.
+    // Like the top links, the active tab stays tappable unless
+    // `disableActiveLink` (e.g. Community from inside a house forum goes back
+    // to the main forum).
+    const renderTab = (key, label, Icon, onClick, active) => {
+        const disabled = active && disableActiveLink;
+        return (
+            <button
+                className={`ep-tab${active ? ' ep-tab--active' : ''}${disabled ? ' ep-tab--static' : ''}`}
+                onClick={disabled ? undefined : onClick}
+                aria-current={active ? 'page' : undefined}
+            >
+                <Icon size={20} />
+                <span className="ep-tab-label">{label}</span>
+            </button>
+        );
+    };
     const renderLink = (key, label, onClick) => {
         const active = activeLink === key;
         if (active && disableActiveLink) {
@@ -35,6 +56,7 @@ const TopNav = ({
     };
 
     return (
+        <>
         <div className="ep-nav" style={{ backgroundImage: `url(${NAV_BG_URL})` }}>
             <div className="ep-nav-logo">
                 <img src={LOGO_TEXT_URL} alt="Modus Genius" className="ep-nav-logo-img" />
@@ -61,7 +83,7 @@ const TopNav = ({
                     )
                 )}
                 {!isLoggedIn && (
-                    <button className="ep-nav-login" onClick={onLogout}>Log in</button>
+                    <button className="ep-nav-login ep-nav-login--signin" onClick={onLogout}>Log in</button>
                 )}
                 <button className="ep-nav-membership" onClick={onShowSubscribe}>Membership</button>
                 <button className="ep-nav-search-btn" onClick={onOpenSearch} aria-label="Search">
@@ -87,6 +109,31 @@ const TopNav = ({
                 )}
             </div>
         </div>
+        {/* Outside .ep-nav so its z-index isn't capped by .ep-nav's stacking context. */}
+        <nav className="ep-tabbar" style={{ backgroundImage: `url(${NAV_BG_URL})` }}>
+            {/* Gradient the active tab's icon is filled with (see .ep-tab--active svg). */}
+            <svg className="ep-tab-defs" aria-hidden="true">
+                <defs>
+                    <linearGradient id="ep-tab-active-grad" x1="0" y1="0" x2="1" y2="0.2">
+                        <stop offset="0%" stopColor="#ffd23f" />
+                        <stop offset="55%" stopColor="#ffb83a" />
+                        <stop offset="100%" stopColor="#ff9235" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            {renderTab('home', 'Home', GoHomeFill, onGoHome, activeLink === 'home')}
+            {renderTab('explore', 'Card List', IoAlbums, onGoToExplore, activeLink === 'explore')}
+            {renderTab('newsletter', 'Newsletter', IoNewspaper, onShowNewsletter, activeLink === 'newsletter')}
+            <button className="ep-tab-plus" onClick={onShowCreate} aria-label="Create">
+                <span className="ep-tab-plus-circle">
+                    <FaPlus size={20} />
+                </span>
+            </button>
+            {renderTab('search', 'Search', IoSearch, onOpenSearch, false)}
+            {renderTab('genius', 'Genius', FaRankingStar, onShowGenius, activeLink === 'genius')}
+            {renderTab('community', 'Community', IoChatbubbles, onShowCommunity, activeLink === 'community')}
+        </nav>
+        </>
     );
 };
 

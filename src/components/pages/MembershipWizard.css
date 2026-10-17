@@ -406,7 +406,22 @@
 .mw-step2-hero-padding { padding-bottom: 100px; }
 
 @media (max-width: 640px) {
-    .mw-step-heading { font-size: 26px; }
-    .mw-plan-table { max-width: 100%; grid-template-columns: 1fr 14px 72px 80px; }
-    .mw-billing-toggle-row { transform: none; }
+    /* No left offset / big top gap; on Step 2 content starts under the (smaller) badge. */
+    .mw-step-content { margin: 8px 0 0; max-width: none; }
+    .mw-step2-hero-padding .mw-step-content { margin-top: 84px; }
+    .mw-guarantee-badge-top { top: 8px; height: 72px; }
+    .mw-step-heading { font-size: 26px; margin-bottom: 28px; }
+    .mw-billing-toggle-row { transform: none; margin-bottom: 48px; }
+
+    .mw-plan-table { max-width: 100%; grid-template-columns: 1fr 8px 72px 80px; }
+    .mw-plan-col-head { padding: 26px 4px 18px; }
+    .mw-plan-col-head--extra .mw-plan-col-name { font-size: 17px; }
+    .mw-plan-col-price { font-size: 15px; }
+    .mw-plan-badge { padding: 4px 8px; font-size: 9px; }
+    .mw-plan-row-label { gap: 8px; font-size: 12px; }
+    .mw-plan-row-highlight { margin: 0 8px 0 -6px; padding-right: 24px; }
+    .mw-plan-row-highlight-title { font-size: 13px; }
+
+    /* Continue bar sits on top of the phone tab bar instead of under it. */
+    .mw-sticky-bar { bottom: calc(54px + env(safe-area-inset-bottom)); padding: 10px 16px; }
 }

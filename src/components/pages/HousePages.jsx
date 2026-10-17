@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { FiUser } from 'react-icons/fi'
+import { FiLock, FiPlus, FiUser, FiX } from 'react-icons/fi'
 import { MdKeyboardArrowLeft } from 'react-icons/md'
 import { FaQuoteLeft, FaQuoteRight } from 'react-icons/fa'
 import Spinner from '../shared/Spinner.jsx'
@@ -196,7 +196,9 @@ export const YourRequestsBox = ({ agentId, myEmail, onOpenHouse, refreshKey = 0 
 
 // ── house requests box (member side, top of the private forum) ───────
 
-const HouseRequestsBox = ({ house, agentId, myEmail, isOwner, onMembersChanged, refreshKey = 0 }) => {
+// `onPendingCount` (optional) receives how many requests wait for this viewer —
+// the phone layout shows it on the Requests tab.
+const HouseRequestsBox = ({ house, agentId, myEmail, isOwner, onMembersChanged, onPendingCount, refreshKey = 0 }) => {
     const [joins, setJoins] = useState([]);
     const [expertise, setExpertise] = useState([]);
     const [busyId, setBusyId] = useState(null);
@@ -213,6 +215,11 @@ const HouseRequestsBox = ({ house, agentId, myEmail, isOwner, onMembersChanged, 
     useEffect(() => { load(); }, [load, refreshKey]);
 
     const people = useAgents([...joins.map(r => r.agentId), ...expertise.flatMap(r => [r.requesterId, r.responderId])]);
+
+    const pendingCount = joins.length + expertise.filter(r =>
+        r.status === 'pending' || (r.status === 'accepted' && r.responderId === agentId && r.responderConsent === 'waiting')
+    ).length;
+    useEffect(() => { onPendingCount?.(pendingCount); }, [pendingCount, onPendingCount]);
 
     const run = async (id, fn) => {
         setBusyId(id);
@@ -454,8 +461,14 @@ export const HousesListView = ({ ranked, loading, onBack, onOpenHouse }) => {
 const useHouseForum = ({
     houseId, askId, agentId, agentName, agentAvatar, myEmail, myHouse, ranked, badges,
     onOpenView, onBack, onHouseChanged, onRequireAuth, viewerMembershipTier, onShowSubscribe, requestsKey,
+    isPhone = false,
 }) => {
     const [house, setHouse] = useState(null);
+    // Phone layout only: active tab, composer sheet, "about this forum" text, Requests badge.
+    const [phoneTab, setPhoneTab] = useState('discussions');
+    const [composerOpen, setComposerOpen] = useState(false);
+    const [aboutOpen, setAboutOpen] = useState(false);
+    const [pendingRequests, setPendingRequests] = useState(0);
     const [loading, setLoading] = useState(true);
     const [asks, setAsks] = useState([]);
     const [hasMore, setHasMore] = useState(false);
@@ -525,9 +538,10 @@ const useHouseForum = ({
         };
     }
 
-    const left = (
-        <aside className="cmty-panel cmty-side hs-members-panel">
-            <h2 className="cmty-panel-title">Members</h2>
+    const badgesByMember = new Map();
+    memberBadges.forEach(b => badgesByMember.set(b.agentId, (badgesByMember.get(b.agentId) || 0) + 1));
+
+    const memberList = (
             <div className="hs-member-list">
                 {(house.memberIds || []).map(id => {
                     const m = members.get(id);
@@ -538,6 +552,11 @@ const useHouseForum = ({
                                 <Diamond src={m?.avatar} size={40} />
                                 <span className="cmty-house-name">{m?.name || 'Member'}{id === house.ownerId ? ' (owner)' : ''}</span>
                             </button>
+                            {isPhone && (
+                                <span className="hs-member-badges" title="Gold badges">
+                                    <GoldCheck />{badgesByMember.get(id) || 0}
+                                </span>
+                            )}
                             {canRemove && (confirm?.type === 'remove' && confirm.id === id ? (
                                 <span className="hs-member-actions">
                                     <button className="cmty-link-btn cmty-delete-btn--confirm" disabled={busy}
@@ -553,6 +572,9 @@ const useHouseForum = ({
                     );
                 })}
             </div>
+    );
+
+    const manage = (
             <div className="hs-manage">
                 {error && <p className="cmty-error">{error}</p>}
                 {isOwner ? (
@@ -584,18 +606,25 @@ const useHouseForum = ({
                     )
                 )}
             </div>
-            {profileId && (
-                <Overlay>
-                    <AgentProfileCard agentId={profileId} onClose={() => setProfileId(null)}
-                        viewerAgentId={agentId} viewerMembershipTier={viewerMembershipTier} onShowSubscribe={onShowSubscribe} />
-                </Overlay>
-            )}
+    );
+
+    const profileOverlay = profileId && (
+        <Overlay>
+            <AgentProfileCard agentId={profileId} onClose={() => setProfileId(null)}
+                viewerAgentId={agentId} viewerMembershipTier={viewerMembershipTier} onShowSubscribe={onShowSubscribe} />
+        </Overlay>
+    );
+
+    const left = (
+        <aside className="cmty-panel cmty-side hs-members-panel">
+            <h2 className="cmty-panel-title">Members</h2>
+            {memberList}
+            {manage}
+            {profileOverlay}
         </aside>
     );
 
-    const right = (
-        <aside className="cmty-panel cmty-side hs-badges-panel">
-            <RankPill house={rankedHouse} />
+    const badgeList = (
             <div className="hs-badge-list">
                 {badgeAsks.length === 0 ? (
                     <p className="hs-muted">No gold badges yet. Members earn one when their answer is the most starred on a Community question.</p>
@@ -607,6 +636,12 @@ const useHouseForum = ({
                     </button>
                 ))}
             </div>
+    );
+
+    const right = (
+        <aside className="cmty-panel cmty-side hs-badges-panel">
+            <RankPill house={rankedHouse} />
+            {badgeList}
         </aside>
     );
 
@@ -615,6 +650,56 @@ const useHouseForum = ({
         setAsks(prev => prev.map(a => a.$id === askIdToReply ? { ...a, replyCount } : a));
         setReplyOpenId(null);
     };
+
+    const openHouseAsk = (id) => onOpenView({ kind: 'houseAsk', houseId, askId: id });
+
+    const requestsBox = (
+        <HouseRequestsBox house={house} agentId={agentId} myEmail={myEmail} isOwner={isOwner}
+            onMembersChanged={() => { loadHouse(); onHouseChanged?.(); }}
+            onPendingCount={setPendingRequests} refreshKey={requestsKey} />
+    );
+
+    // `onDone` closes the phone sheet once the question is posted.
+    const composer = (onDone) => (
+        <AskComposer
+            agentId={agentId}
+            agentName={agentName}
+            agentAvatar={agentAvatar}
+            onRequireAuth={onRequireAuth}
+            createFn={(fields) => createHouseAsk({ ...fields, houseId })}
+            onCreated={(ask) => {
+                setAsks(prev => [{ ...ask, agent: { $id: agentId, name: agentName, avatar: agentAvatar } }, ...prev]);
+                onDone?.();
+            }}
+        />
+    );
+
+    const askList = asksLoading ? (
+        <div className="cmty-empty"><Spinner /></div>
+    ) : asks.length === 0 ? (
+        <p className="cmty-empty">No questions yet — start the conversation.</p>
+    ) : (
+        <>
+            {asks.map(ask => (
+                <React.Fragment key={ask.$id}>
+                    <AskCard
+                        ask={ask}
+                        showStars={false}
+                        showBookmark={false}
+                        onOpenComments={() => openHouseAsk(ask.$id)}
+                        onOpen={isPhone ? () => openHouseAsk(ask.$id) : undefined}
+                        onReply={() => setReplyOpenId(id => id === ask.$id ? null : ask.$id)}
+                    />
+                    {replyOpenId === ask.$id && <CommentBox autoFocus onSubmit={(text) => handleReply(ask.$id, text)} />}
+                </React.Fragment>
+            ))}
+            {hasMore && (
+                <div className="cmty-more-row">
+                    <button className="cmty-link-btn" onClick={() => fetchAsks(false)}>See more questions…</button>
+                </div>
+            )}
+        </>
+    );
 
     const center = askId ? (
         <AskDetail
@@ -640,53 +725,128 @@ const useHouseForum = ({
                     Requests to join your house and requests for expertise appear in the box below.
                 </p>
             </div>
-
-            <HouseRequestsBox house={house} agentId={agentId} myEmail={myEmail} isOwner={isOwner}
-                onMembersChanged={() => { loadHouse(); onHouseChanged?.(); }} refreshKey={requestsKey} />
-
-            <AskComposer
-                agentId={agentId}
-                agentName={agentName}
-                agentAvatar={agentAvatar}
-                onRequireAuth={onRequireAuth}
-                createFn={(fields) => createHouseAsk({ ...fields, houseId })}
-                onCreated={(ask) => setAsks(prev => [{ ...ask, agent: { $id: agentId, name: agentName, avatar: agentAvatar } }, ...prev])}
-            />
-
-            {asksLoading ? (
-                <div className="cmty-empty"><Spinner /></div>
-            ) : asks.length === 0 ? (
-                <p className="cmty-empty">No questions yet — start the conversation.</p>
-            ) : (
-                <>
-                    {asks.map(ask => (
-                        <React.Fragment key={ask.$id}>
-                            <AskCard
-                                ask={ask}
-                                showStars={false}
-                                showBookmark={false}
-                                onOpenComments={() => onOpenView({ kind: 'houseAsk', houseId, askId: ask.$id })}
-                                onReply={() => setReplyOpenId(id => id === ask.$id ? null : ask.$id)}
-                            />
-                            {replyOpenId === ask.$id && <CommentBox autoFocus onSubmit={(text) => handleReply(ask.$id, text)} />}
-                        </React.Fragment>
-                    ))}
-                    {hasMore && (
-                        <div className="cmty-more-row">
-                            <button className="cmty-link-btn" onClick={() => fetchAsks(false)}>See more questions…</button>
-                        </div>
-                    )}
-                </>
-            )}
+            {requestsBox}
+            {composer()}
+            {askList}
         </>
     );
 
-    return { left, center, right };
+    // On a phone, a question's own page is just the question (no side panels).
+    if (askId && isPhone) return { center, phone: true };
+    if (askId || !isPhone) return { left, center, right };
+
+    // ── Phone: compact header + Discussions / Members / Requests tabs ──
+    const phoneTabs = [
+        { key: 'discussions', label: 'Discussions' },
+        { key: 'members', label: 'Members' },
+        { key: 'requests', label: 'Requests', count: pendingRequests },
+    ];
+    const phoneCenter = (
+        <div className="hs-phone">
+            <BackLink label="Back to Community" onClick={onBack} />
+            <div className="hs-phone-head">
+                <Diamond src={house.image} size={58} />
+                <div className="hs-phone-info">
+                    <h1 className="hs-phone-name">{house.name}</h1>
+                    <div className="hs-phone-stats">
+                        <RankPill house={rankedHouse} />
+                        <span className="hs-phone-members">{(house.memberIds || []).length}/{MAX_HOUSE_MEMBERS} members</span>
+                    </div>
+                    <div className="hs-phone-private">
+                        <FiLock size={12} />
+                        <span>Private · only members see this</span>
+                        <button
+                            className="hs-phone-about-btn"
+                            onClick={() => setAboutOpen(o => !o)}
+                            aria-expanded={aboutOpen}
+                            aria-label="About this private forum"
+                        >
+                            i
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {aboutOpen && (
+                <p className="hs-phone-about">
+                    Only the members of {house.name} can see this page. Use it to discuss freely with each other:
+                    questions and answers posted here don&apos;t earn stars or gold badges and don&apos;t count in the house ranking.
+                </p>
+            )}
+
+            <div className="cmty-phone-sticky">
+                <div className="cmty-phone-tabs" role="tablist" aria-label="House sections">
+                    {phoneTabs.map(t => (
+                        <button
+                            key={t.key}
+                            role="tab"
+                            aria-selected={phoneTab === t.key}
+                            className={`cmty-phone-tab${phoneTab === t.key ? ' cmty-phone-tab--active' : ''}`}
+                            onClick={() => setPhoneTab(t.key)}
+                        >
+                            {t.label}
+                            {t.count > 0 && <span className="hs-phone-count">{t.count}</span>}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {phoneTab === 'discussions' && (
+                <div className="cmty-phone-section">
+                    <button className="cmty-phone-askbar" onClick={() => setComposerOpen(true)}>
+                        <span className="cmty-phone-askbar-avatar">
+                            {agentAvatar ? <img src={agentAvatar} alt="" /> : <FiUser size={16} />}
+                        </span>
+                        <span className="cmty-phone-askbar-text">Ask your House…</span>
+                        <FiPlus size={20} className="cmty-phone-askbar-plus" />
+                    </button>
+                    {askList}
+                </div>
+            )}
+
+            {phoneTab === 'members' && (
+                <div className="cmty-phone-section">
+                    <div className="cmty-panel hs-phone-panel">{memberList}</div>
+                    <h2 className="hs-phone-section-title">Gold badges</h2>
+                    <div className="cmty-panel hs-phone-panel">{badgeList}</div>
+                    <div className="hs-phone-danger">
+                        <h2 className="hs-phone-danger-title">{isOwner ? 'Danger zone' : 'Leave'}</h2>
+                        {manage}
+                    </div>
+                </div>
+            )}
+
+            {/* Kept mounted (just hidden) so the Requests tab badge stays up to date. */}
+            <div className="cmty-phone-section" style={phoneTab === 'requests' ? undefined : { display: 'none' }}>
+                {requestsBox}
+            </div>
+
+            {profileOverlay}
+            {composerOpen && (
+                <Overlay>
+                    <div className="cmty-sheet-backdrop" onClick={() => setComposerOpen(false)}>
+                        <div className="cmty-sheet" role="dialog" aria-modal="true" aria-label="Ask your House" onClick={e => e.stopPropagation()}>
+                            <div className="cmty-sheet-head">
+                                <h2 className="cmty-sheet-title">Ask your House</h2>
+                                <button className="cmty-sheet-close" onClick={() => setComposerOpen(false)} aria-label="Close">
+                                    <FiX size={20} />
+                                </button>
+                            </div>
+                            {composer(() => setComposerOpen(false))}
+                        </div>
+                    </div>
+                </Overlay>
+            )}
+        </div>
+    );
+
+    return { center: phoneCenter, phone: true };
 };
 
-// The 3 columns of the private forum, dropped into CommunityPage's layout.
+// The private forum, dropped into CommunityPage's layout: 3 columns on
+// desktop, a single tabbed column on phones.
 export const HouseForumView = (props) => {
-    const { left, center, right } = useHouseForum(props);
+    const { left, center, right, phone } = useHouseForum(props);
+    if (phone) return <section className="cmty-center">{center}</section>;
     return (
         <>
             {left || <aside className="cmty-panel cmty-side" />}

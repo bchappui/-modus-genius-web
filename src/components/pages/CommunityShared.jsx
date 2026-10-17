@@ -219,8 +219,13 @@ const AskComposer = ({ agentId, agentName, agentAvatar, onRequireAuth, onCreated
 };
 
 // ── One question in the list ──
-const AskCard = ({ ask, isBookmarked, onBookmark, onOpenComments, onReply, showImage = false, hideReply = false, showStars = true, showBookmark = true }) => (
-    <article className="cmty-ask">
+// `onOpen` (optional) makes the whole card open the question — taps on the
+// card's own buttons (bookmark, comments, reply) keep their own action.
+const AskCard = ({ ask, isBookmarked, onBookmark, onOpenComments, onReply, onOpen, showImage = false, hideReply = false, showStars = true, showBookmark = true }) => (
+    <article
+        className={`cmty-ask${onOpen ? ' cmty-ask--tappable' : ''}`}
+        onClick={onOpen ? (e) => { if (!e.target.closest('button, a, input, textarea')) onOpen(); } : undefined}
+    >
         <div className="cmty-ask-head">
             <div className="cmty-author">
                 <Avatar src={ask.agent?.avatar} />

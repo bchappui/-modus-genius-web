@@ -210,6 +210,14 @@
     overflow: hidden;
     box-shadow: 0 0 0 3px rgba(201,151,44,0.7);
 }
+.gp-hof-card-wrap--btn {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+}
+.gp-hof-card-wrap--btn:hover { box-shadow: 0 0 0 3px rgb(230, 175, 90), 0 8px 24px rgba(0, 0, 0, 0.45); }
 .gp-hof-card {
     width: 100%;
     height: 100%;
@@ -279,4 +287,32 @@
     background: rgba(201, 151, 44, 0.15);
     border-color: rgba(230, 175, 90, 0.6);
     color: rgb(230, 175, 90);
+}
+
+/* ── Phones ── */
+@media (max-width: 640px) {
+    .gp-intro { margin: 0; max-width: none; }
+    .gp-genius-logo { height: 60px; }
+    .gp-genius-10 { margin-top: 20px; font-size: 26px; }
+    .gp-tagline { font-size: 28px; }
+    .gp-subtext { font-size: 14px; margin-bottom: 20px; }
+
+    .gp-tabs { gap: 8px; }
+    .gp-tab { flex: 1; max-width: 84px; width: auto; height: 84px; gap: 6px; padding: 10px 4px; font-size: 12px; }
+    .gp-tab-icon { width: 38px; height: 38px; }
+    .gp-countdown-row { margin: 24px 0 16px; }
+    .gp-countdown-text { font-size: 20px; }
+
+    .gp-section { margin-top: 24px; }
+    .gp-section-text { font-size: 14px; }
+    .gp-hof-years { flex-wrap: wrap; gap: 8px; }
+
+    /* Winner wreaths: page-width column instead of the desktop's 100vw bleed. */
+    .gp-hof-entry { width: auto; margin-left: 0; margin-top: 56px; }
+    .gp-hof-category-title { font-size: 26px; margin-bottom: 12px; }
+    .gp-hof-wreath-body { width: min(320px, 100%); }
+    .gp-hof-card-wrap { width: 52%; }
+    .gp-hof-flag { margin-top: -56px; width: 52px; }
+    .gp-hof-name { font-size: 26px; margin-top: 18px; }
+    .gp-hof-title { font-size: 16px; }
 }

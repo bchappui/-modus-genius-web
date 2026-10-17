@@ -289,3 +289,105 @@ button.hs-req-house { cursor: pointer; }
    other panel titles (.cmty-panel-title, e.g. "Categories"). */
 .hs-panel-heading { margin: 22px 0 0; }
 .hs-panel-heading + .cmty-houses-header { margin-top: 12px; }
+
+/* ── Phones ── */
+@media (max-width: 640px) {
+    .hs-list-panel { padding: 8px 12px; }
+    .hs-list-row { grid-template-columns: 28px 40px 1fr 54px 48px; gap: 6px; }
+    .hs-list-row--head { font-size: 11px; }
+}
+
+/* ── Private forum, phone layout (useHouseForum's `phoneCenter`): compact
+   header + Discussions / Members / Requests tabs. Only rendered below 640px.
+   Tabs, sticky bar, ask bar and sheet reuse CommunityPage.css's cmty-phone-*. ── */
+.hs-phone { display: flex; flex-direction: column; gap: 12px; }
+.hs-phone > .cmty-back-btn { align-self: flex-start; }
+.hs-phone-head { display: flex; align-items: center; gap: 16px; }
+.hs-phone-info { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.hs-phone-name {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.2;
+    text-align: left;
+    color: rgb(220, 228, 242);
+    overflow-wrap: anywhere;
+}
+.hs-phone-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.hs-phone-stats .hs-rank-pill { align-self: auto; gap: 6px; padding: 3px 10px; font-size: 17px; }
+.hs-phone-stats .hs-rank-icon { width: 28px; height: 28px; margin: -3px 0; }
+.hs-phone-stats .hs-rank-icon + span { margin-left: -4px; }
+.hs-phone-stats .hs-rank-pill .cmty-gold-check { width: 32px; height: 32px; margin: -5px 0; }
+.hs-phone-stats .hs-rank-pill .cmty-gold-check + span { margin-left: -5px; }
+.hs-phone-members { font-size: 13px; font-weight: 700; color: var(--cmty-text); }
+.hs-phone-private { display: flex; align-items: center; gap: 6px; font-size: 12px; font-style: italic; color: var(--cmty-text); opacity: 0.85; }
+.hs-phone-about-btn {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(170, 190, 225, 0.3);
+    background: rgb(4, 29, 53);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    font-style: normal;
+    color: var(--cmty-text);
+    cursor: pointer;
+}
+.hs-phone-about {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(170, 190, 225, 0.22);
+    background: rgb(4, 29, 53);
+    font-size: 13px;
+    line-height: 1.5;
+}
+/* Red count of requests waiting for the viewer, on the Requests tab. */
+.hs-phone-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 5px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgb(225, 70, 70);
+    color: #fff;
+    font-size: 10px;
+    font-style: normal;
+    vertical-align: 1px;
+}
+.hs-phone-panel { padding: 14px; }
+.hs-phone-section-title {
+    margin: 6px 0 -4px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cmty-text);
+    opacity: 0.8;
+}
+/* Gold-badge count next to each member. */
+.hs-member-badges { display: inline-flex; align-items: center; margin-left: auto; font-weight: 900; font-style: italic; color: rgb(230, 175, 60); }
+.hs-member-badges .cmty-gold-check { width: 30px; height: 30px; margin: -6px -2px -6px 0; }
+
+/* Delete / leave, set apart at the bottom of the Members tab. */
+.hs-phone-danger {
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(225, 70, 70, 0.35);
+    background: rgba(225, 70, 70, 0.1);
+}
+.hs-phone-danger-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgb(255, 130, 130);
+}
+.hs-phone-danger .hs-manage { margin-top: 8px; }

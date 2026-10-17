@@ -543,6 +543,8 @@
     background: var(--bg);
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
+.apc-rc-banner-avatar--btn { cursor: pointer; transition: transform 0.15s; }
+.apc-rc-banner-avatar--btn:hover { transform: scale(1.05); }
 .apc-rc-banner-avatar-frame {
     position: absolute;
     inset: 5px;

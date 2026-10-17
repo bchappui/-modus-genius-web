@@ -113,6 +113,18 @@ const HomePage = ({
         return () => clearInterval(id);
     }, []);
 
+    // Swipe left/right on the hero carousel (phones have no visible arrows).
+    const touchStartX = useRef(null);
+    const onSlideTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+    const onSlideTouchEnd = (e) => {
+        if (touchStartX.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        touchStartX.current = null;
+        if (Math.abs(dx) < 40) return;
+        const step = dx < 0 ? 1 : -1;
+        setSlideIndex(prev => (prev + step + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length);
+    };
+
     const [top10, setTop10] = useState({ data: [], loading: true });
     const [missed, setMissed] = useState({ data: [], loading: true });
     const [newIn, setNewIn] = useState({ data: [], loading: true });
@@ -199,7 +211,7 @@ const HomePage = ({
                         >
                             <FiChevronRight size={22} />
                         </button>
-                        <div className="hp-slide-viewport">
+                        <div className="hp-slide-viewport" onTouchStart={onSlideTouchStart} onTouchEnd={onSlideTouchEnd}>
                             <div
                                 className="hp-slide-track"
                                 style={{

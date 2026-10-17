@@ -404,12 +404,130 @@
     line-height: 1.3;
 }
 
-@media (max-width: 640px) {
-    .ep-nav-links { display: none; }
-    .ep-nav-create, .ep-nav-tagline { display: none; }
-    .ep-hero-medallion { opacity: 0.35; width: 320px; height: 320px; right: -100px; }
-    .ep-headline { font-size: 28px; }
-}
-
 /* Round house button (private house forum), left of the avatar. */
 .ep-nav-house { margin-right: 12px; box-shadow: 0 0 0 2px rgb(201, 151, 44); }
+
+/* ── Phone bottom tab bar — modelled on modus_genius/app/(root)/(tabs)/_layout.tsx
+   (gold active tab, grey-blue inactive ones, raised "+" in the middle), on
+   the same background image as the top bar (set inline in TopNav). ── */
+.ep-tabbar {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 900;
+    height: 54px;
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: #0e1c30;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.7);
+    align-items: stretch;
+}
+.ep-tab {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 0 2px;
+    background: none;
+    border: none;
+    color: rgb(137, 162, 189);
+    cursor: pointer;
+}
+/* Active tab: icon and label in the same orange gradient as the "+" button. */
+.ep-tab--active { color: #ffb83a; }
+.ep-tab--static { cursor: default; }
+.ep-tab--active svg { fill: url(#ep-tab-active-grad); }
+.ep-tab--active .ep-tab-label {
+    background: linear-gradient(100deg, #ffd23f 0%, #ffb83a 55%, #ff9235 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+}
+.ep-tab-defs { position: absolute; width: 0; height: 0; }
+.ep-tab-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-size: 8px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: -0.2px;
+    padding-right: 1px; /* italic overhang */
+    text-shadow: 0.3px 0.3px 0.3px rgb(137, 162, 189);
+}
+.ep-tab-plus {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 60px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+/* Raised round button in the site's orange call-to-action gradient (same as
+   Membership); the dark ring cuts it out of the bar like a notch. */
+.ep-tab-plus-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-top: -16px;
+    border-radius: 50%;
+    border: 3px solid #0e1c30;
+    background: linear-gradient(100deg, #ffd23f 0%, #ffb83a 55%, #ff9235 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 14px rgba(255, 146, 53, 0.35);
+    color: #16181f;
+}
+.ep-tab-plus:active .ep-tab-plus-circle { transform: scale(0.94); }
+
+@media (max-width: 640px) {
+    .ep-nav { gap: 10px; padding: 10px 12px; justify-content: space-between; }
+    .ep-nav-logo-img { height: 40px; margin-top: 0; }
+    .ep-nav-links { display: none; }
+    .ep-nav-create, .ep-nav-login, .ep-nav-tagline { display: none; }
+    .ep-nav-right { gap: 12px; margin-right: 0; }
+    .ep-nav-membership { font-size: 11px; padding: 6px 10px; }
+    .ep-nav-avatar-wrap { margin: 0; padding: 0; }
+    .ep-nav-avatar { width: 34px; height: 34px; }
+    .ep-nav-house { margin-right: 8px; }
+    .ep-nav-login--signin { display: inline; }
+    .ep-nav-search-btn { display: none; }
+    .ep-tabbar { display: flex; }
+    /* Keep the page's last row clear of the fixed tab bar. */
+    body:has(.ep-tabbar) { padding-bottom: calc(54px + env(safe-area-inset-bottom)); }
+    .ep-hero { padding: 24px 16px 40px; }
+    .ep-hero-medallion { opacity: 0.35; width: 760px; height: 646px; right: -400px; top: -60px; }
+    .ep-medallion-text { display: none; }
+    .ep-headline { font-size: 28px; }
+
+    /* Card List */
+    .ep-hero-intro { margin-top: 8px; }
+    .ep-subtext { font-size: 14px; margin-bottom: 20px; }
+    .ep-search-row { margin-bottom: 24px; }
+    /* 16px+ keeps iOS Safari from zooming the page when the field is focused. */
+    .ep-search-input { font-size: 16px; padding: 0 14px; }
+    .ep-categories-title { font-size: 26px; margin: 12px 0 14px; }
+    .ep-categories-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .ep-category-card { gap: 8px; padding: 14px 8px; border-radius: 12px; }
+    .ep-category-icon { width: 60px; height: 60px; }
+    .ep-category-label { font-size: 12px; overflow-wrap: anywhere; }
+    .ep-results-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .ep-results-grid .hp-hashtag-item { width: auto; }
+}
+

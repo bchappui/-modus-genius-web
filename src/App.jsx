@@ -915,6 +915,8 @@ const App = () => {
                     agentAvatar={agentProfile?.avatar}
                     onOpenProfile={() => setAccountMenuOpen(true)}
                     initialTab={geniusInitialTab}
+                    agentId={authUser ? agentId : null}
+                    viewerMembershipTier={getTier(agentProfile?.membershipTier).key}
                 />
             ) : showQuotes ? (
                 <QuotesPage

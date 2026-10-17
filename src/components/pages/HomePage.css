@@ -334,3 +334,33 @@
     background-clip: text;
 }
 .hp-hashtag-item:hover .hp-hashtag-img { filter: brightness(0.92); }
+
+/* ── Phones — smaller type, swipe instead of arrows, narrower cards. ── */
+@media (max-width: 640px) {
+    .hp-intro { margin-top: 0; }
+    .hp-headline { font-size: 26px; margin-bottom: 10px; }
+    .hp-hashtag { font-size: 26px; margin-bottom: 16px; }
+    .hp-badge:not(.hp-badge--large) { width: 90px; height: 90px; margin-bottom: 18px; }
+    /* Let the carousel run edge to edge so the image slides get the full width. */
+    .hp-intro { margin-left: -16px; margin-right: -16px; }
+    .hp-learn-btn { margin-bottom: 16px; }
+
+    .hp-wreath-slide .hp-headline { margin-top: 0; }
+    .hp-wreath-img { max-width: 150px; }
+    .hp-wreath-line { font-size: 14px; }
+    .hp-wreath-btn { bottom: -36px; }
+
+    .hp-row-arrow { display: none; }
+    .hp-dots { gap: 4px; }
+    .hp-dot { width: 8px; height: 8px; margin: 6px; }
+
+    .hp-section { margin-top: 16px; }
+    .hp-top10-title { font-size: 26px; margin: 28px 0 12px; }
+    .hp-top10-row { gap: 12px; padding-top: 12px; }
+    .hp-hashtag-row { gap: 12px; }
+    .hp-top10-item { padding-left: 46px; }
+    .hp-top10-rank { font-size: 110px; bottom: -10px; }
+    .hp-top10-img,
+    .hp-hashtag-item { width: 120px; }
+    .hp-hashtag-name { font-size: 13px; }
+}

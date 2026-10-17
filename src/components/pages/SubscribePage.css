@@ -143,6 +143,11 @@
 @media (max-width: 640px) {
     .sp-hero { padding: 40px 5vw 60px; }
     .sp-headline { font-size: 26px; }
+    /* Pages with the standalone logo (no TopNav, e.g. Membership step 3):
+       smaller logo, and the content starts below it instead of under it. */
+    .sp-logo-btn { top: 12px; left: 16px; }
+    .sp-logo-btn .ep-nav-logo-img { height: 44px; }
+    .sp-logo-btn ~ .sp-hero { padding: 76px 16px 40px; }
 }
 
 /* ── Plan picker (Membership page) ── */

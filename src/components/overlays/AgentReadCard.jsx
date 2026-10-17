@@ -78,7 +78,9 @@ const TABS = [
 // gold level-diamond touching its bottom tip, hearts/stars pill counters
 // flanking that small diamond, the agent's name + a gold rosette badge, and
 // a "member since" caption — sits above the field sections in the Infos tab.
-export const ProfileBanner = ({ agent }) => {
+// `onAvatarClick` (optional) makes the diamond avatar tappable — the account
+// menu uses it to open the agent's own profile card.
+export const ProfileBanner = ({ agent, onAvatarClick }) => {
     const [stats, setStats] = useState(null);
 
     useEffect(() => {
@@ -114,7 +116,16 @@ export const ProfileBanner = ({ agent }) => {
         <div className="apc-rc-banner">
             <BannerSvgDefs />
 
-            <div className="apc-rc-banner-avatar">
+            <div
+                className={`apc-rc-banner-avatar${onAvatarClick ? ' apc-rc-banner-avatar--btn' : ''}`}
+                {...(onAvatarClick && {
+                    role: 'button',
+                    tabIndex: 0,
+                    'aria-label': 'View profile',
+                    onClick: onAvatarClick,
+                    onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onAvatarClick(); } },
+                })}
+            >
                 <div className="apc-rc-banner-avatar-frame">
                     <div className="apc-rc-banner-avatar-gold" />
                     <div className="apc-rc-banner-avatar-inner">

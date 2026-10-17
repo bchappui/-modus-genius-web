@@ -637,3 +637,237 @@
 /* Track follows its tallest slide (the map), so the dots sit below it. */
 .cmty-locked-intro .hp-slide-track { height: auto; align-items: center; }
 .cmty-locked-intro .hp-dots { margin-top: 18px; }
+
+/* ── Phones — locked page: full-width maps, button kept inside the page margins ── */
+@media (max-width: 640px) {
+    .cmty-locked-intro { margin-left: 0; margin-right: 0; }
+    .cmty-locked-slide,
+    .cmty-locked-slide--map { padding: 0; }
+    .cmty-locked-headline { font-size: 26px; }
+    /* Height follows the tallest slide (the map) so the dots sit right under it. */
+    .cmty-locked-intro .hp-slide-viewport { min-height: 0; }
+    .cmty-locked-intro .hp-dots { margin-top: 12px; }
+    .cmty-locked-btn { margin-top: 24px; font-size: 15px; }
+}
+
+/* ── Phones — open forum ── */
+@media (max-width: 760px) {
+    /* Houses panel is hidden from 1100px down; in the single-column phone
+       layout it comes back, right under the categories. */
+    .cmty-houses { display: flex; order: 1; }
+    .cmty-center { order: 2; }
+    /* House forum: the forum itself first, members/badges panels after it. */
+    .cmty-layout--house-forum .cmty-center { order: -1; }
+    .cmty-side:empty { display: none; }
+    .cmty-wide-center { margin-left: 0; }
+}
+@media (max-width: 640px) {
+    .cmty-side { padding: 16px 14px; }
+    .cmty-panel-title { margin-bottom: 12px; }
+    /* Categories: one swipeable row instead of an 18-pill block. */
+    .cmty-categories .cmty-category-list {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        margin: 0 -14px;
+        padding: 6px 14px 8px;
+        scrollbar-width: none;
+    }
+    .cmty-categories .cmty-category-list::-webkit-scrollbar { display: none; }
+    .cmty-categories .cmty-category-list > * { flex-shrink: 0; }
+
+    .cmty-houses-header { margin-top: 8px; }
+    .cmty-sort-row { flex-wrap: nowrap; gap: 6px; }
+    .cmty-sort-row .cmty-pill { flex: 1 1 auto; min-width: 0; padding: 5px 8px 5px 5px; font-size: 12px; gap: 4px; }
+    .wm-head { flex-wrap: wrap; }
+    .cmty-reply--nested { margin-left: 20px; }
+    /* A question's own page: just the question and its answers. */
+    .cmty-layout--ask .cmty-categories,
+    .cmty-layout--ask .cmty-houses { display: none; }
+}
+
+/* ── Phone layout of the main forum (CommunityForum's `phoneForum`):
+   Questions / Houses / Map tabs, sticky categories + sort, composer in a
+   bottom sheet. Only rendered below 640px, so no media query needed. ── */
+.cmty-phone { display: block; }
+/* Stays under the top of the screen while the list scrolls. */
+.cmty-phone-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin: 0 -16px;
+    padding: 10px 16px;
+    background: rgb(10, 24, 46);
+    box-shadow: 0 8px 12px -10px rgba(0, 0, 0, 0.9);
+}
+.cmty-phone-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 3px;
+    border-radius: 12px;
+    border: 1px solid rgba(170, 190, 225, 0.22);
+    background: rgb(4, 29, 53);
+}
+.cmty-phone-tab {
+    border: none;
+    border-radius: 9px;
+    background: none;
+    padding: 9px 4px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--cmty-text);
+    cursor: pointer;
+}
+.cmty-phone-tab--active {
+    background: linear-gradient(135deg, rgb(246, 207, 129), rgb(201, 151, 44));
+    color: rgb(20, 20, 20);
+}
+
+.cmty-phone-filters { display: grid; gap: 8px; margin-top: 10px; }
+.cmty-phone-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 4px 16px 6px;
+}
+.cmty-phone-chips::-webkit-scrollbar { display: none; }
+.cmty-phone-chips .cmty-pill { flex-shrink: 0; }
+.cmty-phone-sort { display: flex; gap: 18px; }
+.cmty-phone-sort-btn {
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    padding: 3px 0 5px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cmty-text);
+    opacity: 0.75;
+    cursor: pointer;
+}
+.cmty-phone-sort-btn--active { opacity: 1; color: rgb(220, 228, 242); border-bottom-color: rgb(215, 173, 82); }
+
+.cmty-phone-section { display: flex; flex-direction: column; gap: 14px; padding-top: 14px; }
+
+.cmty-phone-askbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(170, 190, 225, 0.22);
+    background: rgb(4, 29, 53);
+    box-shadow: 0 0 6px 1px rgba(190, 210, 245, 0.12);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.cmty-phone-askbar-avatar {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--cmty-text);
+}
+.cmty-phone-askbar-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.cmty-phone-askbar-text { flex: 1; font-size: 15px; font-weight: 500; color: var(--cmty-text); }
+.cmty-phone-askbar-plus { flex-shrink: 0; color: rgb(215, 173, 82); }
+
+.cmty-ask--tappable { cursor: pointer; }
+
+/* "Your House" card at the top of the Houses tab. */
+.cmty-phone-myhouse {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px;
+    border-color: rgba(215, 173, 82, 0.45);
+}
+.cmty-phone-eyebrow {
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cmty-text);
+    opacity: 0.8;
+}
+.cmty-phone-myhouse-top { display: flex; align-items: center; gap: 16px; }
+.cmty-phone-myhouse-info { min-width: 0; }
+.cmty-phone-myhouse-name { margin: 0; font-size: 20px; font-weight: 900; color: rgb(220, 228, 242); overflow-wrap: anywhere; }
+.cmty-phone-myhouse-stats { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; font-size: 13px; font-weight: 700; }
+.cmty-phone-gold { color: rgb(215, 173, 82); font-style: italic; font-weight: 900; }
+.cmty-phone-cta {
+    height: 44px;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(100deg, #ffd23f 0%, #ffb83a 55%, #ff9235 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 14px rgba(255, 146, 53, 0.22);
+    color: #16181f;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-indent: -0.14em;
+    cursor: pointer;
+}
+/* In the Houses tab the ranking panel is a normal block, not a sidebar. */
+.cmty-phone .cmty-houses { display: flex; min-height: 0; position: static; }
+
+/* Bottom sheet holding the question composer. */
+.cmty-sheet-backdrop {
+    --cmty-text: rgb(146, 155, 180);
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(2, 6, 12, 0.7);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    color: var(--cmty-text);
+}
+.cmty-sheet {
+    width: 100%;
+    /* Tall enough for the composer's category menu to open inside it. */
+    min-height: 75vh;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 0 12px calc(16px + env(safe-area-inset-bottom));
+    border-radius: 20px 20px 0 0;
+    background: #0a1526;
+    border-top: 1px solid rgba(170, 190, 225, 0.22);
+    animation: cmty-sheet-up 0.22s ease-out;
+}
+@keyframes cmty-sheet-up { from { transform: translateY(30px); opacity: 0.5; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cmty-sheet { animation: none; } }
+.cmty-sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 4px 10px; }
+.cmty-sheet-title { margin: 0; font-size: 16px; font-weight: 900; color: rgb(220, 228, 242); }
+.cmty-sheet-close {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(170, 190, 225, 0.22);
+    background: rgb(4, 29, 53);
+    color: var(--cmty-text);
+    cursor: pointer;
+}
+
+/* 16px+ keeps iOS Safari from zooming in when typing a question or answer. */
+@media (max-width: 640px) {
+    .cmty-title-input, .cmty-desc-input, .cmty-comment-input { font-size: 16px; }
+}

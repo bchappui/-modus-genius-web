@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiPlus, FiUser, FiX } from 'react-icons/fi'
 import { getAsks, countAsksByCategory, addReply } from '../../lib/asks.js'
-import { getRankedHouses } from '../../lib/houses.js'
+import { getRankedHouses, MAX_HOUSE_MEMBERS } from '../../lib/houses.js'
 import { useHouse } from '../../lib/houseContext.js'
 import {
     MEDALLION_URL, CATEGORIES, CATEGORY_IMAGE, SORTS, PAGE_SIZE,
     formatCount, CommentBox, AskComposer, AskCard, AskDetail,
 } from './CommunityShared.jsx'
-import { HousesPanel, YourRequestsBox, HousePublicView, HousesListView, HouseForumView } from './HousePages.jsx'
+import { Diamond, HousesPanel, YourRequestsBox, HousePublicView, HousesListView, HouseForumView } from './HousePages.jsx'
 import CreateHouseModal from '../modals/CreateHouseModal.jsx'
 import WorldMap from './WorldMap.jsx'
 import Spinner from '../shared/Spinner.jsx'
@@ -31,6 +31,26 @@ const readView = (state) => {
     if (state?.communityAskId) return { kind: 'ask', askId: state.communityAskId };
     return null;
 };
+
+// Phones get their own layout of the main forum (tabs instead of three
+// stacked columns); desktop keeps the three columns.
+const PHONE_QUERY = '(max-width: 640px)';
+const useIsPhone = () => {
+    const [isPhone, setIsPhone] = useState(() => window.matchMedia(PHONE_QUERY).matches);
+    useEffect(() => {
+        const mq = window.matchMedia(PHONE_QUERY);
+        const onChange = (e) => setIsPhone(e.matches);
+        mq.addEventListener('change', onChange);
+        return () => mq.removeEventListener('change', onChange);
+    }, []);
+    return isPhone;
+};
+
+const PHONE_TABS = [
+    { key: 'questions', label: 'Questions' },
+    { key: 'houses', label: 'Houses' },
+    { key: 'map', label: 'Map' },
+];
 
 const CommunityForum = ({
     searchTerm, onSearchChange, onGoToExplore, onGoHome, onShowGenius, onShowQuotes, onShowNewsletter, onShowSubscribe, onShowCreate,
@@ -57,6 +77,9 @@ const CommunityForum = ({
     const [myRequestsKey, setMyRequestsKey] = useState(0);
 
     const [view, setView] = useState(() => readView(window.history.state));
+    const isPhone = useIsPhone();
+    const [phoneTab, setPhoneTab] = useState('questions');
+    const [composerOpen, setComposerOpen] = useState(false);
 
     useEffect(() => {
         const onPopState = (e) => { setView(readView(e.state)); window.scrollTo(0, 0); };
@@ -155,6 +178,75 @@ const CommunityForum = ({
         </aside>
     );
 
+    const sortRow = (
+        <div className="cmty-sort-row">
+            {SORTS.map(s => (
+                <button
+                    key={s.key}
+                    className={`cmty-pill cmty-pill-btn${sort === s.key ? ' cmty-pill--active' : ''}`}
+                    onClick={() => setSort(s.key)}
+                >
+                    <img src={CATEGORY_IMAGE['Entrepreneurship & Innovation']} alt="" className="cmty-pill-icon" />
+                    <span className="cmty-pill-label">{s.label}</span>
+                </button>
+            ))}
+        </div>
+    );
+
+    const feedList = loading ? (
+        <div className="cmty-empty"><Spinner /></div>
+    ) : asks.length === 0 ? (
+        <p className="cmty-empty">No questions yet.</p>
+    ) : (
+        <>
+            {asks.map(ask => (
+                <React.Fragment key={ask.$id}>
+                    <AskCard
+                        ask={ask}
+                        isBookmarked={favoriteIds.includes(ask.$id)}
+                        onBookmark={() => handleBookmark(ask.$id)}
+                        onOpenComments={() => openAsk(ask.$id)}
+                        onOpen={isPhone ? () => openAsk(ask.$id) : undefined}
+                        onReply={() => {
+                            if (!agentId) { onRequireAuth?.(); return; }
+                            setReplyOpenId(id => id === ask.$id ? null : ask.$id);
+                        }}
+                    />
+                    {replyOpenId === ask.$id && (
+                        <CommentBox autoFocus onSubmit={(text) => handleReply(ask.$id, text)} />
+                    )}
+                </React.Fragment>
+            ))}
+            {hasMore && (
+                <div className="cmty-more-row">
+                    <button className="cmty-link-btn" onClick={() => fetchAsks(false)} disabled={loadingMore}>
+                        {loadingMore ? 'Loading…' : 'See more questions…'}
+                    </button>
+                </div>
+            )}
+        </>
+    );
+
+    const requestsBox = (
+        <YourRequestsBox
+            agentId={agentId}
+            myEmail={myEmail}
+            onOpenHouse={(houseId) => openView({ kind: 'house', houseId })}
+            refreshKey={myRequestsKey + requestsKey}
+        />
+    );
+
+    // Gold badges come from the same pass as the house ranking.
+    const worldMap = (
+        <WorldMap
+            badges={rankLoading ? null : badges}
+            agentId={agentId}
+            viewerMembershipTier={viewerMembershipTier}
+            onShowSubscribe={onShowSubscribe}
+            onOpenAsk={openAsk}
+        />
+    );
+
     const forumCenter = view?.kind === 'ask' ? (
         <AskDetail
             askId={view.askId}
@@ -170,22 +262,8 @@ const CommunityForum = ({
         />
     ) : (
         <>
-            <YourRequestsBox
-                agentId={agentId}
-                myEmail={myEmail}
-                onOpenHouse={(houseId) => openView({ kind: 'house', houseId })}
-                refreshKey={myRequestsKey + requestsKey}
-            />
-
-            {/* Gold badges come from the same pass as the house ranking. */}
-            <WorldMap
-                badges={rankLoading ? null : badges}
-                agentId={agentId}
-                viewerMembershipTier={viewerMembershipTier}
-                onShowSubscribe={onShowSubscribe}
-                onOpenAsk={openAsk}
-            />
-
+            {requestsBox}
+            {worldMap}
             <AskComposer
                 agentId={agentId}
                 agentName={agentName}
@@ -193,53 +271,109 @@ const CommunityForum = ({
                 onRequireAuth={onRequireAuth}
                 onCreated={handleAskCreated}
             />
+            {sortRow}
+            {feedList}
+        </>
+    );
 
-            <div className="cmty-sort-row">
-                {SORTS.map(s => (
-                    <button
-                        key={s.key}
-                        className={`cmty-pill cmty-pill-btn${sort === s.key ? ' cmty-pill--active' : ''}`}
-                        onClick={() => setSort(s.key)}
-                    >
-                        <img src={CATEGORY_IMAGE['Entrepreneurship & Innovation']} alt="" className="cmty-pill-icon" />
-                        <span className="cmty-pill-label">{s.label}</span>
-                    </button>
-                ))}
+    // ── Phone: one tab at a time (Questions / Houses / Map) ──
+    const myHouseRanked = myHouse ? (ranked.find(h => h.$id === myHouse.$id) || myHouse) : null;
+    const phoneForum = (
+        <div className="cmty-layout cmty-phone">
+            <div className="cmty-phone-sticky">
+                <div className="cmty-phone-tabs" role="tablist" aria-label="Community sections">
+                    {PHONE_TABS.map(t => (
+                        <button
+                            key={t.key}
+                            role="tab"
+                            aria-selected={phoneTab === t.key}
+                            className={`cmty-phone-tab${phoneTab === t.key ? ' cmty-phone-tab--active' : ''}`}
+                            onClick={() => setPhoneTab(t.key)}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                {phoneTab === 'questions' && (
+                    <div className="cmty-phone-filters">
+                        <div className="cmty-phone-chips" aria-label="Categories">
+                            {CATEGORIES.map(cat => (
+                                <button
+                                    key={cat.key}
+                                    aria-pressed={category === cat.key}
+                                    className={`cmty-pill cmty-pill-btn${category === cat.key ? ' cmty-pill--active' : ''}`}
+                                    onClick={() => setCategory(cat.key)}
+                                >
+                                    <img src={CATEGORY_IMAGE[cat.key]} alt="" className="cmty-pill-icon" />
+                                    <span className="cmty-pill-label">{cat.key}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="cmty-phone-sort" role="group" aria-label="Sort questions">
+                            {SORTS.map(so => (
+                                <button
+                                    key={so.key}
+                                    aria-pressed={sort === so.key}
+                                    className={`cmty-phone-sort-btn${sort === so.key ? ' cmty-phone-sort-btn--active' : ''}`}
+                                    onClick={() => setSort(so.key)}
+                                >
+                                    {so.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {loading ? (
-                <div className="cmty-empty"><Spinner /></div>
-            ) : asks.length === 0 ? (
-                <p className="cmty-empty">No questions yet.</p>
-            ) : (
-                <>
-                    {asks.map(ask => (
-                        <React.Fragment key={ask.$id}>
-                            <AskCard
-                                ask={ask}
-                                isBookmarked={favoriteIds.includes(ask.$id)}
-                                onBookmark={() => handleBookmark(ask.$id)}
-                                onOpenComments={() => openAsk(ask.$id)}
-                                onReply={() => {
-                                    if (!agentId) { onRequireAuth?.(); return; }
-                                    setReplyOpenId(id => id === ask.$id ? null : ask.$id);
-                                }}
-                            />
-                            {replyOpenId === ask.$id && (
-                                <CommentBox autoFocus onSubmit={(text) => handleReply(ask.$id, text)} />
-                            )}
-                        </React.Fragment>
-                    ))}
-                    {hasMore && (
-                        <div className="cmty-more-row">
-                            <button className="cmty-link-btn" onClick={() => fetchAsks(false)} disabled={loadingMore}>
-                                {loadingMore ? 'Loading…' : 'See more questions…'}
+            {phoneTab === 'questions' && (
+                <section className="cmty-center cmty-phone-section">
+                    <button
+                        className="cmty-phone-askbar"
+                        onClick={() => (agentId ? setComposerOpen(true) : onRequireAuth?.())}
+                    >
+                        <span className="cmty-phone-askbar-avatar">
+                            {agentAvatar ? <img src={agentAvatar} alt="" /> : <FiUser size={16} />}
+                        </span>
+                        <span className="cmty-phone-askbar-text">Ask the community…</span>
+                        <FiPlus size={20} className="cmty-phone-askbar-plus" />
+                    </button>
+                    {feedList}
+                </section>
+            )}
+
+            {phoneTab === 'houses' && (
+                <section className="cmty-center cmty-phone-section">
+                    {myHouseRanked && (
+                        <div className="cmty-panel cmty-phone-myhouse">
+                            <span className="cmty-phone-eyebrow">Your House</span>
+                            <div className="cmty-phone-myhouse-top">
+                                <Diamond src={myHouseRanked.image} size={60} />
+                                <div className="cmty-phone-myhouse-info">
+                                    <h2 className="cmty-phone-myhouse-name">{myHouseRanked.name}</h2>
+                                    <div className="cmty-phone-myhouse-stats">
+                                        {myHouseRanked.rank && <span className="cmty-phone-gold">#{myHouseRanked.rank} worldwide</span>}
+                                        <span>{myHouseRanked.points ?? 0} gold badge{myHouseRanked.points === 1 ? '' : 's'}</span>
+                                        <span>{(myHouseRanked.memberIds || []).length}/{MAX_HOUSE_MEMBERS} members</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                className="cmty-phone-cta"
+                                onClick={() => openView({ kind: 'houseForum', houseId: myHouseRanked.$id })}
+                            >
+                                Open House Forum
                             </button>
                         </div>
                     )}
-                </>
+                    {requestsBox}
+                    {housesPanel}
+                </section>
             )}
-        </>
+
+            {phoneTab === 'map' && (
+                <section className="cmty-center cmty-phone-section">{worldMap}</section>
+            )}
+        </div>
     );
 
     let layout;
@@ -276,7 +410,7 @@ const CommunityForum = ({
         );
     } else if (view?.kind === 'houseForum' || view?.kind === 'houseAsk') {
         layout = (
-            <div className="cmty-layout">
+            <div className="cmty-layout cmty-layout--house-forum">
                 <HouseForumView
                     key={view.houseId}
                     houseId={view.houseId}
@@ -295,12 +429,15 @@ const CommunityForum = ({
                     viewerMembershipTier={viewerMembershipTier}
                     onShowSubscribe={onShowSubscribe}
                     requestsKey={requestsKey}
+                    isPhone={isPhone}
                 />
             </div>
         );
+    } else if (isPhone && !view) {
+        layout = phoneForum;
     } else {
         layout = (
-            <div className="cmty-layout">
+            <div className={`cmty-layout${view?.kind === 'ask' ? ' cmty-layout--ask' : ''}`}>
                 {categoriesPanel}
                 <section className="cmty-center">{forumCenter}</section>
                 {housesPanel}
@@ -343,6 +480,33 @@ const CommunityForum = ({
                         openView({ kind: 'houseForum', houseId: house.$id });
                     }}
                 />
+            )}
+
+            {/* Phone: "Ask the community…" opens the composer in a bottom sheet. */}
+            {composerOpen && (
+                <div className="cmty-sheet-backdrop" onClick={() => setComposerOpen(false)}>
+                    <div
+                        className="cmty-sheet"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Ask the community"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="cmty-sheet-head">
+                            <h2 className="cmty-sheet-title">Ask the community</h2>
+                            <button className="cmty-sheet-close" onClick={() => setComposerOpen(false)} aria-label="Close">
+                                <FiX size={20} />
+                            </button>
+                        </div>
+                        <AskComposer
+                            agentId={agentId}
+                            agentName={agentName}
+                            agentAvatar={agentAvatar}
+                            onRequireAuth={onRequireAuth}
+                            onCreated={(ask) => { handleAskCreated(ask); setComposerOpen(false); }}
+                        />
+                    </div>
+                </div>
             )}
 
             <div className="ep-hero cmty-hero">

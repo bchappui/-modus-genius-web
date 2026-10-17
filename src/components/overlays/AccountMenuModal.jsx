@@ -120,7 +120,7 @@ const AccountMenuModal = ({ agentId, authEmail, onClose, onEditProfile, onShowFa
                     </div>
 
                     <div className="amm-scroll">
-                        <ProfileBanner agent={agent} />
+                        <ProfileBanner agent={agent} onAvatarClick={() => setViewProfileOpen(true)} />
 
                         {nextTier && (
                             <button type="button" className="amm-get-pro" onClick={() => onGetNextTier(nextTier.key)}>
