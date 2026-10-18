@@ -3,7 +3,8 @@ import { flushSync } from 'react-dom'
 import { MdDownload, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdFavorite, MdChatBubble } from 'react-icons/md'
 import './CardReader.css'
 import CommentsOverlay from './CommentsOverlay'
-import { captureNode } from '../../lib/domCapture.js'
+import ShareModal from '../modals/ShareModal'
+import { captureNode, downloadDataUrl } from '../../lib/domCapture.js'
 
 const LOGOCENTER_URL = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a07239d002ed6eff7fc/view?project=693e8acd001582e2562a';
 const MADE_BY_URL    = 'https://fra.cloud.appwrite.io/v1/storage/buckets/6954052f00084044b871/files/6a0f7948002dedb124ca/view?project=693e8acd001582e2562a';
@@ -98,6 +99,60 @@ const CardReader = forwardRef(({
         },
     }), [cards.length]);
 
+    // ── Download / share the page being read, as a PNG ──
+    const [busy, setBusy] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
+    // null while capturing, undefined if the capture failed (link-only share).
+    const [shareImage, setShareImage] = useState(null);
+    const pageSlug = (i) => {
+        const name = (property?.name || 'card').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'card';
+        return `${name}-page-${i + 1}`;
+    };
+    // Same one-page render as captureAllPages, then back to the same page.
+    const captureCurrentPage = async () => {
+        const node = outerRef.current;
+        if (!node) throw new Error('Reader not ready');
+        const idx = currentIndex;
+        flushSync(() => setCaptureIndex(idx));
+        try {
+            return await captureNode(node);
+        } finally {
+            flushSync(() => setCaptureIndex(null));
+            const el = scrollRef.current;
+            if (el) el.scrollLeft = idx * el.clientWidth;
+            setCurrentIndex(idx);
+        }
+    };
+    const handleDownload = async () => {
+        if (busy) return;
+        setBusy(true);
+        try {
+            const idx = currentIndex;
+            downloadDataUrl(await captureCurrentPage(), `${pageSlug(idx)}.png`);
+        } catch (e) {
+            console.error('Error generating page image', e);
+            alert('Could not generate the image.');
+        } finally {
+            setBusy(false);
+        }
+    };
+    const handleShare = async () => {
+        if (busy) return;
+        setBusy(true);
+        setShareImage(null);
+        setShareOpen(true);
+        try {
+            const idx = currentIndex;
+            const blob = await (await fetch(await captureCurrentPage())).blob();
+            setShareImage(new File([blob], `${pageSlug(idx)}.png`, { type: 'image/png' }));
+        } catch (e) {
+            console.error('Error generating share image', e);
+            setShareImage(undefined);
+        } finally {
+            setBusy(false);
+        }
+    };
+
     const displayIndex = captureIndex ?? currentIndex;
     const pageCards = captureIndex !== null ? [cards[captureIndex]] : cards;
 
@@ -159,13 +214,13 @@ const CardReader = forwardRef(({
 
                 {/* ── TOP BUTTONS (download / ← / share) — same as pm-topbar ── */}
                 <div className="cr-topbar">
-                    <button className="cr-ctrl-btn">
+                    <button className="cr-ctrl-btn" onClick={handleDownload} disabled={busy} aria-label="Download this page" style={{ cursor: busy ? 'wait' : 'pointer', opacity: busy ? 0.6 : 1 }}>
                         <MdDownload size={20} color="rgb(137,162,189)" />
                     </button>
                     <button className="cr-ctrl-btn cr-ctrl-back" onClick={onClose}>
                         <MdKeyboardArrowLeft size={30} color="rgb(137,162,189)" />
                     </button>
-                    <button className="cr-ctrl-btn">
+                    <button className="cr-ctrl-btn" onClick={handleShare} disabled={busy} aria-label="Share this page">
                         <ShareIcon />
                     </button>
                 </div>
@@ -318,6 +373,16 @@ const CardReader = forwardRef(({
                 onClose={() => setCommentsOpen(false)}
                 onCommentCountChange={onCommentCountChange}
                 onOwnCommentChange={onOwnCommentChange}
+            />
+        )}
+
+        {shareOpen && (
+            <ShareModal
+                property={property}
+                imageFile={shareImage}
+                showDownload={false}
+                shareText={`Check out "${property?.name}" on Modus Genius: ${window.location.origin}${window.location.pathname}?property=${property?.$id}`}
+                onClose={() => setShareOpen(false)}
             />
         )}
         </>

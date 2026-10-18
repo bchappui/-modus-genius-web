@@ -1,10 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './GlobalLevelModal.css'
 import { FiX } from 'react-icons/fi'
+import { MdDownload } from 'react-icons/md'
 import { IoScanOutline } from 'react-icons/io5'
 import Spinner from '../shared/Spinner.jsx'
 import { buildRanksFromAppwrite } from '../../lib/levels.js'
 import DetailedLevelModal from './DetailedLevelModal.jsx'
+import ShareModal from '../modals/ShareModal.jsx'
+import { captureNode, downloadDataUrl } from '../../lib/domCapture.js'
+
+// Top-bar share icon — same as CardHome's / AgentProfileCard's.
+const MciShare = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="rgb(137,162,189)">
+        <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+    </svg>
+);
 
 const toRoman = (n) => {
     const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
@@ -37,6 +47,41 @@ const GlobalLevelModal = ({ agent, currentLevel, onClose }) => {
     const [detailTierName, setDetailTierName] = useState(null);
     const currentTierRef = useRef(null);
 
+    // Download / share a PNG of the Growth Path card (same top bar as the
+    // profile card). shareImage: null while capturing, undefined if it failed.
+    const cardRef = useRef(null);
+    const [downloading, setDownloading] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
+    const [shareImage, setShareImage] = useState(null);
+    const fileName = () => {
+        const who = agent ? `${agent.name}-${agent.surname}` : 'profile';
+        return `${who.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'profile'}-growth-path.png`;
+    };
+    const handleDownload = async () => {
+        if (downloading || !cardRef.current) return;
+        setDownloading(true);
+        try {
+            downloadDataUrl(await captureNode(cardRef.current), fileName());
+        } catch (e) {
+            console.error('Error generating image', e);
+            alert('Could not generate the image.');
+        } finally {
+            setDownloading(false);
+        }
+    };
+    const handleShare = async () => {
+        if (!cardRef.current) return;
+        setShareImage(null);
+        setShareOpen(true);
+        try {
+            const blob = await (await fetch(await captureNode(cardRef.current))).blob();
+            setShareImage(new File([blob], fileName(), { type: 'image/png' }));
+        } catch (e) {
+            console.error('Error generating share image', e);
+            setShareImage(undefined);
+        }
+    };
+
     useEffect(() => {
         let cancelled = false;
         (async () => {
@@ -63,19 +108,28 @@ const GlobalLevelModal = ({ agent, currentLevel, onClose }) => {
     }, [loading, currentTierName]);
 
     useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+        const onKey = (e) => { if (e.key === 'Escape' && !shareOpen) onClose(); };
         document.addEventListener('keydown', onKey);
         return () => document.removeEventListener('keydown', onKey);
-    }, [onClose]);
+    }, [onClose, shareOpen]);
 
     return (
+        <>
         <div className="glm-backdrop" onClick={onClose}>
             <div className="glm-wrapper" onClick={e => e.stopPropagation()}>
-                <button className="glm-close" onClick={onClose}>
-                    <FiX size={16} color="rgb(137,162,189)" />
-                </button>
+                <div className="pm-topbar glm-topbar">
+                    <button className="pm-ctrl-btn" onClick={handleDownload} disabled={downloading} aria-label="Download" style={{ cursor: downloading ? 'wait' : 'pointer', opacity: downloading ? 0.6 : 1 }}>
+                        <MdDownload size={20} color="rgb(137,162,189)" />
+                    </button>
+                    <button className="pm-ctrl-btn pm-ctrl-close" onClick={onClose} aria-label="Close">
+                        <FiX size={30} color="rgb(137,162,189)" />
+                    </button>
+                    <button className="pm-ctrl-btn" onClick={handleShare} aria-label="Share">
+                        <MciShare />
+                    </button>
+                </div>
 
-                <div className="glm-outer-border">
+                <div className="glm-outer-border" ref={cardRef}>
                     <div className="glm-inner-card">
                         <div className="glm-grad-tr" />
                         <div className="glm-grad-bl" />
@@ -141,6 +195,21 @@ const GlobalLevelModal = ({ agent, currentLevel, onClose }) => {
                 />
             )}
         </div>
+
+        {/* Outside the backdrop, so clicks in the pop-up don't close the Growth Path. */}
+        {shareOpen && (
+            <ShareModal
+                id={agent?.$id}
+                name={agent ? `${agent.name} ${agent.surname}` : undefined}
+                paramName="agent"
+                title="Share this Growth Path"
+                imageFile={shareImage}
+                showDownload={false}
+                shareText={`Check out ${agent ? `${agent.name} ${agent.surname}` : 'this expert'}'s Growth Path on Modus Genius: ${window.location.origin}${window.location.pathname}?agent=${agent?.$id}`}
+                onClose={() => setShareOpen(false)}
+            />
+        )}
+        </>
     );
 };
 

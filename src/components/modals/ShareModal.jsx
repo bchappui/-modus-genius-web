@@ -8,12 +8,18 @@ import './ShareModal.css'
 // that picture with "Share image" (the system share sheet, where supported:
 // mobile, Windows/ChromeOS Chrome & Edge, Safari) and "Download". Until the
 // file is ready (imageFile null), its spot shows "Preparing your image…".
-const ShareModal = ({ property, id, name, paramName = 'property', title = 'Share this card', imageFile, shareText: imageShareText, onClose }) => {
+// `showDownload={false}` drops the Download button (the card has its own).
+const ShareModal = ({ property, id, name, paramName = 'property', title = 'Share this card', imageFile, shareText: imageShareText, showDownload = true, onClose }) => {
     const [copied, setCopied] = useState(false);
     const withImage = imageFile !== undefined;
     const imageUrl = useMemo(() => (imageFile ? URL.createObjectURL(imageFile) : null), [imageFile]);
     useEffect(() => () => { if (imageUrl) URL.revokeObjectURL(imageUrl); }, [imageUrl]);
     const canShareImage = !!imageFile && !!navigator.canShare?.({ files: [imageFile] });
+    // On phones the app icons can't attach a picture through their web links
+    // (WhatsApp, Facebook… only take a URL), so once the image is ready they
+    // open the phone's share sheet with it instead; the app is picked there.
+    const isTouch = typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    const iconsShareImage = canShareImage && isTouch;
 
     const shareId = id ?? property?.$id ?? '';
     const shareName = name ?? property?.name;
@@ -92,14 +98,16 @@ const ShareModal = ({ property, id, name, paramName = 'property', title = 'Share
                                     <FiShare2 size={15} />Share image
                                 </button>
                             )}
-                            <a
-                                className={`sm-copy-btn sm-image-btn${canShareImage ? ' sm-image-btn--secondary' : ''}${imageUrl ? '' : ' sm-image-btn--disabled'}`}
-                                href={imageUrl || undefined}
-                                download={imageFile?.name}
-                                aria-disabled={!imageUrl}
-                            >
-                                <FiDownload size={15} />Download
-                            </a>
+                            {showDownload && (
+                                <a
+                                    className={`sm-copy-btn sm-image-btn${canShareImage ? ' sm-image-btn--secondary' : ''}${imageUrl ? '' : ' sm-image-btn--disabled'}`}
+                                    href={imageUrl || undefined}
+                                    download={imageFile?.name}
+                                    aria-disabled={!imageUrl}
+                                >
+                                    <FiDownload size={15} />Download
+                                </a>
+                            )}
                         </div>
                     </div>
                 )}
@@ -118,7 +126,19 @@ const ShareModal = ({ property, id, name, paramName = 'property', title = 'Share
                 </div>
 
                 <div className="sm-icons-row">
-                    {links.map(link => (
+                    {links.map(link => iconsShareImage ? (
+                        <button
+                            key={link.name}
+                            type="button"
+                            className="sm-icon-btn"
+                            style={{ '--sm-icon-color': link.color }}
+                            onClick={handleShareImage}
+                            aria-label={`Share the image on ${link.name}`}
+                        >
+                            <span className="sm-icon-circle">{link.icon}</span>
+                            <span className="sm-icon-label">{link.name}</span>
+                        </button>
+                    ) : (
                         <a
                             key={link.name}
                             href={link.href}

@@ -49,6 +49,17 @@
     gap: 10px;
 }
 
+/* The card is drawn at a fixed 330x587 with the buttons on top (~640px in
+   all). On shorter screens (phones with browser bars, small laptop windows)
+   the whole thing is scaled down so the close button and the card's bottom
+   stay visible. svh = visible height with the browser bars showing. */
+@media (max-height: 660px) { .pm-wrapper { transform: scale(0.95); } }
+@media (max-height: 620px) { .pm-wrapper { transform: scale(0.88); } }
+@media (max-height: 580px) { .pm-wrapper { transform: scale(0.82); } }
+@media (max-height: 540px) { .pm-wrapper { transform: scale(0.77); } }
+@media (max-height: 500px) { .pm-wrapper { transform: scale(0.73); } }
+@media (max-height: 460px) { .pm-wrapper { transform: scale(0.67); } }
+
 /* ══ TOP BAR ══ */
 .pm-topbar {
     display: flex;

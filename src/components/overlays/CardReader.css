@@ -46,6 +46,15 @@
     gap: 10px;
 }
 
+/* Same as the card (CardHome .pm-wrapper): on short screens the whole reader
+   is scaled down so the top buttons and the page bottom stay visible. */
+@media (max-height: 660px) { .cr-container { transform: scale(0.95); } }
+@media (max-height: 620px) { .cr-container { transform: scale(0.88); } }
+@media (max-height: 580px) { .cr-container { transform: scale(0.82); } }
+@media (max-height: 540px) { .cr-container { transform: scale(0.77); } }
+@media (max-height: 500px) { .cr-container { transform: scale(0.73); } }
+@media (max-height: 460px) { .cr-container { transform: scale(0.67); } }
+
 /* ── Top buttons row (mirrors pm-topbar) ── */
 .cr-topbar {
     display: flex;
@@ -512,3 +521,8 @@
     transform: rotate(-45deg) scale(1.5);
     transform-origin: center;
 }
+
+/* Phones: pages already swipe with the finger, so the side arrows (which
+   pushed the reader wider than the screen) are hidden. Kept at the end of the
+   file so it wins over .cr-nav-btn's own display. */
+@media (max-width: 640px) { .cr-nav-btn { display: none; } }

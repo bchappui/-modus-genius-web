@@ -21,19 +21,17 @@
     align-items: center;
 }
 
-.dlm-close {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    border: none;
-    background: var(--bg, #fff);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-}
+/* Download / close / share row — CardHome's .pm-topbar look. */
+.dlm-topbar-row { margin-bottom: 10px; }
+
+/* Same as CardHome's .pm-wrapper: buttons + 587px card (~640px) are scaled
+   down on short screens so the close button and the card bottom stay visible. */
+@media (max-height: 660px) { .dlm-wrapper { transform: scale(0.95); } }
+@media (max-height: 620px) { .dlm-wrapper { transform: scale(0.88); } }
+@media (max-height: 580px) { .dlm-wrapper { transform: scale(0.82); } }
+@media (max-height: 540px) { .dlm-wrapper { transform: scale(0.77); } }
+@media (max-height: 500px) { .dlm-wrapper { transform: scale(0.73); } }
+@media (max-height: 460px) { .dlm-wrapper { transform: scale(0.67); } }
 
 .dlm-outer-border {
     width: 330px;

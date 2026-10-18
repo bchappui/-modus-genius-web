@@ -10,8 +10,7 @@ import CommentsOverlay from './CommentsOverlay'
 import ShareModal from '../modals/ShareModal'
 import AgentProfileCard from './AgentProfileCard'
 import Spinner from '../shared/Spinner'
-import { captureNode } from '../../lib/domCapture.js'
-import { buildPdfFromDataUrls } from '../../lib/pdfExport.js'
+import { captureNode, downloadDataUrl } from '../../lib/domCapture.js'
 
 /* MCIcons "share" — curved right-arrow (not the 3-node Android variant) */
 const MciShare = () => (
@@ -112,9 +111,11 @@ const CardHome = ({
     const [commentsOpen, setCommentsOpen] = useState(false);
     const [shareOpen, setShareOpen] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    // PNG of the card for the share pop-up: null while it's being captured,
+    // undefined if the capture failed (the pop-up then shows only the link).
+    const [shareImage, setShareImage] = useState(null);
     const [agentProfileOpen, setAgentProfileOpen] = useState(false);
     const cardOuterRef = useRef(null);
-    const exportReaderRef = useRef(null);
 
     useEffect(() => {
         setCardReaderOpen(false);
@@ -123,21 +124,37 @@ const CardHome = ({
         setAgentProfileOpen(false);
     }, [property?.$id]);
 
+    const cardSlug = () =>
+        (property?.name || 'card').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'card';
+
+    // Download = a PNG screenshot of the card.
     const handleDownload = async () => {
         if (downloading || !property || !cardOuterRef.current) return;
         setDownloading(true);
         try {
-            const images = [await captureNode(cardOuterRef.current)];
-            const readerImages = await exportReaderRef.current?.captureAllPages();
-            if (readerImages?.length) images.push(...readerImages);
-
-            const safeName = (property.name || 'card').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            await buildPdfFromDataUrls(images, `${safeName || 'card'}.pdf`);
+            const dataUrl = await captureNode(cardOuterRef.current);
+            downloadDataUrl(dataUrl, `${cardSlug()}.png`);
         } catch (e) {
-            console.error('Error generating PDF', e);
-            alert('Could not generate the PDF.');
+            console.error('Error generating image', e);
+            alert('Could not generate the image.');
         } finally {
             setDownloading(false);
+        }
+    };
+
+    // Share = the same screenshot, shared through the phone's share sheet
+    // ("Share image"), plus the card link as before.
+    const handleShare = async () => {
+        if (!property || !cardOuterRef.current) return;
+        setShareImage(null);
+        setShareOpen(true);
+        try {
+            const dataUrl = await captureNode(cardOuterRef.current);
+            const blob = await (await fetch(dataUrl)).blob();
+            setShareImage(new File([blob], `${cardSlug()}.png`, { type: 'image/png' }));
+        } catch (e) {
+            console.error('Error generating share image', e);
+            setShareImage(undefined);
         }
     };
 
@@ -177,7 +194,7 @@ const CardHome = ({
                     <button className="pm-ctrl-btn pm-ctrl-close" onClick={onClose}>
                         <FiX size={30} color="rgb(137,162,189)" />
                     </button>
-                    <button className="pm-ctrl-btn" onClick={() => setShareOpen(true)}>
+                    <button className="pm-ctrl-btn" onClick={handleShare}>
                         <MciShare />
                     </button>
                 </div>
@@ -404,14 +421,6 @@ const CardHome = ({
             </div>
         </div>
 
-        {/* Off-screen CardReader instance kept mounted purely so its pages can be
-            rasterized for the PDF export, regardless of whether the reader is open.
-            The transform gives cr-overlay's position:fixed a new (translated) containing
-            block, so the whole reader renders fully laid-out but off the visible page. */}
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', transform: 'translateX(-9999px)', pointerEvents: 'none' }} aria-hidden="true">
-            <CardReader ref={exportReaderRef} property={property} onClose={() => {}} />
-        </div>
-
         {cardReaderOpen && (
             <CardReader
                 property={property}
@@ -438,7 +447,13 @@ const CardHome = ({
         )}
 
         {shareOpen && (
-            <ShareModal property={property} onClose={() => setShareOpen(false)} />
+            <ShareModal
+                property={property}
+                imageFile={shareImage}
+                showDownload={false}
+                shareText={`Check out "${property.name}" on Modus Genius: ${window.location.origin}${window.location.pathname}?property=${property.$id}`}
+                onClose={() => setShareOpen(false)}
+            />
         )}
 
         {agentProfileOpen && agent?.$id && (
@@ -455,8 +470,7 @@ const CardHome = ({
             <div className="pm-download-overlay">
                 <div className="pm-download-modal">
                     <Spinner />
-                    <p className="pm-download-title">Generating PDF…</p>
-                    <p className="pm-download-hint">This can take up to 20 seconds.</p>
+                    <p className="pm-download-title">Preparing your image…</p>
                 </div>
             </div>
         )}

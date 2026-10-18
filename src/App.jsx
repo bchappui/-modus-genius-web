@@ -541,9 +541,12 @@ const App = () => {
     // exit-intent trick, OR on Home after a 10s dwell — two different "about
     // to disengage / already engaged" signals for two different page shapes.
     // Once per tab (see hasShownThisSession above), not once per Home visit.
-    // Never during the self-assessment (it's what the pop-up pitches).
+    // Never during the self-assessment (it's what the pop-up pitches), and
+    // never on top of an open card, quote or menu — the 10s count starts
+    // again once it's closed.
+    const wtsBlocked = !!selectedProperty || !!selectedQuote || authModalOpen || accountMenuOpen;
     useEffect(() => {
-        if (!authUser || showSelfAssessment || !(isExplorePage || showHome)) return;
+        if (!authUser || showSelfAssessment || wtsBlocked || !(isExplorePage || showHome)) return;
         if (hasShownThisSession('wtsShown')) return;
         let shown = false;
         const trigger = () => { if (!shown) { shown = true; markShownThisSession('wtsShown'); setWtsOpen(true); } };
@@ -557,7 +560,7 @@ const App = () => {
             document.removeEventListener('mouseout', onMouseOut);
             if (timer) clearTimeout(timer);
         };
-    }, [authUser, isExplorePage, showHome, showSelfAssessment]);
+    }, [authUser, isExplorePage, showHome, showSelfAssessment, wtsBlocked]);
 
     // Every navigational action (category, favorites, subscribe, opening a card)
     // pushes a history entry so the browser's back button always steps back

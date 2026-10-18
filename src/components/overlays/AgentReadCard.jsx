@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './CardHome.css'
 import './AgentProfileCard.css'
-import { MdAccountCircle, MdBarChart, MdBookmark, MdStyle, MdBadge, MdInfo, MdPlace, MdWork, MdEmail, MdFileDownload, MdStars, MdPerson } from 'react-icons/md'
+import { MdAccountCircle, MdBarChart, MdBookmark, MdStyle, MdBadge, MdInfo, MdPlace, MdWork, MdEmail, MdDownload, MdStars, MdPerson } from 'react-icons/md'
 import { FaLinkedin, FaCertificate } from 'react-icons/fa'
 import { IoHeartCircle } from 'react-icons/io5'
 import { FiX } from 'react-icons/fi'
@@ -21,8 +21,9 @@ import { getTier } from '../../lib/membership.js'
 /* MCIcons "share" — curved right-arrow, same glyph reused across this app's overlays.
    Color matches CardReader's .cr-heart/.cr-comment default (inactive) state,
    rgb(185,200,235) — not gold, which CardReader reserves for an active/liked state. */
+// Top-bar share icon — same size/colour as CardHome's and AgentProfileCard's.
 const MciShare = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="rgb(185,200,235)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="rgb(137,162,189)">
         <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
     </svg>
 );
@@ -407,8 +408,10 @@ const AgentReadCard = ({ agent, onClose }) => {
     const cardRef = useRef(null);
     const activeTabDef = TABS.find(t => t.key === activeTab);
 
+    const [downloading, setDownloading] = useState(false);
     const handleDownload = async () => {
-        if (!cardRef.current) return;
+        if (downloading || !cardRef.current) return;
+        setDownloading(true);
         try {
             const dataUrl = await captureNode(cardRef.current);
             const safeName = (agent ? `${agent.name}-${agent.surname}` : 'profile').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -416,6 +419,27 @@ const AgentReadCard = ({ agent, onClose }) => {
         } catch (e) {
             console.error('Error generating image', e);
             alert('Could not generate the image.');
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    // Share = a PNG screenshot of this card, sent through the phone's share
+    // sheet ("Share image" / app icons), plus the profile link.
+    // shareImage: null while capturing, undefined if the capture failed.
+    const [shareImage, setShareImage] = useState(null);
+    const handleShare = async () => {
+        if (!cardRef.current) return;
+        setShareImage(null);
+        setShareOpen(true);
+        try {
+            const dataUrl = await captureNode(cardRef.current);
+            const blob = await (await fetch(dataUrl)).blob();
+            const safeName = (agent ? `${agent.name}-${agent.surname}` : 'profile').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            setShareImage(new File([blob], `${safeName || 'profile'}-card.png`, { type: 'image/png' }));
+        } catch (e) {
+            console.error('Error generating share image', e);
+            setShareImage(undefined);
         }
     };
 
@@ -423,13 +447,21 @@ const AgentReadCard = ({ agent, onClose }) => {
         <>
         <div className="pm-overlay" onClick={onClose}>
             <div className="pm-wrapper" onClick={e => e.stopPropagation()}>
+                {/* Same top bar as the profile card: download / close / share. */}
                 <div className="pm-topbar">
+                    <button className="pm-ctrl-btn" onClick={handleDownload} disabled={downloading} aria-label="Download" style={{ cursor: downloading ? 'wait' : 'pointer', opacity: downloading ? 0.6 : 1 }}>
+                        <MdDownload size={20} color="rgb(137,162,189)" />
+                    </button>
                     <button className="pm-ctrl-btn pm-ctrl-close" onClick={onClose}>
                         <FiX size={30} color="rgb(137,162,189)" />
                     </button>
+                    <button className="pm-ctrl-btn" onClick={handleShare} aria-label="Share">
+                        <MciShare />
+                    </button>
                 </div>
-                <div className="apc-rc-outer">
-                    <div className="apc-rc-card" ref={cardRef}>
+                {/* Captured whole, outer frame included (download / share image). */}
+                <div className="apc-rc-outer" ref={cardRef}>
+                    <div className="apc-rc-card">
                         <div className="apc-rc-bg-gradient-1" />
                         <div className="apc-rc-bg-gradient-2" />
 
@@ -475,14 +507,8 @@ const AgentReadCard = ({ agent, onClose }) => {
                                 <div className="apc-rc-footer-rect" />
                             </div>
                             <div className="apc-rc-footer-bar">
-                                <div className="apc-rc-footer-buttons">
-                                    <button className="apc-rc-footer-btn" onClick={handleDownload}>
-                                        <MdFileDownload size={24} color="rgb(185,200,235)" />
-                                    </button>
-                                    <button className="apc-rc-footer-btn" onClick={() => setShareOpen(true)}>
-                                        <MciShare />
-                                    </button>
-                                </div>
+                                {/* Download / share moved to the top bar. */}
+                                <div className="apc-rc-footer-buttons" />
                                 <div className="apc-rc-footer-logo-spacer" />
                             </div>
                             <div className="apc-rc-footer-logo-area">
@@ -499,6 +525,10 @@ const AgentReadCard = ({ agent, onClose }) => {
                 id={agent?.$id}
                 name={agent ? `${agent.name} ${agent.surname}` : undefined}
                 paramName="agent"
+                title="Share this profile"
+                imageFile={shareImage}
+                showDownload={false}
+                shareText={`Check out ${agent ? `${agent.name} ${agent.surname}` : 'this expert'} on Modus Genius: ${window.location.origin}${window.location.pathname}?agent=${agent?.$id}`}
                 onClose={() => setShareOpen(false)}
             />
         )}

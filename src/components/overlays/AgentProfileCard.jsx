@@ -156,6 +156,26 @@ const AgentProfileCard = ({ agentId, onClose, viewerAgentId, viewerMembershipTie
         }
     };
 
+
+    // Share = a PNG screenshot of this card, sent through the phone's share
+    // sheet ("Share image" / app icons), plus the profile link.
+    // shareImage: null while capturing, undefined if the capture failed.
+    const [shareImage, setShareImage] = useState(null);
+    const handleShare = async () => {
+        if (!cardRef.current) return;
+        setShareImage(null);
+        setShareOpen(true);
+        try {
+            const dataUrl = await captureNode(cardRef.current);
+            const blob = await (await fetch(dataUrl)).blob();
+            const safeName = (agent ? `${agent.name}-${agent.surname}` : 'profile').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            setShareImage(new File([blob], `${safeName || 'profile'}.png`, { type: 'image/png' }));
+        } catch (e) {
+            console.error('Error generating share image', e);
+            setShareImage(undefined);
+        }
+    };
+
     if (!agentId) return null;
 
     return (
@@ -171,7 +191,7 @@ const AgentProfileCard = ({ agentId, onClose, viewerAgentId, viewerMembershipTie
                     <button className="pm-ctrl-btn pm-ctrl-close" onClick={onClose}>
                         <FiX size={30} color="rgb(137,162,189)" />
                     </button>
-                    <button className="pm-ctrl-btn" onClick={() => setShareOpen(true)}>
+                    <button className="pm-ctrl-btn" onClick={handleShare}>
                         <MciShare />
                     </button>
                 </div>
@@ -346,7 +366,16 @@ const AgentProfileCard = ({ agentId, onClose, viewerAgentId, viewerMembershipTie
         </div>
 
         {shareOpen && (
-            <ShareModal id={agentId} name={agent ? `${agent.name} ${agent.surname}` : undefined} paramName="agent" onClose={() => setShareOpen(false)} />
+            <ShareModal
+                id={agentId}
+                name={agent ? `${agent.name} ${agent.surname}` : undefined}
+                paramName="agent"
+                title="Share this profile"
+                imageFile={shareImage}
+                showDownload={false}
+                shareText={`Check out ${agent ? `${agent.name} ${agent.surname}` : 'this expert'} on Modus Genius: ${window.location.origin}${window.location.pathname}?agent=${agentId}`}
+                onClose={() => setShareOpen(false)}
+            />
         )}
 
         {readCardOpen && (
