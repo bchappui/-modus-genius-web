@@ -112,8 +112,8 @@
 .eim-subtext:last-of-type { margin-bottom: 24px; }
 .eim-subtext strong { color: rgb(230, 175, 90); font-weight: 700; }
 
-/* ── Countdown (NewsletterExitModal) — its own line, under the eyebrow. ── */
-.nlm-countdown {
+/* ── Countdown (FirstPurchaseOfferModal) — its own line, under the eyebrow. ── */
+.fpo-countdown {
     margin: 0 0 12px;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
     font-size: 12px;
@@ -412,3 +412,13 @@
 /* ── UnlockAllCardsModal ── the destructive choice stays discreet, under the
    gold "Keep my Learning Plan" (same look as .sar-later, a bit closer). */
 .sar-later.uac-unlock { margin-top: 16px; }
+
+/* ── Phones — tighter pop-ups (newsletter, where-to-start, exit offer) so
+   they fit small screens like the iPhone SE without scrolling. ── */
+@media (max-width: 640px) {
+    .eim-overlay { padding: 16px; }
+    .eim-panel { padding: 24px 20px 22px; }
+    .eim-headline { margin-bottom: 14px; }
+    .eim-cards-row { margin-bottom: 20px; }
+    .eim-card { width: 60px; }
+}

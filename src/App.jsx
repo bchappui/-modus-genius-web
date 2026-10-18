@@ -8,6 +8,7 @@ import LoginPage from "./components/pages/LoginPage.jsx";
 import FavoritesPage from "./components/pages/FavoritesPage.jsx";
 import ExplorePage from "./components/pages/ExplorePage.jsx";
 import SubscribePage from "./components/pages/SubscribePage.jsx";
+import NewsletterSignupPage from "./components/pages/NewsletterSignupPage.jsx";
 import HomePage from "./components/pages/HomePage.jsx";
 import GeniusPage from "./components/pages/GeniusPage.jsx";
 import NewsletterPage from "./components/pages/NewsletterPage.jsx";
@@ -16,7 +17,7 @@ import CreatePage from "./components/pages/CreatePage.jsx";
 import AboutPage from "./components/pages/AboutPage.jsx";
 import ThanksArchive from "./components/pages/ThanksArchive.jsx";
 import ExitIntentModal from "./components/modals/ExitIntentModal.jsx";
-import NewsletterExitModal from "./components/modals/NewsletterExitModal.jsx";
+import FirstPurchaseOfferModal from "./components/modals/FirstPurchaseOfferModal.jsx";
 import SelfAssessmentPage from "./components/pages/SelfAssessmentPage.jsx";
 import WhereToStartModal from "./components/modals/WhereToStartModal.jsx";
 import AuthRequiredModal from "./components/modals/AuthRequiredModal.jsx";
@@ -41,6 +42,16 @@ import { getPropertyAccessDecision, getTier } from './lib/membership.js';
 import { getCurrentSeasonKey } from './lib/seasons.js';
 import { getPropertiesByIds } from './lib/properties.js';
 
+// When the site was opened — the touch-screen offer trigger below waits for
+// the visitor to have spent a little time here first.
+const SITE_OPENED_AT = Date.now();
+const TOUCH_OFFER_MIN_MS = 30000;      // at least 30 s on the site
+const TOUCH_OFFER_MIN_DEPTH = 600;     // must have scrolled down this far (px)
+const TOUCH_OFFER_UP_SPEED = 1.5;      // fast upward scroll, in px per ms
+// A real flick spans several scroll events; a page change jumps to the top
+// in one, so it never counts.
+const TOUCH_OFFER_FAST_STEPS = 3;
+
 const App = () => {
     const [authUser, setAuthUser] = useState(null);
     const [authLoading, setAuthLoading] = useState(true);
@@ -61,6 +72,7 @@ const App = () => {
     const [showCreate, setShowCreate] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
     const [showThanksArchive, setShowThanksArchive] = useState(false);
+    const [showNewsletterSignup, setShowNewsletterSignup] = useState(false);
     const [showSelfAssessment, setShowSelfAssessment] = useState(false);
     const [agentId, setAgentId] = useState(null);
     const [agentProfile, setAgentProfile] = useState(null);
@@ -70,10 +82,10 @@ const App = () => {
     const [hasCommentedQuote, setHasCommentedQuote] = useState(false);
     const [propertiesCount, setPropertiesCount] = useState(null);
     const [exitIntentOpen, setExitIntentOpen] = useState(false);
-    // Dev-only ?nlPreview=1: opens the newsletter exit pop-up right away,
+    // Dev-only ?offerPreview=1: opens the first-purchase offer pop-up right away,
     // whatever the page, membership or "already shown" flag.
-    const [nlPreviewOpen, setNlPreviewOpen] = useState(() =>
-        import.meta.env.DEV && new URLSearchParams(window.location.search).get('nlPreview') === '1');
+    const [offerPreviewOpen, setOfferPreviewOpen] = useState(() =>
+        import.meta.env.DEV && new URLSearchParams(window.location.search).get('offerPreview') === '1');
     const [wtsOpen, setWtsOpen] = useState(false);
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
@@ -93,12 +105,12 @@ const App = () => {
     // Mirrors the render ternary below: Favorites only actually renders once
     // every other page flag is false and showFavorites is true.
     const isFavoritesPage = !showLogin && !showHome && !showAbout && !showSubscribe
-        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showSelfAssessment && showFavorites;
+        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showSelfAssessment && !showNewsletterSignup && showFavorites;
 
     // Same mirroring, for the other end of that ternary — Explore is what
     // renders when every other page flag (including Favorites) is false.
     const isExplorePage = !showLogin && !showHome && !showAbout && !showSubscribe
-        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showSelfAssessment && !showFavorites;
+        && !showCreate && !showNewsletter && !showCommunity && !showGenius && !showQuotes && !showThanksArchive && !showSelfAssessment && !showNewsletterSignup && !showFavorites;
 
     // Browsing the site never requires an account — only opening a card
     // (and, consistently, viewing Favorites) does. Wrap any handler that
@@ -408,6 +420,16 @@ const App = () => {
         window.history.replaceState(null, '', url);
     }, []);
 
+    // ?signup=1 opens the newsletter signup page (beehiiv form) directly.
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('signup')) return;
+        navigateTo({ showNewsletterSignup: true, showHome: false });
+        const url = new URL(window.location.href);
+        url.searchParams.delete('signup');
+        window.history.replaceState(null, '', url);
+    }, []);
+
     // Shared badge links (SelfAssessmentBadge's Share, ?selfassessment=1)
     // land on the free self-assessment.
     useEffect(() => {
@@ -478,6 +500,43 @@ const App = () => {
         return () => document.removeEventListener('mouseout', onMouseOut);
     }, [authUser, showSubscribe, isFavoritesPage]);
 
+    // Touch screens have no "cursor leaves the page" signal, so the
+    // first-purchase offer uses the mobile equivalent: a fast scroll back up
+    // after reading for a while. Same once-per-tab flag and same pages as the
+    // desktop trigger, and never while a card, quote or menu is open or a
+    // field is being filled in.
+    const offerPageAllowed = !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && !showSelfAssessment && !showNewsletterSignup;
+    const offerBlocked = !!selectedProperty || !!selectedQuote || authModalOpen || accountMenuOpen;
+    const isFreeTier = getTier(agentProfile?.membershipTier).key === 'free';
+    useEffect(() => {
+        if (!authUser || !offerPageAllowed || offerBlocked || !isFreeTier) return;
+        if (!window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+        const sessionKey = 'exitIntentShown_general';
+        if (hasShownThisSession(sessionKey)) return;
+        let lastY = window.scrollY;
+        let lastT = performance.now();
+        let deepest = lastY;
+        let fastSteps = 0;
+        let shown = false;
+        const onScroll = () => {
+            const y = window.scrollY;
+            const t = performance.now();
+            const upSpeed = (lastY - y) / Math.max(t - lastT, 1);
+            deepest = Math.max(deepest, y);
+            lastY = y;
+            lastT = t;
+            fastSteps = upSpeed >= TOUCH_OFFER_UP_SPEED ? fastSteps + 1 : 0;
+            if (shown || fastSteps < TOUCH_OFFER_FAST_STEPS || deepest < TOUCH_OFFER_MIN_DEPTH) return;
+            if (Date.now() - SITE_OPENED_AT < TOUCH_OFFER_MIN_MS) return;
+            if (document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) return;
+            shown = true;
+            markShownThisSession(sessionKey);
+            setExitIntentOpen(true);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [authUser, offerPageAllowed, offerBlocked, isFreeTier]);
+
     // WhereToStartModal (personality-test pitch): shown on Explore via the
     // exit-intent trick, OR on Home after a 10s dwell — two different "about
     // to disengage / already engaged" signals for two different page shapes.
@@ -507,7 +566,7 @@ const App = () => {
     // else carries over from the current view.
     // Patch keys that switch to another page (vs. only opening a pop-up).
     const PAGE_PATCH_KEYS = ['selectedType', 'showFavorites', 'showSubscribe', 'showHome', 'showGenius',
-        'showQuotes', 'showNewsletter', 'showCommunity', 'showCreate', 'showAbout', 'showThanksArchive'];
+        'showQuotes', 'showNewsletter', 'showCommunity', 'showCreate', 'showAbout', 'showThanksArchive', 'showNewsletterSignup'];
 
     const navigateTo = (patch) => {
         const next = {
@@ -522,6 +581,10 @@ const App = () => {
             showCreate: patch.showCreate !== undefined ? patch.showCreate : showCreate,
             showAbout: patch.showAbout !== undefined ? patch.showAbout : showAbout,
             showThanksArchive: patch.showThanksArchive !== undefined ? patch.showThanksArchive : showThanksArchive,
+            // Like showSelfAssessment: left by any navigation to another page.
+            showNewsletterSignup: patch.showNewsletterSignup !== undefined
+                ? patch.showNewsletterSignup
+                : (PAGE_PATCH_KEYS.some(k => patch[k] !== undefined) ? false : showNewsletterSignup),
             // Left by any navigation to another page (a page flag or a
             // category in the patch); kept when only a card/quote pop-up
             // opens or closes on top of it (e.g. its Learning Track cards).
@@ -543,6 +606,7 @@ const App = () => {
             showCreate: next.showCreate,
             showAbout: next.showAbout,
             showThanksArchive: next.showThanksArchive,
+            showNewsletterSignup: next.showNewsletterSignup,
             showSelfAssessment: next.showSelfAssessment,
             selectedPropertyId: next.selectedProperty?.$id || null,
             selectedQuoteId: next.selectedQuote?.$id || null,
@@ -558,6 +622,7 @@ const App = () => {
         setShowCreate(next.showCreate);
         setShowAbout(next.showAbout);
         setShowThanksArchive(next.showThanksArchive);
+        setShowNewsletterSignup(next.showNewsletterSignup);
         setShowSelfAssessment(next.showSelfAssessment);
         setSelectedProperty(next.selectedProperty);
         setSelectedQuote(next.selectedQuote);
@@ -580,6 +645,7 @@ const App = () => {
         setShowCreate(!!state?.showCreate);
         setShowAbout(!!state?.showAbout);
         setShowThanksArchive(!!state?.showThanksArchive);
+        setShowNewsletterSignup(!!state?.showNewsletterSignup);
         setShowSelfAssessment(!!state?.showSelfAssessment);
 
         const propId = state?.selectedPropertyId || null;
@@ -714,6 +780,11 @@ const App = () => {
                     isLoggedIn={!!authUser}
                     agentAvatar={agentProfile?.avatar}
                     onOpenProfile={() => setAccountMenuOpen(true)}
+                />
+            ) : showNewsletterSignup ? (
+                <NewsletterSignupPage
+                    onBack={() => navigateTo({ showNewsletterSignup: false })}
+                    onLoginClick={handleAuthAction}
                 />
             ) : showHome ? (
                 <HomePage
@@ -1032,12 +1103,12 @@ const App = () => {
                     }}
                 />
             )}
-            {(nlPreviewOpen || (exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && !showSelfAssessment && getTier(agentProfile?.membershipTier).key === 'free')) && (
-                <NewsletterExitModal
-                    onClose={() => { setExitIntentOpen(false); setNlPreviewOpen(false); }}
+            {(offerPreviewOpen || (exitIntentOpen && !showSubscribe && !isExplorePage && !isFavoritesPage && !showThanksArchive && !showSelfAssessment && !showNewsletterSignup && getTier(agentProfile?.membershipTier).key === 'free')) && (
+                <FirstPurchaseOfferModal
+                    onClose={() => { setExitIntentOpen(false); setOfferPreviewOpen(false); }}
                     onGetStarted={() => {
                         setExitIntentOpen(false);
-                        setNlPreviewOpen(false);
+                        setOfferPreviewOpen(false);
                         navigateTo({
                             showSubscribe: true, selectedProperty: null, showHome: false, showAbout: false,
                             showFavorites: false, showCreate: false, showNewsletter: false, showCommunity: false, showGenius: false,

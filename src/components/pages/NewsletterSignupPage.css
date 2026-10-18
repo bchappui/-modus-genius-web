@@ -1,0 +1,96 @@
+/* ── Newsletter signup page — layout fixes on top of SubscribePage.css,
+   scoped to .nsp-page so the Membership pages that share the sp-* classes
+   don't change. Goal: everything left-aligned, and the whole page fitting
+   one screen at any size (spacing and type scale with the viewport height). ── */
+
+/* Height = what is actually visible on a phone. Both the page wrapper
+   (.sp-page) and the app's <main> default to 100vh, which on phones is the
+   height with the browser bars hidden — taller than the visible screen, so
+   the page scrolled. svh is the height with those bars showing. */
+main:has(.nsp-page),
+.nsp-page {
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+.nsp-page .sp-hero {
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    /* Top padding keeps the content clear of the absolutely-placed logo. */
+    padding: max(120px, 15vh) 5vw clamp(16px, 3vh, 40px) 4.5vw;
+}
+
+/* Fills the screen height: text at the top, avatars at the bottom, and the
+   email bar centred in the free space between them (see .sp-beehiiv-embed).
+   Everything starts on the same left edge. */
+.nsp-page .sp-content {
+    flex: 1;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* The original gradient opened on a navy almost invisible against the
+   background, so "Upskill" looked like it started further right than the
+   text below it. Same colours, starting on a readable blue. */
+.nsp-page .sp-headline {
+    margin-bottom: clamp(12px, 2.4vh, 22px);
+    font-size: clamp(26px, 5.6vh, 42px);
+    background: linear-gradient(90deg,
+        rgb(55,150,185)  0%,
+        rgb(120,190,215) 25%,
+        rgb(190,215,225) 50%,
+        rgb(230,235,235) 65%,
+        rgb(215,195,155) 85%,
+        rgb(200,175,130) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+.nsp-page .sp-subtext { margin-bottom: clamp(6px, 1.6vh, 16px); }
+
+/* Email bar: original 560px width (beehiiv lays the form out inside it).
+   Auto margins share the leftover screen height equally above and below it;
+   the padding keeps a minimum gap on short screens. */
+.nsp-page .sp-beehiiv-embed {
+    width: 100%;
+    margin: auto 0;
+    padding: clamp(12px, 3vh, 32px) 0;
+}
+
+/* Bigger social proof: faces, stars and subscriber count. */
+.nsp-page .sp-social-proof { gap: 16px; }
+.nsp-page .sp-avatar { width: 60px; height: 60px; margin-left: -12px; border-width: 3px; }
+.nsp-page .sp-avatar:first-child { margin-left: 0; }
+.nsp-page .sp-stars { font-size: 26px; letter-spacing: 3px; }
+.nsp-page .sp-subscriber-count { font-size: 15px; }
+
+@media (max-width: 640px) {
+    /* Bottom padding also clears the iPhone home bar (safe area). */
+    .nsp-page .sp-hero { padding: 76px 16px calc(24px + env(safe-area-inset-bottom)); }
+    /* Login centred on the logo's line (logo: 44px tall, 12px from the top). */
+    .nsp-page .sp-login-btn { top: 14px; right: 16px; height: 40px; box-sizing: border-box; padding: 0 14px 0 12px; }
+    /* Phones: the page still fills the screen, but the free height is shared
+       equally between all the blocks (headline, paragraphs, bar, avatars)
+       instead of piling up around the bar. */
+    .nsp-page .sp-content { justify-content: space-between; }
+    .nsp-page .sp-beehiiv-embed { margin: 0; padding: 0; }
+    .nsp-page .sp-headline { font-size: clamp(22px, 4vh, 26px); }
+    .nsp-page .sp-subtext { font-size: 14px; line-height: 1.5; }
+    .nsp-page .sp-avatar { width: 50px; height: 50px; }
+    .nsp-page .sp-stars { font-size: 22px; }
+}
+
+/* Short phone screens (e.g. iPhone SE with the browser bars showing):
+   slightly tighter text so the avatars stay on screen. */
+@media (max-width: 640px) and (max-height: 620px) {
+    .nsp-page .sp-hero { padding-top: 68px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+    .nsp-page .sp-headline { margin-bottom: 8px; }
+    .nsp-page .sp-subtext { font-size: 13px; line-height: 1.45; margin-bottom: 6px; }
+    .nsp-page .sp-avatar { width: 44px; height: 44px; }
+    .nsp-page .sp-stars { font-size: 20px; }
+}

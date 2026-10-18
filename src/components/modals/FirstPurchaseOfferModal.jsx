@@ -26,7 +26,7 @@ function formatCountdown(ms) {
 
 // Exit-intent promo shown everywhere except Subscribe/Favorites/ThanksArchive
 // (see App.jsx) — a straight discount pitch rather than a "you're blocked" paywall.
-const NewsletterExitModal = ({ onClose, onGetStarted }) => {
+const FirstPurchaseOfferModal = ({ onClose, onGetStarted }) => {
     const [email, setEmail] = useState('');
     const [countdown, setCountdown] = useState('');
 
@@ -54,7 +54,7 @@ const NewsletterExitModal = ({ onClose, onGetStarted }) => {
                 <p className="eim-tagline">Your Expertise&nbsp;&nbsp;|&nbsp;&nbsp;Our Collection</p>
 
                 <p className="eim-eyebrow">Limited time offer</p>
-                <p className="nlm-countdown">Ends in {countdown}</p>
+                <p className="fpo-countdown">Ends in {countdown}</p>
                 <h3 className="eim-headline">Up to 60% off your first purchase</h3>
 
                 <p className="eim-subtext">
@@ -86,4 +86,4 @@ const NewsletterExitModal = ({ onClose, onGetStarted }) => {
     );
 };
 
-export default NewsletterExitModal;
+export default FirstPurchaseOfferModal;
