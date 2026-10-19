@@ -83,7 +83,7 @@ const NewsletterPage = ({
                 <div className="ep-hero-content">
                     <div className="ep-hero-intro">
                         <h1 className="ep-headline np-headline">
-                            Get curated bite-size advices and tools just for you, delivered weekly.
+                            Get curated bite-size advice and tools just for you, delivered weekly.
                         </h1>
                         <p className="ep-subtext">
                             Explore for free our previous issues designed and taught by top global experts.

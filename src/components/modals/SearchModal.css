@@ -159,7 +159,8 @@
 
 .sem-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, 150px);
+    /* ~150px cards, but never so wide that fewer than two fit side by side. */
+    grid-template-columns: repeat(auto-fill, minmax(min(150px, calc(50% - 8px)), 1fr));
     justify-content: center;
     gap: 16px;
 }
@@ -208,3 +209,5 @@
     background-clip: text;
 }
 .sem-card-item:hover .sem-card-img { filter: brightness(0.92); }
+.sem-results { scrollbar-width: none; }
+.sem-results::-webkit-scrollbar { width: 0; height: 0; }

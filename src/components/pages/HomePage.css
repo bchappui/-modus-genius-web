@@ -258,15 +258,22 @@
     -webkit-text-stroke: 2px rgba(230, 175, 90, 0.7);
     z-index: 0;
 }
-.hp-top10-img {
+/* Card image + the same dark fade and rainbow name as the other rows. */
+.hp-top10-card {
     position: relative;
     z-index: 1;
+    display: block;
     width: 155px;
     aspect-ratio: 330 / 587;
-    height: auto;
-    object-fit: cover;
     border-radius: 8px;
+    overflow: hidden;
     box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+.hp-top10-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .hp-row-hint {
@@ -360,7 +367,7 @@
     .hp-hashtag-row { gap: 12px; }
     .hp-top10-item { padding-left: 46px; }
     .hp-top10-rank { font-size: 110px; bottom: -10px; }
-    .hp-top10-img,
+    .hp-top10-card,
     .hp-hashtag-item { width: 120px; }
     .hp-hashtag-name { font-size: 13px; }
 }

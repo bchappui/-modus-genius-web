@@ -16,6 +16,9 @@ import { getMapQuestions } from '../../lib/questionMap.js'
 import { ICON_GOLD_CHECK_URL, CATEGORY_IMAGE, SORTS } from './CommunityShared.jsx'
 import './WorldMap.css'
 
+// Phones/tablets: no wheel or hover, so the map hint talks about pinching instead.
+const IS_TOUCH = typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
 const W = 960;
 const H = 470;
 const R = 16;            // diamond half-diagonal, screen px (constant at every zoom)
@@ -227,6 +230,23 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
     };
     const pickMap = (i) => { setMapIndex(i); setCountryOpen(null); setMenuOpen(false); };
 
+    // Phones: a one-finger horizontal swipe changes map, like the Home
+    // carousel — only while zoomed out, since zoomed in the drag pans the map.
+    // Capture phase: d3-zoom stops the touch events before they bubble up.
+    const swipeRef = useRef(null);
+    const onSwipeStart = (e) => {
+        swipeRef.current = e.touches.length === 1 && tRef.current.k === 1
+            ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+    };
+    const onSwipeEnd = (e) => {
+        const start = swipeRef.current;
+        swipeRef.current = null;
+        if (!start || readOnly || maps.length < 2) return;
+        const dx = e.changedTouches[0].clientX - start.x;
+        const dy = e.changedTouches[0].clientY - start.y;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) switchMap(dx < 0 ? 1 : -1);
+    };
+
     // The two maps alternate every 5s — paused while the pointer is on the
     // map (zooming / dragging) or a list, profile or the menu is open.
     // Changing map (arrows / menu) restarts the 5s.
@@ -315,7 +335,8 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
 
                 {/* Read-only: a click anywhere on the map (not a drag — d3-zoom
                     swallows the click that ends a drag) runs onPreviewClick. */}
-                <div className={`wm-frame${readOnly ? ' wm-frame--static' : ''}`} onClick={readOnly ? onPreviewClick : undefined}>
+                <div className={`wm-frame${readOnly ? ' wm-frame--static' : ''}`} onClick={readOnly ? onPreviewClick : undefined}
+                    onTouchStartCapture={onSwipeStart} onTouchEndCapture={onSwipeEnd}>
                     {/* Both maps sit side by side and slide, like the Home carousel. */}
                     <div className="wm-track" style={{ transform: `translateX(-${mapIndex * (100 / maps.length)}%)`, width: `${maps.length * 100}%` }}>
                         {maps.map((pane, paneIndex) => {
@@ -387,10 +408,13 @@ const WorldMap = ({ badges, agentId, viewerMembershipTier, onShowSubscribe, onOp
                     {land && !loading && itemCount === 0 && <p className="wm-empty">{emptyText}</p>}
                 </div>
             </div>
-            {!readOnly && <p className="wm-hint">
+            {!readOnly && (IS_TOUCH ? <p className="wm-hint">
+                Pinch or use + / − to zoom, drag with one finger to move. More {mode === 'members' ? 'members' : 'questions'} appear as you zoom in.
+                The two maps alternate every 5 seconds — or swipe left / right, use the arrows or the menu.
+            </p> : <p className="wm-hint">
                 Scroll or use + / − to zoom, drag to move. More {mode === 'members' ? 'members' : 'questions'} appear as you zoom in.
                 The two maps alternate every 5 seconds (paused while your pointer is on the map) — or pick one in the menu or with the arrows.
-            </p>}
+            </p>)}
 
             {countryOpen && (
                 <Overlay>

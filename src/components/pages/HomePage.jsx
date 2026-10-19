@@ -73,7 +73,11 @@ const CarouselSection = ({ title, items, loading, showNumbers, onSelectProperty 
                             items.map((property, i) => (
                                 <button key={property.$id} className="hp-top10-item" onClick={() => onSelectProperty(property)}>
                                     <span className="hp-top10-rank">{i + 1}</span>
-                                    <img src={property.background || '/no-movie.png'} alt={property.name} className="hp-top10-img" />
+                                    <span className="hp-top10-card">
+                                        <img src={property.background || '/no-movie.png'} alt="" className="hp-top10-img" />
+                                        <span className="hp-hashtag-overlay" />
+                                        <span className="hp-hashtag-name">{property.name}</span>
+                                    </span>
                                 </button>
                             ))
                         ) : (

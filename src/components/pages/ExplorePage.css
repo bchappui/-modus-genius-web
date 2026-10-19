@@ -335,9 +335,11 @@
 }
 
 .ep-back-btn {
-    position: absolute;
-    top: -132px;
-    left: -60px;
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
     background: none;
     border: 1px solid rgba(255,255,255,0.2);
     color: rgba(255,255,255,0.7);
@@ -514,7 +516,7 @@
     .ep-hero { padding: 24px 16px 40px; }
     .ep-hero-medallion { opacity: 0.35; width: 760px; height: 646px; right: -400px; top: -60px; }
     .ep-medallion-text { display: none; }
-    .ep-headline { font-size: 28px; }
+    .ep-headline { font-size: 28px; text-wrap: balance; }
 
     /* Card List */
     .ep-hero-intro { margin-top: 8px; }

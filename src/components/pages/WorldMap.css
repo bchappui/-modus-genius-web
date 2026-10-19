@@ -207,6 +207,13 @@
 .wm-stage .wm-arrow { z-index: 3; }
 .wm-stage .wm-arrow--left { left: 10px; }
 .wm-stage .wm-arrow--right { right: 10px; }
+/* HomePage.css hides .hp-row-arrow on phones; the map keeps its arrows as the
+   hint that you can swipe to the other map. */
+@media (max-width: 640px) {
+    .wm-stage .wm-arrow { display: flex; width: 30px; height: 30px; left: auto; }
+    .wm-stage .wm-arrow--left { left: 6px; right: auto; }
+    .wm-stage .wm-arrow--right { right: 6px; }
+}
 
 /* New / Unanswered / Popular filters on the questions map */
 .wm-filters { margin-top: 0; }

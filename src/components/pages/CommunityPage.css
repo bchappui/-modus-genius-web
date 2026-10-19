@@ -825,6 +825,7 @@
 }
 /* In the Houses tab the ranking panel is a normal block, not a sidebar. */
 .cmty-phone .cmty-houses { display: flex; min-height: 0; position: static; }
+.cmty-phone .cmty-houses-more { margin-top: 18px; }
 
 /* Bottom sheet holding the question composer. */
 .cmty-sheet-backdrop {

@@ -95,7 +95,7 @@ const NewsletterSignupPage = ({ onBack, onLoginClick }) => {
                     </h1>
 
                     <p className="sp-subtext">
-                        Each week, receive bite-size advices and tools to elevate your business
+                        Each week, receive bite-size advice and tools to elevate your business
                         management skills and lead with impact.
                     </p>
                     <p className="sp-subtext">

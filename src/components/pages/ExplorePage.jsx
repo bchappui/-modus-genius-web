@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FiSearch } from 'react-icons/fi'
+import { FiSearch, FiChevronLeft } from 'react-icons/fi'
 import { SKILL_CATEGORIES, getCategoryImageUrl } from '../../lib/categories.js'
 import Spinner from '../shared/Spinner.jsx'
 import SearchModal from '../modals/SearchModal.jsx'
@@ -97,6 +97,9 @@ const ExplorePage = ({
 
                     {showResults ? (
                         <>
+                            <button className="ep-back-btn" onClick={onGoToExplore}>
+                                <FiChevronLeft size={16} /> All categories
+                            </button>
                             <h2 className="ep-categories-title">
                                 {searchTerm ? `Results for "${searchTerm}"` : selectedType}
                             </h2>

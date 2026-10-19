@@ -289,5 +289,29 @@
 }
 
 @media (max-width: 640px) {
-    .ap-intro { margin-top: 60px; }
+    .ap-intro { margin-top: 24px; }
+    .ap-headline { text-wrap: balance; }
+    .ap-hashtag { text-align: left; }
+    .ap-body { font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+
+    /* Testimonial: full screen width (the hero has 16px side padding on phones,
+       not the desktop's 5vw), smaller quote text, photo inset like the text. */
+    .ap-testimonial { width: auto; margin: 48px -16px; }
+    .ap-testimonial-text { padding: 36px 16px 28px; }
+    .ap-quote, .ap-quote-author { font-size: 17px; line-height: 1.5; }
+    .ap-quote-stars { font-size: 16px; }
+    .ap-quote-mark--open, .ap-quote-mark--close { font-size: 160px; }
+    .ap-quote-mark--close { bottom: -80px; }
+    .ap-testimonial-photo { height: 220px; margin: 0 16px 16px; width: auto; }
+
+    /* Pillars: room above each card for its hexagon, no desktop-sized gaps. */
+    .ap-pillars { gap: 76px; margin: 100px auto 40px; }
+    .ap-pillar-card { padding: 56px 20px 48px; }
+    .ap-pillar-hex { top: -46px; width: 92px; height: 80px; }
+    .ap-pillar-title { font-size: 20px; margin-bottom: 12px; }
+
+    .ap-split-row, .ap-split-row--reverse { margin: 48px 0 24px; }
+    .ap-split-title { margin-bottom: 14px; }
+    .ap-split-body { font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+    .ap-split-photo { height: 200px; border-radius: 12px; overflow: hidden; }
 }
