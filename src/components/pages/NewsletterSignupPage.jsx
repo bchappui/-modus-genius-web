@@ -32,6 +32,20 @@ const PHONE_QUERY = '(max-width: 640px)';
 const WAITLIST_FORM_ID = 'f31b58b0-b0f7-42c7-a55f-13e287726e69';
 const WAITLIST_MOBILE_FORM_ID = '1a08a690-bc3d-42b0-a168-28a3d4515e69';
 
+// After a signup, beehiiv's loader drops a cookie on this site
+// (bhv_<publication id>_subscribed) and stops drawing the form for that
+// browser. The form must always show, so that cookie is deleted before the
+// loader runs. Tried with and without the domain, since how beehiiv sets
+// it (www.modusgenius.com or .modusgenius.com) isn't documented.
+function forgetBeehiivSubscription() {
+    const expired = '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    const host = window.location.hostname;
+    const domains = ['', `; domain=${host}`, `; domain=${host.replace(/^www\./, '')}`];
+    document.cookie.split(';').map(c => c.trim().split('=')[0])
+        .filter(name => /^bhv_.*_subscribed$/.test(name))
+        .forEach(name => domains.forEach(d => { document.cookie = name + expired + d; }));
+}
+
 const NewsletterSignupPage = ({ onBack, onLoginClick, waitlist = false }) => {
     const [isPhone, setIsPhone] = useState(() => window.matchMedia(PHONE_QUERY).matches);
     useEffect(() => {
@@ -52,6 +66,7 @@ const NewsletterSignupPage = ({ onBack, onLoginClick, waitlist = false }) => {
     useEffect(() => {
         const box = embedRef.current;
         if (!box) return;
+        forgetBeehiivSubscription();
         const loader = document.createElement('script');
         loader.async = true;
         loader.src = 'https://subscribe-forms.beehiiv.com/v3/loader.js';
