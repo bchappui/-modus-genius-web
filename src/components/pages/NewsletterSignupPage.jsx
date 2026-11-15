@@ -26,7 +26,13 @@ const BEEHIIV_FORM_ID = '81460cc6-cd7c-47c9-8bde-1bbd1919adfb';
 const BEEHIIV_MOBILE_FORM_ID = 'b362bbb5-53af-4c96-9d1d-7e3647544977';
 const PHONE_QUERY = '(max-width: 640px)';
 
-const NewsletterSignupPage = ({ onBack, onLoginClick }) => {
+// Waitlist variant (?waitlist=1): same page, no Login button, its own beehiiv
+// forms. The "Join waitlist" button text lives in the beehiiv form itself
+// (beehiiv draws it), so these must point to forms whose button says that.
+const WAITLIST_FORM_ID = 'f31b58b0-b0f7-42c7-a55f-13e287726e69';
+const WAITLIST_MOBILE_FORM_ID = '1a08a690-bc3d-42b0-a168-28a3d4515e69';
+
+const NewsletterSignupPage = ({ onBack, onLoginClick, waitlist = false }) => {
     const [isPhone, setIsPhone] = useState(() => window.matchMedia(PHONE_QUERY).matches);
     useEffect(() => {
         const mq = window.matchMedia(PHONE_QUERY);
@@ -34,7 +40,9 @@ const NewsletterSignupPage = ({ onBack, onLoginClick }) => {
         mq.addEventListener('change', onChange);
         return () => mq.removeEventListener('change', onChange);
     }, []);
-    const formId = isPhone ? BEEHIIV_MOBILE_FORM_ID : BEEHIIV_FORM_ID;
+    const formId = waitlist
+        ? (isPhone ? WAITLIST_MOBILE_FORM_ID : WAITLIST_FORM_ID)
+        : (isPhone ? BEEHIIV_MOBILE_FORM_ID : BEEHIIV_FORM_ID);
 
     // beehiiv's loader draws the form right where its <script> tag sits. React
     // moves <script> elements written in JSX into <head>, which put the form
@@ -68,10 +76,12 @@ const NewsletterSignupPage = ({ onBack, onLoginClick }) => {
                 <img src={LOGO_TEXT_URL} alt="Modus Genius" className="ep-nav-logo-img" />
                 <span className="ep-nav-tagline">Your Expertise&nbsp;&nbsp;|&nbsp;&nbsp;Our Collection</span>
             </button>
-            <button className="sp-login-btn" onClick={onLoginClick}>
-                <FiUser size={15} />
-                Login
-            </button>
+            {!waitlist && (
+                <button className="sp-login-btn" onClick={onLoginClick}>
+                    <FiUser size={15} />
+                    Login
+                </button>
+            )}
 
             <div className="sp-hero">
                 <div className="ep-hero-medallion" aria-hidden="true">

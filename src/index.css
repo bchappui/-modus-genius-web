@@ -160,3 +160,45 @@
         display: none;
     }
 }
+/* ── Site background, shared by every page ──────────────────────────────────
+   The card-covers mosaic under a Netflix-style black veil covers the first
+   screen; it scrolls away with the page and the deep night-blue gradient fades
+   in over it below the fold. `isolation` keeps the z-index:-1 layer above the
+   page's own solid background but below its content. Two-class selectors so
+   these win over the per-page .ep-hero / .sp-hero rules loaded later. */
+.ep-page,
+.sp-page,
+.sa-page {
+    position: relative;
+    isolation: isolate;
+}
+.ep-page::before,
+.sp-page::before,
+.sa-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 140vh;
+    z-index: -1;
+    pointer-events: none;
+    /* Mosaic shown once, never tiled: 1250px wide, but always at least the full
+       width and the full first-screen height (image ratio ≈1.45 → 145vh), so
+       there are no gaps. The black veil sits on top. */
+    background:
+        linear-gradient(0deg,
+            rgba(0, 0, 0, 0.95) 3%, rgba(0, 0, 0, 0.94) 19%, rgba(0, 0, 0, 0.91) 35%,
+            rgba(0, 0, 0, 0.86) 52%, rgba(0, 0, 0, 0.81) 68%, rgba(0, 0, 0, 0.77) 84%,
+            rgba(0, 0, 0, 0.75) 100%),
+        url('./assets/images/home-background.webp') center top / max(1250px, 100%, 145vh) auto no-repeat;
+}
+/* Night-blue fade starts low (80vh) and is solid by 130vh, below the fold. */
+.ep-page .ep-hero,
+.sp-page .sp-hero,
+.sa-page.sa-page {
+    background:
+        linear-gradient(180deg,
+            rgba(5, 12, 26, 0) 0, rgba(5, 12, 26, 0) 80vh,
+            #050c1a 130vh, #071022 60%, #040914 100%);
+}

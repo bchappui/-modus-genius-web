@@ -411,10 +411,13 @@ const App = () => {
     // Landing spot for visitors coming back from the beehiiv newsletter signup
     // form. Point beehiiv's "redirect after subscribe" URL at this site with
     // ?thanks=1 appended to land here instead of wherever they started.
+    // ?thanks=waitlist is the waitlist forms' version (showThanksArchive
+    // then holds 'waitlist' instead of true).
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        if (!params.get('thanks')) return;
-        navigateTo({ showThanksArchive: true, showHome: false });
+        const thanks = params.get('thanks');
+        if (!thanks) return;
+        navigateTo({ showThanksArchive: thanks === 'waitlist' ? 'waitlist' : true, showHome: false });
         const url = new URL(window.location.href);
         url.searchParams.delete('thanks');
         window.history.replaceState(null, '', url);
@@ -427,6 +430,17 @@ const App = () => {
         navigateTo({ showNewsletterSignup: true, showHome: false });
         const url = new URL(window.location.href);
         url.searchParams.delete('signup');
+        window.history.replaceState(null, '', url);
+    }, []);
+
+    // ?waitlist=1 opens the same signup page as its waitlist variant
+    // (showNewsletterSignup holds 'waitlist' instead of true).
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('waitlist')) return;
+        navigateTo({ showNewsletterSignup: 'waitlist', showHome: false });
+        const url = new URL(window.location.href);
+        url.searchParams.delete('waitlist');
         window.history.replaceState(null, '', url);
     }, []);
 
@@ -647,8 +661,8 @@ const App = () => {
         setShowCommunity(!!state?.showCommunity);
         setShowCreate(!!state?.showCreate);
         setShowAbout(!!state?.showAbout);
-        setShowThanksArchive(!!state?.showThanksArchive);
-        setShowNewsletterSignup(!!state?.showNewsletterSignup);
+        setShowThanksArchive(state?.showThanksArchive || false);
+        setShowNewsletterSignup(state?.showNewsletterSignup || false);
         setShowSelfAssessment(!!state?.showSelfAssessment);
 
         const propId = state?.selectedPropertyId || null;
@@ -788,6 +802,7 @@ const App = () => {
                 <NewsletterSignupPage
                     onBack={() => navigateTo({ showNewsletterSignup: false })}
                     onLoginClick={handleAuthAction}
+                    waitlist={showNewsletterSignup === 'waitlist'}
                 />
             ) : showHome ? (
                 <HomePage
@@ -836,6 +851,7 @@ const App = () => {
                 />
             ) : showThanksArchive ? (
                 <ThanksArchive
+                    waitlist={showThanksArchive === 'waitlist'}
                     searchTerm={searchTerm}
                     onSearchChange={(val) => { setSearchTerm(val); if (val) setSelectedType(null); }}
                     onGoHome={() => navigateTo({ showHome: true, showThanksArchive: false })}

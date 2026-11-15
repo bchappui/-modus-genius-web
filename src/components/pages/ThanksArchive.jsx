@@ -50,7 +50,7 @@ const ISSUES = [
 const ThanksArchive = ({
     searchTerm, onSearchChange, onGoHome, onGoToExplore, onShowGenius, onShowQuotes, onShowNewsletter, onShowCommunity,
     onShowCreate, onShowFavorites, onShowSubscribe, onLogout, isLoggedIn, movieList, isLoading, errorMessage, onSelectProperty,
-    agentAvatar, onOpenProfile,
+    agentAvatar, onOpenProfile, waitlist = false,
 }) => {
     const [searchModalOpen, setSearchModalOpen] = useState(false);
 
@@ -71,21 +71,29 @@ const ThanksArchive = ({
     // long one doesn't get clipped/overlap what's below.
     const slideRefs = useRef([]);
     const [slideHeight, setSlideHeight] = useState(null);
+    // Re-measured whenever the active slide changes size too (fonts loading,
+    // screen rotation, window resize), not only when the slide changes.
     useEffect(() => {
         const el = slideRefs.current[slideIndex];
-        if (el) setSlideHeight(el.offsetHeight);
+        if (!el) return;
+        const measure = () => setSlideHeight(el.offsetHeight);
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(el);
+        return () => ro.disconnect();
     }, [slideIndex]);
 
     return (
-        <div className="ep-page">
+        <div className={`ep-page${waitlist ? ' ta-page--waitlist' : ''}`}>
 
-            <TopNav
+            {/* Waitlist variant (?thanks=waitlist): no top bar, no cards. */}
+            {!waitlist && <TopNav
                 onGoHome={onGoHome} onGoToExplore={onGoToExplore} onShowGenius={onShowGenius} onShowQuotes={onShowQuotes}
                 onShowNewsletter={onShowNewsletter} onShowCommunity={onShowCommunity} onShowCreate={onShowCreate} onShowFavorites={onShowFavorites} onShowSubscribe={onShowSubscribe}
                 onLogout={onLogout} isLoggedIn={isLoggedIn}
                 agentAvatar={agentAvatar} onOpenProfile={onOpenProfile}
                 onOpenSearch={() => setSearchModalOpen(true)}
-            />
+            />}
 
             {searchModalOpen && (
                 <SearchModal
@@ -144,7 +152,9 @@ const ThanksArchive = ({
                                         <div className="ta-slide" ref={el => (slideRefs.current[0] = el)} style={{ width: `${100 / SLIDE_COUNT}%` }}>
                                             <h1 className="ep-headline np-headline">YOU'RE IN!</h1>
                                             <p className="hp-hashtag ta-welcome">
-                                                NOW GO CHECK YOUR INBOX WE'VE GOT A SURPRISE FOR YOU<br /><span className="ta-emoji ta-gift-emoji">🎁</span>
+                                                {waitlist
+                                                    ? "THANKS FOR JOINING THE WAITLIST, WE'LL LET YOU KNOW AS SOON AS IT'S YOUR TURN"
+                                                    : "NOW GO CHECK YOUR INBOX WE'VE GOT A SURPRISE FOR YOU"}<br /><span className="ta-emoji ta-gift-emoji">🎁</span>
                                             </p>
                                         </div>
                                         {EXPECT_ITEMS.map((item, i) => (
@@ -169,12 +179,14 @@ const ThanksArchive = ({
                                 ))}
                             </div>
                         </div>
-                        <p className="ep-headline ta-first-issue">
-                            Your first issue lands soon, but in the meantime, let's get you going with some of the most popular content:
-                        </p>
+                        {!waitlist && (
+                            <p className="ep-headline ta-first-issue">
+                                Your first issue lands soon, but in the meantime, let's get you going with some of the most popular content:
+                            </p>
+                        )}
                     </div>
 
-                    <div className="np-card-grid ta-vignette-grid">
+                    {!waitlist && <div className="np-card-grid ta-vignette-grid">
                         {ISSUES.map(issue => (
                             <div key={issue.id} className="np-card">
                                 <span className="np-card-badge">{issue.badge}</span>
@@ -187,7 +199,7 @@ const ThanksArchive = ({
                         <div className="ta-cta-row">
                             <button className="np-banner-btn ta-start-btn" onClick={onShowNewsletter}>EXPLORE MORE TOPICS</button>
                         </div>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </div>

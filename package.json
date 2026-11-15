@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:waitlist": "vite build --config vite.waitlist.config.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -4,7 +4,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #0a1526;
+    background: #050c1a;
     overflow: hidden;
 }
 
@@ -54,9 +54,7 @@
     flex: 1;
     padding: 60px 5vw 100px 4.5vw;
     min-height: 620px;
-    background:
-        radial-gradient(ellipse 900px 600px at 32% 260px, rgba(90,130,190,0.6), transparent 58%),
-        linear-gradient(180deg, #0a1830 0%, #0c1e38 55%, #0a1830 100%);
+    background: linear-gradient(180deg, #050c1a 0%, #071022 55%, #040914 100%);
 }
 
 .sp-content {

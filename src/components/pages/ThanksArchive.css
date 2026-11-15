@@ -14,6 +14,10 @@
    just tighter line-height since it wraps onto multiple lines here. */
 .ta-welcome {
     line-height: 1.15;
+    /* Italic letters lean past the right edge of the box, and the gradient
+       (background-clip: text) is only painted inside the box, so the last
+       letters were cut off. The padding makes room for the slant. */
+    padding: 0 0.25em;
 }
 
 /* Shared plain-line style for the checklist items below "In this
@@ -42,6 +46,11 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    /* Same italic clipping fix as .ta-welcome; clone repeats the padding on
+       every line when the item wraps. */
+    padding-right: 0.25em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
 }
 .ta-emoji {
     font-size: 40px;
@@ -78,6 +87,10 @@
 }
 .ta-slide-track {
     display: flex;
+    /* Without this every slide stretches to the tallest one's height, so the
+       measured height never changed and short slides left a big gap above
+       the dots. */
+    align-items: flex-start;
     height: 100%;
     transition: transform 0.5s ease;
 }
@@ -121,4 +134,25 @@
     width: 100%;
     height: 52px;
     font-size: 16px;
+}
+
+/* ── Phones ── */
+@media (max-width: 640px) {
+    /* The carousel lines were 40px: the longest one ran to 9 lines. */
+    .ta-checklist-item { font-size: 24px; line-height: 1.3; }
+    .ta-emoji { font-size: 26px; }
+    .ta-gift-emoji { margin-top: 12px; }
+    .ta-line { line-height: 1.3; }
+    .ta-first-issue { margin-top: 36px; }
+    .ta-vignette-grid { margin-top: 28px; }
+
+    /* Waitlist version (no top bar, no cards): the content sits in the
+       middle of the screen instead of leaving the bottom half empty. */
+    .ta-page--waitlist { min-height: 100svh; }
+    .ta-page--waitlist .ep-hero {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .ta-page--waitlist .ep-hero-intro { margin-top: 0; }
 }

@@ -154,7 +154,7 @@ const HomePage = ({
     }, []);
 
     return (
-        <div className="ep-page">
+        <div className="ep-page hp-page">
 
             <TopNav
                 activeLink="home" disableActiveLink
