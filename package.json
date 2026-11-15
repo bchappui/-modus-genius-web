@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:waitlist": "vite build --config vite.waitlist.config.js",
+    "build": "vite build --config vite.waitlist.config.js",
+    "build:app": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --config vite.waitlist.config.js",
+    "preview:app": "vite preview"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",

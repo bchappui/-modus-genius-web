@@ -1,5 +1,5 @@
 // Stand-alone site with only the two waitlist pages, published on its own
-// (npm run build:waitlist → dist-waitlist/). No login, no Appwrite, none of
+// (npm run build → dist-waitlist/; the full app is npm run build:app). No login, no Appwrite, none of
 // the rest of the app.
 //   /                   → waitlist signup (beehiiv form)
 //   /?thanks=waitlist   → thank-you page (beehiiv's redirect after signup)
