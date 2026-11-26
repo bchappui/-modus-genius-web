@@ -465,14 +465,20 @@
     justify-content: center;
 }
 .pm-diamond-avatar {
-    width: 105px;
-    height: 105px;
+    width: 95px;
+    height: 95px;
+    flex-shrink: 0; /* wider than its flex wrapper on purpose */
     /* A global img{max-width:100%} reset (Tailwind preflight) clamps this to
        its ~66px containing block otherwise, silently shrinking the rotated
        square so it no longer fully covers the diamond's corners. */
     max-width: none;
     object-fit: cover;
-    transform: rotate(-45deg) scale(1.15);
+    transform: rotate(-45deg);
+    /* Shows exactly the diamond framed in Edit profile's photo editor: the image
+       is √2 × the 66px window (+2% so the tips stay covered), so the window's
+       corners touch the image's edge midpoints. .cr-avatar (CardReader.css) and
+       .epm-diamond-img (EditProfileModal.css) use the same ratio — keep all three
+       in step. */
 }
 
 /*

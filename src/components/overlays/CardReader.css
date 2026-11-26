@@ -534,7 +534,9 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: rotate(-45deg) scale(1.5);
+    /* Same crop as the cover card (.pm-diamond-avatar in CardHome.css) and the
+       Edit profile photo editor: √2 × the 38px window, +2% (1.44). */
+    transform: rotate(-45deg) scale(1.44);
     transform-origin: center;
 }
 

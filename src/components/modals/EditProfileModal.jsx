@@ -6,7 +6,10 @@ import { databases, DATABASE_ID, AGENTS_COLLECTION_ID } from '../../lib/appwrite
 import { updateAgent, uploadAvatar } from '../../lib/agents.js'
 import { COUNTRIES, getFlagImageUrl } from '../../lib/countries.js'
 
-const FRAME = 180; // crop preview diameter, px
+// Crop preview side, px. The whole square is saved; the avatar diamonds show the
+// diamond inscribed in it (corners at the edge midpoints), which the preview
+// outlines and leaves clear — the dimmed corners are what the diamonds cut off.
+const FRAME = 180;
 const OUTPUT = 480; // exported avatar size, px
 
 // Gold gradient defs for the header icon — mirrors modus_genius's
@@ -242,6 +245,10 @@ const EditProfileModal = ({ agentId, onClose, onBack, onSaved }) => {
                                     className="epm-crop-img"
                                     style={{ transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${displayScale})` }}
                                 />
+                                <svg className="epm-crop-mask" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                                    <path d="M0 0H100V100H0Z M50 0L100 50L50 100L0 50Z" fillRule="evenodd" className="epm-crop-mask-dim" />
+                                    <path d="M50 1L99 50L50 99L1 50Z" className="epm-crop-mask-line" />
+                                </svg>
                             </div>
                             <p className="epm-crop-hint">Drag to reposition</p>
                             <input

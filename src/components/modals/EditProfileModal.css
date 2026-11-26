@@ -150,8 +150,10 @@
 }
 .epm-diamond-img {
     position: absolute;
-    width: 95px;
-    height: 95px;
+    /* Same crop as the cover card (.pm-diamond-avatar in CardHome.css) and the
+       photo editor's diamond: √2 × the 76px window (84 − 2×4 inset), +2%. */
+    width: 110px;
+    height: 110px;
     max-width: none;
     object-fit: cover;
     transform: rotate(-45deg);
@@ -189,10 +191,9 @@
     position: relative;
     width: 180px;
     height: 180px;
-    border-radius: 50%;
+    border-radius: 4px;
     overflow: hidden;
     background: rgba(15, 30, 55, 0.06);
-    box-shadow: 0 0 0 3px rgba(201, 151, 44, 0.5);
     cursor: grab;
     touch-action: none;
     user-select: none;
@@ -205,6 +206,22 @@
     max-width: none;
     transform-origin: center;
     pointer-events: none;
+}
+/* Diamond window over the crop preview: the dimmed corners are cut off by the
+   avatar diamonds, the gold outline is exactly what they show. */
+.epm-crop-mask {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+.epm-crop-mask-dim { fill: rgba(15, 30, 55, 0.55); }
+.epm-crop-mask-line {
+    fill: none;
+    stroke: rgb(201, 151, 44);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
 }
 .epm-crop-hint {
     margin: 0;
