@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
+import React, { useState, useRef, useEffect, useLayoutEffect, forwardRef, useImperativeHandle } from 'react'
 import { flushSync } from 'react-dom'
 import { MdDownload, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdFavorite, MdChatBubble } from 'react-icons/md'
 import './CardReader.css'
@@ -16,10 +16,86 @@ const ShareIcon = () => (
     </svg>
 );
 
-/* ── Text chunking ── */
-const CHARS = 220;
+/* ── Text chunking ──
+   Description pages are split by measuring the real rendered text height
+   (splitByHeight, run in the reader on the viewer's own device), so a page
+   can never run under the pagination dots, whatever the line breaks, word
+   lengths or font rendering. The card is a fixed 330×587 box that is only
+   scaled as a whole on small screens, so the measure holds on every phone.
+   splitByChars is only the first-render fallback until that measure runs. */
 
-function generateCards(property) {
+// Fallback sizes: a page with an image keeps the top half for text.
+const CHARS = 220;
+const CHARS_NO_IMG = 440;
+// Share of a page's text height left to text when the page has an image.
+const IMG_TEXT_SHARE = 0.5;
+// Gap kept between the last line and the pagination dots, in px.
+const TEXT_SAFETY_PX = 4;
+
+// Nicest place to end a page whose text is `head`: the last line break, else
+// the last sentence end — only if that keeps the page at least half full.
+// Returns -1 when neither is in reach.
+function preferredBreak(head) {
+    const min = head.length * 0.5;
+    const nl = head.lastIndexOf('\n');
+    if (nl >= min) return nl;
+    let sentence = -1;
+    for (const m of head.matchAll(/[.!?…]+[»"”)]*(?=\s)/g)) sentence = m.index + m[0].length;
+    return sentence >= min ? sentence : -1;
+}
+
+function splitByChars(text, hasImgAt) {
+    const pages = [];
+    let rem = text, idx = 1;
+    while (rem) {
+        const limit = hasImgAt(idx) ? CHARS : CHARS_NO_IMG;
+        let cut = rem.length;
+        if (rem.length > limit) {
+            const head = rem.substring(0, limit);
+            const space = head.lastIndexOf(' ');
+            cut = preferredBreak(head);
+            if (cut < 0) cut = space >= limit * 0.7 ? space : limit;
+        }
+        pages.push(rem.substring(0, cut).trim());
+        rem = rem.substring(cut).trim();
+        idx++;
+    }
+    return pages;
+}
+
+// `measure(text)` returns the height that text takes on a page; `budgetAt(idx)`
+// the height page idx has for it. Each page takes the most words that fit
+// (binary search over word ends), then backs up to a line break or sentence
+// end when one is in reach.
+function splitByHeight(text, budgetAt, measure) {
+    const pages = [];
+    let rem = text, idx = 1;
+    while (rem) {
+        const budget = budgetAt(idx);
+        if (measure(rem) <= budget) { pages.push(rem); break; }
+
+        const ends = [...rem.matchAll(/\S+/g)].map(m => m.index + m[0].length);
+        let lo = 0, hi = ends.length - 1, best = -1;
+        while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            if (measure(rem.substring(0, ends[mid])) <= budget) { best = mid; lo = mid + 1; }
+            else hi = mid - 1;
+        }
+        // Not even one word fits (absurdly long word): take it anyway so we advance.
+        let cut = ends[Math.max(best, 0)];
+        if (best >= 0) {
+            const nicer = preferredBreak(rem.substring(0, cut));
+            if (nicer > 0) cut = nicer;
+        }
+        pages.push(rem.substring(0, cut).trim());
+        rem = rem.substring(cut).trim();
+        idx++;
+    }
+    return pages;
+}
+
+// descPages: the measured description pages, or null to fall back to char counts.
+function generateCards(property, descPages) {
     const thisgetsyou = property?.thisgetsyou || '';
     const description = property?.description || '';
     const keepinmind  = property?.keepinmind  || '';
@@ -33,20 +109,10 @@ function generateCards(property) {
 
     const desc = description.trim();
     if (desc) {
-        let rem = desc, idx = 1;
-        while (rem.length > 0) {
-            const img = cardImages[idx]?.trim() || null;
-            let chunk;
-            if (rem.length <= CHARS) {
-                chunk = rem;
-            } else {
-                const cut = rem.substring(0, CHARS).lastIndexOf(' ');
-                chunk = cut > CHARS * 0.7 ? rem.substring(0, cut) : rem.substring(0, CHARS);
-            }
-            cards.push({ type: 'description', text: chunk.trim(), img });
-            rem = rem.substring(chunk.length).trim();
-            idx++;
-        }
+        const imgAt = (idx) => cardImages[idx]?.trim() || null;
+        const pages = descPages ?? splitByChars(desc, imgAt);
+        // Description page i uses cardImages[i + 1] (index 0 is This Gets You's).
+        pages.forEach((text, i) => cards.push({ type: 'description', text, img: imgAt(i + 1) }));
     }
 
     if (keepinmind) {
@@ -72,7 +138,36 @@ const CardReader = forwardRef(({
         ? (property.agent[0] ?? null)
         : (property?.agent && typeof property.agent === 'object' ? property.agent : null);
 
-    const cards = generateCards(property);
+    const scrollRef = useRef(null);
+    const paginationRef = useRef(null);
+    const measureRef = useRef(null);
+
+    // ── Measured description pages (see splitByHeight) ──
+    const description = (property?.description || '').trim();
+    const cardImages = Array.isArray(property?.cardImages) ? property.cardImages : [];
+    const imagesKey = cardImages.join('\n');
+    const [descPages, setDescPages] = useState(null);
+    useLayoutEffect(() => {
+        const run = () => {
+            const p = measureRef.current, scroll = scrollRef.current, pag = paginationRef.current;
+            if (!description || !p || !scroll || !pag) { setDescPages(null); return; }
+            // offsetTop/offsetHeight ignore the scale() applied on small screens, so
+            // this is the card's own layout height, the same on every device.
+            const pageTop = scroll.offsetTop + (parseFloat(getComputedStyle(scroll.firstElementChild ?? scroll).paddingTop) || 0);
+            const full = pag.offsetTop - pageTop - TEXT_SAFETY_PX;
+            const measure = (text) => { p.textContent = text; return p.offsetHeight; };
+            const hasImg = (idx) => !!cardImages[idx]?.trim();
+            setDescPages(splitByHeight(description, idx => hasImg(idx) ? full * IMG_TEXT_SHARE : full, measure));
+        };
+        run();
+        // Web fonts can land after the first measure and change line widths.
+        let alive = true;
+        document.fonts?.ready.then(() => { if (alive) run(); });
+        return () => { alive = false; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [description, imagesKey]);
+
+    const cards = generateCards(property, descPages);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [commentsOpen, setCommentsOpen] = useState(false);
     // Non-null while exporting: only this page is mounted in cr-scroll (see render below).
@@ -80,7 +175,6 @@ const CardReader = forwardRef(({
     // descendants, so scrolling cr-scroll before capturing doesn't work — every capture
     // came out as page 1. Rendering exactly one page at a time sidesteps that entirely.
     const [captureIndex, setCaptureIndex] = useState(null);
-    const scrollRef = useRef(null);
     // cr-outer (330×587), not cr-inner — matches the size of the CardHome cover
     // page (pm-card-outer) captured by CardHome, so every PDF page is the same size.
     const outerRef = useRef(null);
@@ -292,8 +386,14 @@ const CardReader = forwardRef(({
                             ))}
                         </div>
 
+                        {/* Hidden copy of a description page's text, same width and
+                            style, used only to measure text height (splitByHeight). */}
+                        <div className="cr-measure" aria-hidden="true">
+                            <p ref={measureRef} className="cr-body cr-body--description" />
+                        </div>
+
                         {/* ── PAGINATION ── */}
-                        <div className="cr-pagination">
+                        <div className="cr-pagination" ref={paginationRef}>
                             <div className="cr-dots">
                                 {cards.map((_, i) => (
                                     <div key={i} className={`cr-dot${i === displayIndex ? ' cr-dot--on' : ''}`} />

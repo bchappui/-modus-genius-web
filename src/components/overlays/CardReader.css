@@ -275,6 +275,20 @@
     gap: 0;
 }
 
+/* Invisible twin of a page's text column (same width as .cr-page minus its
+   14px side padding) — CardReader.jsx measures text heights in it. */
+.cr-measure {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--cr-iw);
+    padding: 0 14px;
+    box-sizing: border-box;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: -1;
+}
+
 .cr-page-text {
     display: flex;
     flex-direction: column;
@@ -313,6 +327,8 @@
     line-height: 20px;
     letter-spacing: -0.5px;
     text-align: justify;
+    /* Keep the line breaks typed in the database text (HTML collapses them to spaces). */
+    white-space: pre-line;
     background: linear-gradient(90deg,
         rgb(13, 85, 167)   0%,
         rgb(65, 120, 188)  30%,
