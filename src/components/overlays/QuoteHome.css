@@ -39,7 +39,9 @@
     position: absolute;
     inset: 0;
     border-radius: 10px;
-    background: linear-gradient(135deg, black 0%, transparent 50%, black 100%);
+    /* Middle stop is a light tint rather than fully transparent: the quote
+       text sits right there, and gold on a bright photo was hard to read. */
+    background: linear-gradient(135deg, black 0%, rgba(0,0,0,0.2) 50%, black 100%);
 }
 
 .qc-level-img {
@@ -157,6 +159,10 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    /* Gold gradient text has no fill of its own, so text-shadow would show
+       through it — drop-shadow outlines the glyphs instead, lifting them off
+       the photo behind. */
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.9));
 }
 
 .qc-author-row {
@@ -176,6 +182,10 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     white-space: nowrap;
+    /* Gold gradient text has no fill of its own, so text-shadow would show
+       through it — drop-shadow outlines the glyphs instead, lifting them off
+       the photo behind. */
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.9));
 }
 
 /* ══ COMMENT ACTION (bottom center) ══ */
