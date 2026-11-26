@@ -94,29 +94,33 @@ function splitByHeight(text, budgetAt, measure) {
     return pages;
 }
 
-// descPages: the measured description pages, or null to fall back to char counts.
-function generateCards(property, descPages) {
-    const thisgetsyou = property?.thisgetsyou || '';
-    const description = property?.description || '';
-    const keepinmind  = property?.keepinmind  || '';
-    const cardImages  = Array.isArray(property?.cardImages) ? property.cardImages : [];
+const SECTIONS = ['thisgetsyou', 'description', 'keepinmind'];
+const SECTION_LABELS = { thisgetsyou: 'This Gets You', keepinmind: 'Keep In Mind' };
 
+// Image of page `page` (1-based) of a section: This Gets You's first page uses
+// cardImages[0], description page i uses cardImages[i]; Keep In Mind has none.
+function sectionImage(type, page, cardImages) {
+    const at = (i) => cardImages[i]?.trim() || null;
+    if (type === 'thisgetsyou') return page === 1 ? at(0) : null;
+    if (type === 'description') return at(page);
+    return null;
+}
+
+// measured: { [section]: string[] } pages from splitByHeight, or null before
+// the first measure — then the description falls back to char counts and the
+// other sections stay on one page each.
+function generateCards(property, measured) {
+    const cardImages = Array.isArray(property?.cardImages) ? property.cardImages : [];
     const cards = [];
 
-    if (thisgetsyou) {
-        cards.push({ type: 'thisgetsyou', text: thisgetsyou, img: cardImages[0]?.trim() || null });
-    }
-
-    const desc = description.trim();
-    if (desc) {
-        const imgAt = (idx) => cardImages[idx]?.trim() || null;
-        const pages = descPages ?? splitByChars(desc, imgAt);
-        // Description page i uses cardImages[i + 1] (index 0 is This Gets You's).
-        pages.forEach((text, i) => cards.push({ type: 'description', text, img: imgAt(i + 1) }));
-    }
-
-    if (keepinmind) {
-        cards.push({ type: 'keepinmind', text: keepinmind, img: null });
+    for (const type of SECTIONS) {
+        const text = (property?.[type] || '').trim();
+        if (!text) continue;
+        const pages = measured?.[type]
+            ?? (type === 'description'
+                ? splitByChars(text, (i) => !!sectionImage(type, i, cardImages))
+                : [text]);
+        pages.forEach((t, i) => cards.push({ type, text: t, img: sectionImage(type, i + 1, cardImages) }));
     }
 
     if (cards.length === 0) {
@@ -140,24 +144,38 @@ const CardReader = forwardRef(({
 
     const scrollRef = useRef(null);
     const paginationRef = useRef(null);
-    const measureRef = useRef(null);
+    const measureColRef = useRef(null);
+    const measureLabelRef = useRef(null);
+    const measureBodyRef = useRef(null);
 
-    // ── Measured description pages (see splitByHeight) ──
-    const description = (property?.description || '').trim();
+    // ── Measured pages for every text section (see splitByHeight) ──
     const cardImages = Array.isArray(property?.cardImages) ? property.cardImages : [];
-    const imagesKey = cardImages.join('\n');
-    const [descPages, setDescPages] = useState(null);
+    const sectionTexts = SECTIONS.map(type => (property?.[type] || '').trim());
+    const contentKey = sectionTexts.join('\u0000') + '\u0001' + cardImages.join('\n');
+    const [measured, setMeasured] = useState(null);
     useLayoutEffect(() => {
         const run = () => {
-            const p = measureRef.current, scroll = scrollRef.current, pag = paginationRef.current;
-            if (!description || !p || !scroll || !pag) { setDescPages(null); return; }
+            const col = measureColRef.current, label = measureLabelRef.current, body = measureBodyRef.current;
+            const scroll = scrollRef.current, pag = paginationRef.current;
+            if (!col || !label || !body || !scroll || !pag) { setMeasured(null); return; }
             // offsetTop/offsetHeight ignore the scale() applied on small screens, so
             // this is the card's own layout height, the same on every device.
             const pageTop = scroll.offsetTop + (parseFloat(getComputedStyle(scroll.firstElementChild ?? scroll).paddingTop) || 0);
             const full = pag.offsetTop - pageTop - TEXT_SAFETY_PX;
-            const measure = (text) => { p.textContent = text; return p.offsetHeight; };
-            const hasImg = (idx) => !!cardImages[idx]?.trim();
-            setDescPages(splitByHeight(description, idx => hasImg(idx) ? full * IMG_TEXT_SHARE : full, measure));
+
+            const result = {};
+            SECTIONS.forEach((type, s) => {
+                const text = sectionTexts[s];
+                if (!text) return;
+                // Same markup as a real page: section label (if any) above the body.
+                label.textContent = SECTION_LABELS[type] ?? '';
+                label.style.display = SECTION_LABELS[type] ? '' : 'none';
+                body.className = `cr-body cr-body--${type}`;
+                const measure = (t) => { body.textContent = t; return col.offsetHeight; };
+                const budgetAt = (page) => sectionImage(type, page, cardImages) ? full * IMG_TEXT_SHARE : full;
+                result[type] = splitByHeight(text, budgetAt, measure);
+            });
+            setMeasured(result);
         };
         run();
         // Web fonts can land after the first measure and change line widths.
@@ -165,9 +183,9 @@ const CardReader = forwardRef(({
         document.fonts?.ready.then(() => { if (alive) run(); });
         return () => { alive = false; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [description, imagesKey]);
+    }, [contentKey]);
 
-    const cards = generateCards(property, descPages);
+    const cards = generateCards(property, measured);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [commentsOpen, setCommentsOpen] = useState(false);
     // Non-null while exporting: only this page is mounted in cr-scroll (see render below).
@@ -386,10 +404,13 @@ const CardReader = forwardRef(({
                             ))}
                         </div>
 
-                        {/* Hidden copy of a description page's text, same width and
-                            style, used only to measure text height (splitByHeight). */}
+                        {/* Hidden copy of a page's text column (label + body), same
+                            width and style, used only to measure text height (splitByHeight). */}
                         <div className="cr-measure" aria-hidden="true">
-                            <p ref={measureRef} className="cr-body cr-body--description" />
+                            <div ref={measureColRef} className="cr-page-text">
+                                <span ref={measureLabelRef} className="cr-section-label" />
+                                <p ref={measureBodyRef} className="cr-body" />
+                            </div>
                         </div>
 
                         {/* ── PAGINATION ── */}
